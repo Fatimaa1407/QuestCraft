@@ -1,0 +1,149 @@
+using FluentValidation;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
+using QuestCraft.Application.Common.Exceptions;
+using QuestCraft.Application.Common.Interfaces;
+using QuestCraft.Application.Features.Gamification;
+using QuestCraft.Domain.Entities;
+using QuestCraft.Domain.Enums;
+
+namespace QuestCraft.Application.Features.Quizzes;
+
+public record SubmitQuizAttemptCommand(int QuizId, List<QuizAnswerInput> Answers) : ICommand<QuizAttemptResultDto>;
+
+public class SubmitQuizAttemptCommandValidator : AbstractValidator<SubmitQuizAttemptCommand>
+{
+    public SubmitQuizAttemptCommandValidator()
+    {
+        RuleFor(x => x.QuizId).GreaterThan(0);
+        RuleFor(x => x.Answers).NotEmpty().WithMessage("Ən azı bir cavab göndərilməlidir.");
+    }
+}
+
+public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttemptCommand, QuizAttemptResultDto>
+{
+    private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IDailyQuestService _dailyQuestService;
+    private readonly IAchievementEvaluator _achievementEvaluator;
+
+    public SubmitQuizAttemptCommandHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUser,
+        IDailyQuestService dailyQuestService,
+        IAchievementEvaluator achievementEvaluator)
+    {
+        _context = context;
+        _currentUser = currentUser;
+        _dailyQuestService = dailyQuestService;
+        _achievementEvaluator = achievementEvaluator;
+    }
+
+    public async Task<QuizAttemptResultDto> Handle(SubmitQuizAttemptCommand request, CancellationToken cancellationToken)
+    {
+        var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
+
+        var quiz = await _context.Quizzes
+            .Include(q => q.Questions).ThenInclude(qu => qu.Options)
+            .FirstOrDefaultAsync(q => q.Id == request.QuizId, cancellationToken)
+            ?? throw new NotFoundException(nameof(Quiz), request.QuizId);
+
+        if (!quiz.IsPublished && _currentUser.Role != "Admin")
+        {
+            throw new NotFoundException(nameof(Quiz), request.QuizId);
+        }
+
+        var answersByQuestion = request.Answers.ToDictionary(a => a.QuestionId, a => a.SelectedOptionId);
+
+        var attempt = new QuizAttempt
+        {
+            UserId = userId,
+            QuizId = quiz.Id,
+            TotalQuestions = quiz.Questions.Count,
+            CompletedAt = DateTime.UtcNow,
+        };
+
+        var questionResults = new List<QuestionResultDto>();
+        var score = 0;
+
+        foreach (var question in quiz.Questions)
+        {
+            var correctOption = question.Options.FirstOrDefault(o => o.IsCorrect);
+            answersByQuestion.TryGetValue(question.Id, out var selectedOptionId);
+            var isCorrect = correctOption is not null && selectedOptionId == correctOption.Id;
+
+            if (isCorrect)
+            {
+                score++;
+            }
+
+            attempt.Answers.Add(new QuizAttemptAnswer
+            {
+                QuestionId = question.Id,
+                SelectedOptionId = selectedOptionId,
+                IsCorrect = isCorrect,
+            });
+
+            questionResults.Add(new QuestionResultDto(
+                question.Id, question.Text, isCorrect, selectedOptionId, correctOption?.Id ?? 0, question.Explanation));
+        }
+
+        var isFirstAttempt = !await _context.QuizAttempts.AnyAsync(a => a.UserId == userId && a.QuizId == quiz.Id, cancellationToken);
+        var xpEarned = isFirstAttempt && quiz.Questions.Count > 0
+            ? (int)Math.Round(quiz.XpReward * (double)score / quiz.Questions.Count)
+            : 0;
+
+        attempt.Score = score;
+        attempt.XpEarned = xpEarned;
+        _context.QuizAttempts.Add(attempt);
+
+        var stats = await _context.UserStatistics.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
+        if (stats is not null && isFirstAttempt)
+        {
+            stats.TotalQuizzesCompleted++;
+        }
+
+        if (xpEarned > 0)
+        {
+            var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+            if (profile is not null)
+            {
+                profile.Xp += xpEarned;
+                profile.Level = GamificationCalculator.CalculateLevel(profile.Xp);
+            }
+
+            _context.XpTransactions.Add(new XpTransaction { UserId = userId, Amount = xpEarned, Source = "Quiz" });
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var streak = await _context.Streaks.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
+        if (streak is not null)
+        {
+            StreakCalculator.RecordActivity(streak, today);
+        }
+
+        var activityLog = await _context.ActivityLogs.FirstOrDefaultAsync(a => a.UserId == userId && a.ActivityDate == today, cancellationToken);
+        if (activityLog is null)
+        {
+            _context.ActivityLogs.Add(new ActivityLog { UserId = userId, ActivityDate = today, ActionCount = 1 });
+        }
+        else
+        {
+            activityLog.ActionCount++;
+        }
+
+        await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.CompleteQuiz, 1, cancellationToken);
+        if (xpEarned > 0)
+        {
+            await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.EarnXp, xpEarned, cancellationToken);
+        }
+
+        var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new QuizAttemptResultDto(
+            attempt.Id, score, quiz.Questions.Count, xpEarned, questionResults, newAchievements.Select(a => a.Name).ToList());
+    }
+}
