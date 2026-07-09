@@ -46,6 +46,10 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
                 .ToListAsync(cancellationToken);
         }
 
+        var hasHint = !string.IsNullOrWhiteSpace(challenge.Hint);
+        var isHintUnlocked = isAdmin || (hasHint && _currentUser.UserId is not null &&
+            await _context.ChallengeHints.AnyAsync(h => h.UserId == _currentUser.UserId && h.ChallengeId == request.Id, cancellationToken));
+
         return new ChallengeDetailDto(
             challenge.Id,
             challenge.Title,
@@ -64,7 +68,9 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
             challenge.OutputFormat,
             challenge.SampleInput,
             challenge.SampleOutput,
-            challenge.Hint,
+            isHintUnlocked ? challenge.Hint : null,
+            hasHint,
+            isHintUnlocked,
             challenge.IsPublished,
             challenge.TestCases.OrderBy(t => t.OrderIndex)
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))

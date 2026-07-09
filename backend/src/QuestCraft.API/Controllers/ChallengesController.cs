@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestCraft.Application.Common.Models;
 using QuestCraft.Application.Features.Admin.Challenges;
+using QuestCraft.Application.Features.Hints;
 
 namespace QuestCraft.API.Controllers;
 
@@ -110,6 +111,14 @@ public class ChallengesController : ControllerBase
     {
         await _mediator.Send(new DeleteTestCaseCommand(id, isHidden), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null, "Test case silindi."));
+    }
+
+    [HttpPost("{id:int}/hint/unlock")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<string>>> UnlockHint(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UnlockHintCommand(id), cancellationToken);
+        return Ok(ApiResponse<string>.Ok(result, "Hint açıldı."));
     }
 }
 

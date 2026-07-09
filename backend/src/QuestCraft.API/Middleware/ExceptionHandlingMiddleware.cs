@@ -34,6 +34,7 @@ public class ExceptionHandlingMiddleware
         var (statusCode, response) = exception switch
         {
             ValidationException ex => (HttpStatusCode.BadRequest, ApiResponse<object>.Fail("Validasiya xətası.", ex.Errors)),
+            BadRequestException ex => (HttpStatusCode.BadRequest, ApiResponse<object>.Fail(ex.Message)),
             NotFoundException ex => (HttpStatusCode.NotFound, ApiResponse<object>.Fail(ex.Message)),
             ConflictException ex => (HttpStatusCode.Conflict, ApiResponse<object>.Fail(ex.Message)),
             UnauthorizedException ex => (HttpStatusCode.Unauthorized, ApiResponse<object>.Fail(ex.Message)),

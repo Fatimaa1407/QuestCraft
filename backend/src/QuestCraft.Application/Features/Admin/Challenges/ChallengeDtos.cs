@@ -32,6 +32,8 @@ public record ChallengeDetailDto(
     string? SampleInput,
     string? SampleOutput,
     string? Hint,
+    bool HasHint,
+    bool IsHintUnlocked,
     bool IsPublished,
     List<TestCaseDto> TestCases,
     List<HiddenTestCaseDto>? HiddenTestCases);

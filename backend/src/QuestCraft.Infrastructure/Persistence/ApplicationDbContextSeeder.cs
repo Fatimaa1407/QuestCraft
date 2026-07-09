@@ -17,6 +17,7 @@ public static class ApplicationDbContextSeeder
         await SeedChallengeDifficultiesAsync(context);
         await SeedChallengeCategoriesAsync(context);
         await SeedMarketplaceItemTypesAsync(context);
+        await SeedMarketplaceItemsAsync(context);
         await SeedDailyQuestTemplatesAsync(context);
         await SeedAchievementsAsync(context);
         await SeedSystemSettingsAsync(context);
@@ -98,6 +99,29 @@ public static class ApplicationDbContextSeeder
 
         string[] types = ["Hint", "Avatar", "ProfileFrame", "Theme", "Badge", "Title"];
         context.MarketplaceItemTypes.AddRange(types.Select(name => new MarketplaceItemType { Name = name }));
+
+        // Committed immediately so SeedMarketplaceItemsAsync can look these up by real Id right after.
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedMarketplaceItemsAsync(ApplicationDbContext context)
+    {
+        if (await context.MarketplaceItems.AnyAsync())
+        {
+            return;
+        }
+
+        var frameTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "ProfileFrame").Select(t => t.Id).FirstAsync();
+        var titleTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Title").Select(t => t.Id).FirstAsync();
+        var themeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Theme").Select(t => t.Id).FirstAsync();
+        var badgeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Badge").Select(t => t.Id).FirstAsync();
+
+        context.MarketplaceItems.AddRange(
+            new MarketplaceItem { Name = "Qızıl Çərçivə", ItemTypeId = frameTypeId, Price = 100 },
+            new MarketplaceItem { Name = "Kod Ustası", ItemTypeId = titleTypeId, Price = 150 },
+            new MarketplaceItem { Name = "Tünd Tema", ItemTypeId = themeTypeId, Price = 80 },
+            new MarketplaceItem { Name = "İlk Addım Nişanı", ItemTypeId = badgeTypeId, Price = 30 }
+        );
     }
 
     private static async Task SeedDailyQuestTemplatesAsync(ApplicationDbContext context)

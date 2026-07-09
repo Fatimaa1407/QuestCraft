@@ -89,7 +89,8 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
             challenge.CategoryId, category.Name, challenge.DifficultyId, difficulty.Name,
             challenge.TimeLimitMs, challenge.MemoryLimitMb, challenge.XpReward, challenge.CoinReward,
             challenge.StarterCode, challenge.Constraints, challenge.InputFormat, challenge.OutputFormat,
-            challenge.SampleInput, challenge.SampleOutput, challenge.Hint, challenge.IsPublished,
+            challenge.SampleInput, challenge.SampleOutput, challenge.Hint,
+            !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished,
             challenge.TestCases.OrderBy(t => t.OrderIndex)
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))
                 .ToList(),
