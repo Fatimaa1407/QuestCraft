@@ -1,0 +1,37 @@
+namespace QuestCraft.Application.Features.Admin.Challenges;
+
+public record ChallengeListItemDto(
+    int Id,
+    string Title,
+    string Category,
+    string Difficulty,
+    int XpReward,
+    int CoinReward,
+    bool IsPublished);
+
+public record TestCaseDto(int Id, string Input, string ExpectedOutput, int OrderIndex);
+
+public record HiddenTestCaseDto(int Id, string Input, string ExpectedOutput, int OrderIndex, int Weight);
+
+public record ChallengeDetailDto(
+    int Id,
+    string Title,
+    string Description,
+    int CategoryId,
+    string Category,
+    int DifficultyId,
+    string Difficulty,
+    int TimeLimitMs,
+    int MemoryLimitMb,
+    int XpReward,
+    int CoinReward,
+    string StarterCode,
+    string? Constraints,
+    string? InputFormat,
+    string? OutputFormat,
+    string? SampleInput,
+    string? SampleOutput,
+    string? Hint,
+    bool IsPublished,
+    List<TestCaseDto> TestCases,
+    List<HiddenTestCaseDto>? HiddenTestCases);
