@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/QuestCraft.API/QuestCraft.API.csproj" />
+    <Project Path="src/QuestCraft.Application/QuestCraft.Application.csproj" />
+    <Project Path="src/QuestCraft.Domain/QuestCraft.Domain.csproj" />
+    <Project Path="src/QuestCraft.Infrastructure/QuestCraft.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/QuestCraft.IntegrationTests/QuestCraft.IntegrationTests.csproj" />
+    <Project Path="tests/QuestCraft.UnitTests/QuestCraft.UnitTests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,6 @@
+@QuestCraft.API_HostAddress = http://localhost:5130
+
+GET {{QuestCraft.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
