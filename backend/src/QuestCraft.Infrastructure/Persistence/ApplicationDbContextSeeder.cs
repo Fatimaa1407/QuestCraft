@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Entities;
 using QuestCraft.Domain.Enums;
 
@@ -9,10 +10,10 @@ public static class ApplicationDbContextSeeder
     public const string DefaultAdminEmail = "admin@questcraft.local";
     public const string DefaultAdminPassword = "Admin@12345";
 
-    public static async Task SeedAsync(ApplicationDbContext context)
+    public static async Task SeedAsync(ApplicationDbContext context, IPasswordHasher passwordHasher)
     {
         var adminRole = await SeedRolesAsync(context);
-        await SeedAdminUserAsync(context, adminRole);
+        await SeedAdminUserAsync(context, adminRole, passwordHasher);
         await SeedChallengeDifficultiesAsync(context);
         await SeedChallengeCategoriesAsync(context);
         await SeedMarketplaceItemTypesAsync(context);
@@ -40,7 +41,7 @@ public static class ApplicationDbContextSeeder
         return adminRole;
     }
 
-    private static async Task SeedAdminUserAsync(ApplicationDbContext context, Role adminRole)
+    private static async Task SeedAdminUserAsync(ApplicationDbContext context, Role adminRole, IPasswordHasher passwordHasher)
     {
         if (await context.Users.AnyAsync(u => u.Email == DefaultAdminEmail))
         {
@@ -51,7 +52,7 @@ public static class ApplicationDbContextSeeder
         {
             Username = "admin",
             Email = DefaultAdminEmail,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(DefaultAdminPassword, workFactor: 12),
+            PasswordHash = passwordHasher.Hash(DefaultAdminPassword),
             RoleId = adminRole.Id,
             IsActive = true,
             Profile = new UserProfile(),

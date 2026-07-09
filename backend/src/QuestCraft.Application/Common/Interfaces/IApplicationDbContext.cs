@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using QuestCraft.Domain.Entities;
 
 namespace QuestCraft.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
+    DatabaseFacade Database { get; }
+
     DbSet<Role> Roles { get; }
     DbSet<User> Users { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
