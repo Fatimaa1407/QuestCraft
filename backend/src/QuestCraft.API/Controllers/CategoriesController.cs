@@ -47,6 +47,22 @@ public class CategoriesController : ControllerBase
         await _mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null, "Kateqoriya silindi."));
     }
+
+    [HttpGet("deleted")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetDeleted(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDeletedCategoriesQuery(), cancellationToken);
+        return Ok(ApiResponse<List<CategoryDto>>.Ok(result));
+    }
+
+    [HttpPost("{id:int}/restore")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<CategoryDto>>> Restore(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RestoreCategoryCommand(id), cancellationToken);
+        return Ok(ApiResponse<CategoryDto>.Ok(result, "Kateqoriya bərpa edildi."));
+    }
 }
 
 public record UpdateCategoryRequest(string Name, string? Description, string? IconUrl);

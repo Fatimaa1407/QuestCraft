@@ -70,6 +70,22 @@ public class ChallengesController : ControllerBase
         return Ok(ApiResponse<object?>.Ok(null, "Challenge silindi."));
     }
 
+    [HttpGet("deleted")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<List<ChallengeListItemDto>>>> GetDeleted(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDeletedChallengesQuery(), cancellationToken);
+        return Ok(ApiResponse<List<ChallengeListItemDto>>.Ok(result));
+    }
+
+    [HttpPost("{id:int}/restore")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Restore(int id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new RestoreChallengeCommand(id), cancellationToken);
+        return Ok(ApiResponse<object?>.Ok(null, "Challenge bərpa edildi."));
+    }
+
     [HttpPost("{id:int}/test-cases")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<int>>> AddTestCase(int id, AddTestCaseRequest request, CancellationToken cancellationToken)

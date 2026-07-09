@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QuestCraft.Application.Common.Interfaces;
+using QuestCraft.Infrastructure.CodeExecution;
 using QuestCraft.Infrastructure.Identity;
 using QuestCraft.Infrastructure.Persistence;
 
@@ -19,6 +20,7 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddSingleton<ICodeExecutionEngine, SubprocessCodeExecutionEngine>();
 
         return services;
     }

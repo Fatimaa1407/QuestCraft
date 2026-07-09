@@ -47,6 +47,22 @@ public class DifficultiesController : ControllerBase
         await _mediator.Send(new DeleteDifficultyCommand(id), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null, "Çətinlik dərəcəsi silindi."));
     }
+
+    [HttpGet("deleted")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<List<DifficultyDto>>>> GetDeleted(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDeletedDifficultiesQuery(), cancellationToken);
+        return Ok(ApiResponse<List<DifficultyDto>>.Ok(result));
+    }
+
+    [HttpPost("{id:int}/restore")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<DifficultyDto>>> Restore(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RestoreDifficultyCommand(id), cancellationToken);
+        return Ok(ApiResponse<DifficultyDto>.Ok(result, "Çətinlik dərəcəsi bərpa edildi."));
+    }
 }
 
 public record UpdateDifficultyRequest(string Name, string? Color, double XpMultiplier);
