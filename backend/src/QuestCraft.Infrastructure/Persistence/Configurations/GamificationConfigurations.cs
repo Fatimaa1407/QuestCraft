@@ -111,3 +111,17 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+
+public class XpTransactionConfiguration : IEntityTypeConfiguration<XpTransaction>
+{
+    public void Configure(EntityTypeBuilder<XpTransaction> builder)
+    {
+        builder.Property(x => x.Source).HasMaxLength(30).IsRequired();
+        builder.HasIndex(x => new { x.UserId, x.EarnedAt });
+
+        builder.HasOne(x => x.User)
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

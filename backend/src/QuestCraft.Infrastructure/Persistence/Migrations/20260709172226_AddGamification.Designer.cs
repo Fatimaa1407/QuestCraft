@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestCraft.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using QuestCraft.Infrastructure.Persistence;
 namespace QuestCraft.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260709172226_AddGamification")]
+    partial class AddGamification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1441,44 +1444,6 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.ToTable("UserStatistics");
                 });
 
-            modelBuilder.Entity("QuestCraft.Domain.Entities.XpTransaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("EarnedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "EarnedAt");
-
-                    b.ToTable("XpTransactions");
-                });
-
             modelBuilder.Entity("QuestCraft.Domain.Entities.ActivityLog", b =>
                 {
                     b.HasOne("QuestCraft.Domain.Entities.User", "User")
@@ -1838,17 +1803,6 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasOne("QuestCraft.Domain.Entities.User", "User")
                         .WithOne("Statistics")
                         .HasForeignKey("QuestCraft.Domain.Entities.UserStatistics", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("QuestCraft.Domain.Entities.XpTransaction", b =>
-                {
-                    b.HasOne("QuestCraft.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

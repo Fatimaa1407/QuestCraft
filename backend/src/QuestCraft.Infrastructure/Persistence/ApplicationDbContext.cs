@@ -39,6 +39,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
     public DbSet<LeaderboardSnapshot> LeaderboardSnapshots => Set<LeaderboardSnapshot>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<XpTransaction> XpTransactions => Set<XpTransaction>();
 
     public DbSet<MarketplaceItemType> MarketplaceItemTypes => Set<MarketplaceItemType>();
     public DbSet<MarketplaceItem> MarketplaceItems => Set<MarketplaceItem>();

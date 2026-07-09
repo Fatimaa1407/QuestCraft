@@ -48,9 +48,10 @@ public class GetSubmissionByIdQueryHandler : IRequestHandler<GetSubmissionByIdQu
             testCaseResults.Count,
             submission.ExecutionTimeMs,
             submission.MemoryUsedKb,
-            0,
-            0,
+            submission.XpEarned,
+            submission.CoinEarned,
             null,
-            testCaseResults);
+            testCaseResults,
+            []);
     }
 }

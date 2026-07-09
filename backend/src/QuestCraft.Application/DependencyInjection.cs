@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using QuestCraft.Application.Common.Behaviors;
+using QuestCraft.Application.Features.Gamification;
 
 namespace QuestCraft.Application;
 
@@ -16,6 +17,9 @@ public static class DependencyInjection
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+
+        services.AddScoped<IAchievementEvaluator, AchievementEvaluator>();
+        services.AddScoped<IDailyQuestService, DailyQuestService>();
 
         return services;
     }

@@ -9,6 +9,8 @@ public class ChallengeSubmission : BaseEntity
     public SubmissionVerdict Verdict { get; set; } = SubmissionVerdict.Pending;
     public int ExecutionTimeMs { get; set; }
     public int MemoryUsedKb { get; set; }
+    public int XpEarned { get; set; }
+    public int CoinEarned { get; set; }
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
     public int UserId { get; set; }

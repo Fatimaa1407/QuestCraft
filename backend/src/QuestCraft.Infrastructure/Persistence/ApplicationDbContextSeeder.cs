@@ -18,6 +18,7 @@ public static class ApplicationDbContextSeeder
         await SeedChallengeCategoriesAsync(context);
         await SeedMarketplaceItemTypesAsync(context);
         await SeedDailyQuestTemplatesAsync(context);
+        await SeedAchievementsAsync(context);
         await SeedSystemSettingsAsync(context);
 
         await context.SaveChangesAsync();
@@ -130,6 +131,80 @@ public static class ApplicationDbContextSeeder
                 TargetValue = 100,
                 XpReward = 40,
                 CoinReward = 15,
+            }
+        );
+    }
+
+    private static async Task SeedAchievementsAsync(ApplicationDbContext context)
+    {
+        if (await context.Achievements.AnyAsync())
+        {
+            return;
+        }
+
+        context.Achievements.AddRange(
+            new Achievement
+            {
+                Name = "First Challenge",
+                Description = "İlk challenge-ə cəhd etdin.",
+                ConditionType = AchievementConditionType.SubmissionCount,
+                ConditionValue = 1,
+                XpReward = 10,
+                CoinReward = 5,
+            },
+            new Achievement
+            {
+                Name = "First Accepted Solution",
+                Description = "İlk challenge-ini uğurla həll etdin.",
+                ConditionType = AchievementConditionType.AcceptedCount,
+                ConditionValue = 1,
+                XpReward = 20,
+                CoinReward = 10,
+            },
+            new Achievement
+            {
+                Name = "10 Challenges Completed",
+                Description = "10 challenge həll etdin.",
+                ConditionType = AchievementConditionType.AcceptedCount,
+                ConditionValue = 10,
+                XpReward = 100,
+                CoinReward = 50,
+            },
+            new Achievement
+            {
+                Name = "100 XP",
+                Description = "Cəmi 100 XP topladın.",
+                ConditionType = AchievementConditionType.XpTotal,
+                ConditionValue = 100,
+                XpReward = 20,
+                CoinReward = 10,
+            },
+            new Achievement
+            {
+                Name = "1000 XP",
+                Description = "Cəmi 1000 XP topladın.",
+                ConditionType = AchievementConditionType.XpTotal,
+                ConditionValue = 1000,
+                XpReward = 100,
+                CoinReward = 50,
+            },
+            new Achievement
+            {
+                Name = "7 Day Streak",
+                Description = "7 gün ardıcıl aktiv oldun.",
+                ConditionType = AchievementConditionType.StreakDays,
+                ConditionValue = 7,
+                XpReward = 70,
+                CoinReward = 30,
+            },
+            new Achievement
+            {
+                Name = "30 Day Streak",
+                Description = "30 gün ardıcıl aktiv oldun.",
+                ConditionType = AchievementConditionType.StreakDays,
+                ConditionValue = 30,
+                XpReward = 300,
+                CoinReward = 150,
             }
         );
     }

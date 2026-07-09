@@ -17,6 +17,7 @@ public record SubmissionResultDto(
     int XpEarned,
     int CoinEarned,
     string? CompileErrorMessage,
-    List<SubmissionTestResultDto> Results);
+    List<SubmissionTestResultDto> Results,
+    List<string> NewAchievements);
 
 public record SubmissionListItemDto(int Id, int ChallengeId, string ChallengeTitle, string Verdict, DateTime SubmittedAt, int ExecutionTimeMs);

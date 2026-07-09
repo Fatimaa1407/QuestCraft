@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
+using QuestCraft.Application.Features.Gamification;
 using QuestCraft.Domain.Entities;
 using QuestCraft.Domain.Enums;
 
@@ -26,12 +27,21 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
     private readonly IApplicationDbContext _context;
     private readonly ICodeExecutionEngine _codeExecutionEngine;
     private readonly ICurrentUserService _currentUser;
+    private readonly IDailyQuestService _dailyQuestService;
+    private readonly IAchievementEvaluator _achievementEvaluator;
 
-    public SubmitChallengeCommandHandler(IApplicationDbContext context, ICodeExecutionEngine codeExecutionEngine, ICurrentUserService currentUser)
+    public SubmitChallengeCommandHandler(
+        IApplicationDbContext context,
+        ICodeExecutionEngine codeExecutionEngine,
+        ICurrentUserService currentUser,
+        IDailyQuestService dailyQuestService,
+        IAchievementEvaluator achievementEvaluator)
     {
         _context = context;
         _codeExecutionEngine = codeExecutionEngine;
         _currentUser = currentUser;
+        _dailyQuestService = dailyQuestService;
+        _achievementEvaluator = achievementEvaluator;
     }
 
     public async Task<SubmissionResultDto> Handle(SubmitChallengeCommand request, CancellationToken cancellationToken)
@@ -118,7 +128,42 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
                 stats.TotalChallengesSolved++;
                 stats.TotalCoinsEarned += coinEarned;
             }
+
+            _context.XpTransactions.Add(new XpTransaction { UserId = userId, Amount = xpEarned, Source = "Challenge" });
         }
+
+        submission.XpEarned = xpEarned;
+        submission.CoinEarned = coinEarned;
+
+        if (execution.Verdict == SubmissionVerdict.Accepted)
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var streak = await _context.Streaks.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
+            if (streak is not null)
+            {
+                StreakCalculator.RecordActivity(streak, today);
+            }
+
+            var activityLog = await _context.ActivityLogs
+                .FirstOrDefaultAsync(a => a.UserId == userId && a.ActivityDate == today, cancellationToken);
+            if (activityLog is null)
+            {
+                _context.ActivityLogs.Add(new ActivityLog { UserId = userId, ActivityDate = today, ActionCount = 1 });
+            }
+            else
+            {
+                activityLog.ActionCount++;
+            }
+
+            await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.SolveChallenge, 1, cancellationToken);
+        }
+
+        if (xpEarned > 0)
+        {
+            await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.EarnXp, xpEarned, cancellationToken);
+        }
+
+        var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -137,7 +182,8 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             xpEarned,
             coinEarned,
             execution.CompileErrorMessage,
-            testCaseResults);
+            testCaseResults,
+            newAchievements.Select(a => a.Name).ToList());
     }
 
     private static string GetInput(Challenge challenge, int testCaseId) =>

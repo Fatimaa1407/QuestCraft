@@ -36,6 +36,7 @@ public interface IApplicationDbContext
     DbSet<ActivityLog> ActivityLogs { get; }
     DbSet<LeaderboardSnapshot> LeaderboardSnapshots { get; }
     DbSet<Notification> Notifications { get; }
+    DbSet<XpTransaction> XpTransactions { get; }
 
     DbSet<MarketplaceItemType> MarketplaceItemTypes { get; }
     DbSet<MarketplaceItem> MarketplaceItems { get; }
