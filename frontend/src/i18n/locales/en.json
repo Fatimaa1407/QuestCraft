@@ -1,0 +1,172 @@
+{
+  "app": {
+    "name": "QuestCraft"
+  },
+  "auth": {
+    "branding": {
+      "tagline": "Turn learning C# into an adventure",
+      "feature1": "Real-time code evaluation",
+      "feature2": "Earn XP, Levels and achievements",
+      "feature3": "Compete with others on the leaderboard"
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account and keep learning",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in",
+      "submitting": "Please wait...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up",
+      "errorFallback": "Sign in failed."
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Join QuestCraft in a few seconds",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "your_username",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "John",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Smith",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordRules": {
+        "minLength": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "lowercase": "One lowercase letter",
+        "digit": "One digit"
+      },
+      "confirmPasswordLabel": "Confirm password",
+      "submit": "Create account",
+      "submitting": "Please wait...",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "errorFallback": "Registration failed.",
+      "passwordMismatch": "Passwords do not match."
+    }
+  },
+  "quiz": {
+    "title": "Quizzes",
+    "subtitle": "Test your knowledge, earn XP.",
+    "searchPlaceholder": "Search...",
+    "empty": "No quizzes found.",
+    "notFound": "Quiz not found.",
+    "uncategorized": "Uncategorized",
+    "questionCount": "{{count}} questions",
+    "backToList": "Back to list",
+    "submit": "Finish",
+    "submitting": "Submitting...",
+    "actionError": "Action failed.",
+    "completed": "Quiz Completed!",
+    "perfectScore": "Perfect Score!",
+    "continue": "Continue",
+    "completedBadge": "Completed",
+    "practiceAgain": "Practice Again",
+    "start": "Start"
+  },
+  "shop": {
+    "title": "Shop",
+    "subtitle": "Spend your coins, customize your look.",
+    "all": "All",
+    "empty": "No items found.",
+    "owned": "Owned",
+    "buy": "Buy",
+    "equip": "Equip",
+    "notEnoughCoins": "Not enough coins",
+    "purchaseSuccess": "{{name}} purchased!",
+    "equipSuccess": "Equipped!",
+    "actionError": "Action failed.",
+    "coinsLabel": "Coins",
+    "purchased": "Purchased!",
+    "locked": "Locked",
+    "needMoreCoins": "You need {{count}} more coins."
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "subtitle": "Compare yourself with the best players.",
+    "empty": "No results yet.",
+    "you": "You",
+    "period": {
+      "Daily": "Today",
+      "Weekly": "This week",
+      "Monthly": "This month",
+      "AllTime": "All time"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "challenges": "Challenges",
+    "practice": "Practice",
+    "leaderboard": "Leaderboard",
+    "achievements": "Achievements",
+    "shop": "Shop",
+    "profile": "Profile",
+    "logout": "Log out"
+  },
+  "challenges": {
+    "title": "Coding Challenges",
+    "subtitle": "Test your skills, earn XP and Coins.",
+    "searchPlaceholder": "Search...",
+    "allCategories": "All categories",
+    "allDifficulties": "All difficulties",
+    "empty": "No challenges found.",
+    "notFound": "Challenge not found.",
+    "backToList": "Back to list",
+    "constraints": "Constraints",
+    "inputFormat": "Input format",
+    "outputFormat": "Output format",
+    "sampleInput": "Sample input",
+    "sampleOutput": "Sample output",
+    "unlockHint": "Unlock hint",
+    "run": "Run",
+    "running": "Running...",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "actionError": "Action failed.",
+    "testCase": "Test",
+    "hidden": "hidden",
+    "visibleTests": "Visible tests",
+    "hiddenTests": "Hidden tests",
+    "input": "Input",
+    "expected": "Expected",
+    "actual": "Actual",
+    "verdict": {
+      "Accepted": "Accepted",
+      "WrongAnswer": "Wrong Answer",
+      "TimeLimitExceeded": "Time Limit Exceeded",
+      "RuntimeError": "Runtime Error",
+      "CompileError": "Compile Error",
+      "Pending": "Pending"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "subtitle": "Here's a look at your progress today.",
+    "level": "Level",
+    "xp": "XP",
+    "coins": "Coins",
+    "role": "Role",
+    "comingSoon": "Challenge, Quiz and Marketplace pages will be added in upcoming phases.",
+    "dailyQuests": "Daily Quests",
+    "noQuests": "No quests for today.",
+    "claim": "Claim",
+    "claimed": "Claimed",
+    "recentSubmissions": "Recent Submissions",
+    "noSubmissions": "No submissions yet.",
+    "recentQuizzes": "Recent Quiz Results",
+    "noQuizzes": "No quiz attempts yet.",
+    "viewAll": "View all"
+  },
+  "common": {
+    "loading": "Loading...",
+    "toggleTheme": "Toggle theme",
+    "toggleLanguage": "Change language",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "comingSoon": "This section will be ready soon."
+  }
+}

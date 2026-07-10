@@ -7,6 +7,8 @@ internal static class UserDtoMapper
     public static UserDto ToDto(User user) => new(
         user.Id,
         user.Username,
+        user.FirstName,
+        user.LastName,
         user.Email,
         user.Role.Name,
         user.Profile?.AvatarUrl,

@@ -1,0 +1,172 @@
+{
+  "app": {
+    "name": "QuestCraft"
+  },
+  "auth": {
+    "branding": {
+      "tagline": "C# öyrənməyi bir macəraya çevir",
+      "feature1": "Real vaxtda kod qiymətləndirmə",
+      "feature2": "XP, Level və nailiyyətlər qazan",
+      "feature3": "Liderlik lövhəsində rəqiblərinlə yarış"
+    },
+    "login": {
+      "title": "Xoş gəlmisiniz",
+      "subtitle": "Hesabınıza daxil olun və öyrənməyə davam edin",
+      "emailLabel": "Email",
+      "emailPlaceholder": "sizin@email.com",
+      "passwordLabel": "Şifrə",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Daxil ol",
+      "submitting": "Gözləyin...",
+      "noAccount": "Hesabınız yoxdur?",
+      "registerLink": "Qeydiyyatdan keçin",
+      "errorFallback": "Giriş uğursuz oldu."
+    },
+    "register": {
+      "title": "Hesab yaradın",
+      "subtitle": "Bir neçə saniyəyə QuestCraft ailəsinə qoşulun",
+      "usernameLabel": "İstifadəçi adı",
+      "usernamePlaceholder": "istifadeci_adi",
+      "firstNameLabel": "Ad",
+      "firstNamePlaceholder": "Əli",
+      "lastNameLabel": "Soyad",
+      "lastNamePlaceholder": "Vəliyev",
+      "emailLabel": "Email",
+      "emailPlaceholder": "sizin@email.com",
+      "passwordLabel": "Şifrə",
+      "passwordRules": {
+        "minLength": "Ən azı 8 simvol",
+        "uppercase": "Bir böyük hərf",
+        "lowercase": "Bir kiçik hərf",
+        "digit": "Bir rəqəm"
+      },
+      "confirmPasswordLabel": "Şifrəni təsdiqlə",
+      "submit": "Qeydiyyatdan keç",
+      "submitting": "Gözləyin...",
+      "haveAccount": "Artıq hesabınız var?",
+      "loginLink": "Daxil olun",
+      "errorFallback": "Qeydiyyat uğursuz oldu.",
+      "passwordMismatch": "Şifrələr uyğun gəlmir."
+    }
+  },
+  "quiz": {
+    "title": "Quiz-lər",
+    "subtitle": "Biliyini yoxla, XP qazan.",
+    "searchPlaceholder": "Axtar...",
+    "empty": "Heç bir quiz tapılmadı.",
+    "notFound": "Quiz tapılmadı.",
+    "uncategorized": "Kateqoriyasız",
+    "questionCount": "{{count}} sual",
+    "backToList": "Siyahıya qayıt",
+    "submit": "Bitir",
+    "submitting": "Göndərilir...",
+    "actionError": "Əməliyyat uğursuz oldu.",
+    "completed": "Quiz tamamlandı!",
+    "perfectScore": "Mükəmməl nəticə!",
+    "continue": "Davam et",
+    "completedBadge": "Tamamlanıb",
+    "practiceAgain": "Yenidən başla",
+    "start": "Başla"
+  },
+  "shop": {
+    "title": "Mağaza",
+    "subtitle": "Coin-lərini xərclə, görünüşünü fərdiləşdir.",
+    "all": "Hamısı",
+    "empty": "Heç bir məhsul tapılmadı.",
+    "owned": "Sahibsən",
+    "buy": "Al",
+    "equip": "Tax",
+    "notEnoughCoins": "Kifayət qədər coin yoxdur",
+    "purchaseSuccess": "{{name}} satın alındı!",
+    "equipSuccess": "Taxıldı!",
+    "actionError": "Əməliyyat uğursuz oldu.",
+    "coinsLabel": "Coin-lər",
+    "purchased": "Alındı!",
+    "locked": "Kilidli",
+    "needMoreCoins": "Daha {{count}} coin lazımdır."
+  },
+  "leaderboard": {
+    "title": "Liderlik Lövhəsi",
+    "subtitle": "Ən yaxşı oyunçularla müqayisə et.",
+    "empty": "Hələ heç bir nəticə yoxdur.",
+    "you": "Sən",
+    "period": {
+      "Daily": "Bu gün",
+      "Weekly": "Bu həftə",
+      "Monthly": "Bu ay",
+      "AllTime": "Bütün zamanlar"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "challenges": "Challenges",
+    "practice": "Practice",
+    "leaderboard": "Liderlik Lövhəsi",
+    "achievements": "Nailiyyətlər",
+    "shop": "Mağaza",
+    "profile": "Profil",
+    "logout": "Çıxış"
+  },
+  "challenges": {
+    "title": "Coding Challenge-lər",
+    "subtitle": "Bacarıqlarını sına, XP və Coin qazan.",
+    "searchPlaceholder": "Axtar...",
+    "allCategories": "Bütün kateqoriyalar",
+    "allDifficulties": "Bütün çətinliklər",
+    "empty": "Heç bir challenge tapılmadı.",
+    "notFound": "Challenge tapılmadı.",
+    "backToList": "Siyahıya qayıt",
+    "constraints": "Məhdudiyyətlər",
+    "inputFormat": "Giriş formatı",
+    "outputFormat": "Çıxış formatı",
+    "sampleInput": "Nümunə giriş",
+    "sampleOutput": "Nümunə çıxış",
+    "unlockHint": "İpucunu aç",
+    "run": "İşə sal",
+    "running": "İşləyir...",
+    "submit": "Göndər",
+    "submitting": "Göndərilir...",
+    "actionError": "Əməliyyat uğursuz oldu.",
+    "testCase": "Test",
+    "hidden": "gizli",
+    "visibleTests": "Görünən testlər",
+    "hiddenTests": "Gizli testlər",
+    "input": "Giriş",
+    "expected": "Gözlənilən",
+    "actual": "Nəticə",
+    "verdict": {
+      "Accepted": "Qəbul edildi",
+      "WrongAnswer": "Səhv cavab",
+      "TimeLimitExceeded": "Vaxt limiti aşıldı",
+      "RuntimeError": "İcra xətası",
+      "CompileError": "Kompilyasiya xətası",
+      "Pending": "Gözləyir"
+    }
+  },
+  "dashboard": {
+    "welcome": "Xoş gəldin, {{name}}!",
+    "subtitle": "Bugünkü irəliləyişinə nəzər sal.",
+    "level": "Level",
+    "xp": "XP",
+    "coins": "Coins",
+    "role": "Rol",
+    "comingSoon": "Challenge, Quiz və Marketplace səhifələri növbəti mərhələlərdə əlavə olunacaq.",
+    "dailyQuests": "Gündəlik Tapşırıqlar",
+    "noQuests": "Bugün üçün tapşırıq yoxdur.",
+    "claim": "Al",
+    "claimed": "Alındı",
+    "recentSubmissions": "Son Göndərişlər",
+    "noSubmissions": "Hələ heç bir göndəriş yoxdur.",
+    "recentQuizzes": "Son Quiz Nəticələri",
+    "noQuizzes": "Hələ heç bir quiz cəhdi yoxdur.",
+    "viewAll": "Hamısına bax"
+  },
+  "common": {
+    "loading": "Yüklənir...",
+    "toggleTheme": "Tema dəyiş",
+    "toggleLanguage": "Dil dəyiş",
+    "showPassword": "Şifrəni göstər",
+    "hidePassword": "Şifrəni gizlət",
+    "comingSoon": "Bu bölmə tezliklə hazır olacaq."
+  }
+}

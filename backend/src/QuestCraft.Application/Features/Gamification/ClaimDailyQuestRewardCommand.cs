@@ -8,9 +8,9 @@ using QuestCraft.Domain.Enums;
 
 namespace QuestCraft.Application.Features.Gamification;
 
-public record ClaimDailyQuestRewardCommand(int UserDailyQuestId) : ICommand<DailyQuestDto>;
+public record ClaimDailyQuestRewardCommand(int UserDailyQuestId) : ICommand<ClaimDailyQuestResultDto>;
 
-public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQuestRewardCommand, DailyQuestDto>
+public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQuestRewardCommand, ClaimDailyQuestResultDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUser;
@@ -21,7 +21,7 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
         _currentUser = currentUser;
     }
 
-    public async Task<DailyQuestDto> Handle(ClaimDailyQuestRewardCommand request, CancellationToken cancellationToken)
+    public async Task<ClaimDailyQuestResultDto> Handle(ClaimDailyQuestRewardCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
 
@@ -65,9 +65,11 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new DailyQuestDto(
+        var questDto = new DailyQuestDto(
             quest.Id, quest.DailyQuestTemplate.Title, quest.DailyQuestTemplate.Description,
             quest.CurrentProgress, quest.TargetValue, quest.IsCompleted, quest.RewardClaimed,
             quest.DailyQuestTemplate.XpReward, quest.DailyQuestTemplate.CoinReward);
+
+        return new ClaimDailyQuestResultDto(questDto, profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 0);
     }
 }

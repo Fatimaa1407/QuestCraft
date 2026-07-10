@@ -155,7 +155,10 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
                 activityLog.ActionCount++;
             }
 
-            await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.SolveChallenge, 1, cancellationToken);
+            if (isFirstAcceptedSolve)
+            {
+                await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.SolveChallenge, 1, cancellationToken);
+            }
         }
 
         if (xpEarned > 0)

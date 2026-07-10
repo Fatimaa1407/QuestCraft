@@ -17,6 +17,7 @@ public static class DependencyInjection
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditLoggingBehavior<,>));
 
         services.AddScoped<IAchievementEvaluator, AchievementEvaluator>();
         services.AddScoped<IDailyQuestService, DailyQuestService>();

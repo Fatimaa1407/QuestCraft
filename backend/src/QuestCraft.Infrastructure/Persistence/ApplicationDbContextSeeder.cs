@@ -53,6 +53,8 @@ public static class ApplicationDbContextSeeder
         var admin = new User
         {
             Username = "admin",
+            FirstName = "Admin",
+            LastName = "QuestCraft",
             Email = DefaultAdminEmail,
             PasswordHash = passwordHasher.Hash(DefaultAdminPassword),
             RoleId = adminRole.Id,

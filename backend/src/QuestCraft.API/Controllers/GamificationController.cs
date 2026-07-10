@@ -28,10 +28,10 @@ public class GamificationController : ControllerBase
 
     [HttpPost("daily-quests/{id:int}/claim")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse<DailyQuestDto>>> ClaimDailyQuest(int id, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<ClaimDailyQuestResultDto>>> ClaimDailyQuest(int id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new ClaimDailyQuestRewardCommand(id), cancellationToken);
-        return Ok(ApiResponse<DailyQuestDto>.Ok(result, "Mükafat alındı."));
+        return Ok(ApiResponse<ClaimDailyQuestResultDto>.Ok(result, "Mükafat alındı."));
     }
 
     [HttpGet("achievements")]

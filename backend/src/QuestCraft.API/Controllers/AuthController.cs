@@ -67,11 +67,15 @@ public class AuthController : ControllerBase
 
     private void SetRefreshTokenCookie(string token, DateTime expiresAtUtc)
     {
+        // SameSite=None: the SPA and API are intentionally on different origins (different port in dev,
+        // likely different subdomains in production), which browsers treat as cross-site — schemeful
+        // same-site rules would even block SameSite=Strict here since dev is http (SPA) vs https (API).
+        // Secure=true keeps it HTTPS-only despite the relaxed SameSite.
         Response.Cookies.Append(RefreshTokenCookieName, token, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = expiresAtUtc,
         });
     }

@@ -11,6 +11,14 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .Length(3, 50).WithMessage("İstifadəçi adı 3-50 simvol aralığında olmalıdır.")
             .Matches("^[a-zA-Z0-9_]+$").WithMessage("İstifadəçi adı yalnız hərf, rəqəm və alt xətdən ibarət ola bilər.");
 
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("Ad boş ola bilməz.")
+            .MaximumLength(100).WithMessage("Ad 100 simvoldan uzun ola bilməz.");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty().WithMessage("Soyad boş ola bilməz.")
+            .MaximumLength(100).WithMessage("Soyad 100 simvoldan uzun ola bilməz.");
+
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email boş ola bilməz.")
             .EmailAddress().WithMessage("Email formatı düzgün deyil.")

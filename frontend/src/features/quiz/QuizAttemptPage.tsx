@@ -1,0 +1,271 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { ArrowLeft, CheckCircle2, XCircle, Star, Trophy } from 'lucide-react';
+import { getQuizForAttempt, submitQuizAttempt } from '../../api/quizzes';
+import type { QuizAttemptResultDto } from '../../types/quiz';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { Confetti } from '../../components/ui/Confetti';
+import { FloatingXp } from '../../components/ui/FloatingXp';
+import { QuizCompleteModal } from '../../components/ui/QuizCompleteModal';
+import { getApiErrorMessage } from '../../utils/apiError';
+import { playSuccessSound, playErrorSound, playFanfareSound } from '../../utils/sounds';
+
+const REVEAL_STEP_MS = 450;
+
+export function QuizAttemptPage() {
+  const { t } = useTranslation();
+  const { id } = useParams<{ id: string }>();
+  const quizId = Number(id);
+  const queryClient = useQueryClient();
+
+  const quizQuery = useQuery({
+    queryKey: ['quiz-attempt-view', quizId],
+    queryFn: () => getQuizForAttempt(quizId),
+    enabled: Number.isFinite(quizId),
+  });
+
+  const [answers, setAnswers] = useState<Record<number, number | null>>({});
+  const [result, setResult] = useState<QuizAttemptResultDto | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [revealedIds, setRevealedIds] = useState<Set<number>>(new Set());
+  const [showModal, setShowModal] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
+  const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const submitMutation = useMutation({
+    mutationFn: () =>
+      submitQuizAttempt(
+        quizId,
+        Object.entries(answers).map(([questionId, selectedOptionId]) => ({
+          questionId: Number(questionId),
+          selectedOptionId,
+        })),
+      ),
+    onSuccess: (data) => {
+      setError(null);
+      setResult(data);
+      queryClient.invalidateQueries({ queryKey: ['quizzes', 'attempts', 'my'] });
+    },
+    onError: (err) => setError(getApiErrorMessage(err, t('quiz.actionError'))),
+  });
+
+  useEffect(() => {
+    if (!result) return;
+
+    result.questions.forEach((q, index) => {
+      const timeoutId = setTimeout(() => {
+        setRevealedIds((prev) => new Set(prev).add(q.questionId));
+        if (q.isCorrect) {
+          playSuccessSound();
+        } else {
+          playErrorSound();
+        }
+      }, index * REVEAL_STEP_MS);
+      timeouts.current.push(timeoutId);
+    });
+
+    const revealDoneAt = result.questions.length * REVEAL_STEP_MS + 400;
+    const modalTimeout = setTimeout(() => {
+      setShowModal(true);
+      setCelebrate(true);
+      playFanfareSound();
+    }, revealDoneAt);
+    timeouts.current.push(modalTimeout);
+
+    const celebrateEndTimeout = setTimeout(() => setCelebrate(false), revealDoneAt + 2000);
+    timeouts.current.push(celebrateEndTimeout);
+
+    return () => {
+      timeouts.current.forEach(clearTimeout);
+      timeouts.current = [];
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
+
+  const optionTextById = useMemo(() => {
+    const map = new Map<number, string>();
+    quizQuery.data?.questions.forEach((q) => q.options.forEach((o) => map.set(o.id, o.text)));
+    return map;
+  }, [quizQuery.data]);
+
+  if (quizQuery.isLoading) {
+    return <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>;
+  }
+
+  const quiz = quizQuery.data;
+  if (!quiz) {
+    return <p className="text-sm text-slate-500 dark:text-slate-500">{t('quiz.notFound')}</p>;
+  }
+
+  const answeredCount = Object.values(answers).filter((v) => v !== null && v !== undefined).length;
+  const allAnswered = quiz.questions.every((q) => answers[q.id] !== undefined && answers[q.id] !== null);
+
+  if (result) {
+    const isPerfect = result.score === result.totalQuestions;
+
+    return (
+      <div className="space-y-4">
+        {celebrate && isPerfect && <Confetti />}
+        {celebrate && <FloatingXp xp={result.xpEarned} />}
+        {showModal && (
+          <QuizCompleteModal
+            xp={result.xpEarned}
+            score={result.score}
+            totalQuestions={result.totalQuestions}
+            onContinue={() => setShowModal(false)}
+          />
+        )}
+
+        <Link
+          to="/practice"
+          className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400"
+        >
+          <ArrowLeft size={15} />
+          {t('quiz.backToList')}
+        </Link>
+
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{quiz.title}</h1>
+            <span className="text-lg font-bold text-blue-600 dark:text-cyan-400">
+              {result.score}/{result.totalQuestions}
+            </span>
+          </div>
+
+          {result.xpEarned > 0 && (
+            <div className="mt-3 flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
+              <Star size={14} className="text-blue-500 dark:text-cyan-400" />+{result.xpEarned} XP
+            </div>
+          )}
+
+          {result.newAchievements.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {result.newAchievements.map((name) => (
+                <p key={name} className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+                  <Trophy size={14} />
+                  {name}
+                </p>
+              ))}
+            </div>
+          )}
+        </GlassCard>
+
+        <div className="space-y-3">
+          {result.questions.map((q) => {
+            const isRevealed = revealedIds.has(q.questionId);
+            return (
+              <GlassCard
+                key={q.questionId}
+                className={`p-5 transition-opacity duration-200 ${isRevealed ? 'opacity-100' : 'opacity-40'} ${
+                  isRevealed && !q.isCorrect ? 'animate-shake' : ''
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-medium text-slate-900 dark:text-slate-100">{q.text}</p>
+                  {isRevealed &&
+                    (q.isCorrect ? (
+                      <CheckCircle2 size={18} className="animate-pop-in shrink-0 text-emerald-500" />
+                    ) : (
+                      <XCircle size={18} className="animate-pop-in shrink-0 text-red-500" />
+                    ))}
+                </div>
+
+                {isRevealed && !q.isCorrect && (
+                  <div className="mt-2 space-y-0.5 text-sm">
+                    {q.selectedOptionId !== null && (
+                      <p className="text-red-500 line-through decoration-red-400">
+                        {optionTextById.get(q.selectedOptionId)}
+                      </p>
+                    )}
+                    <p className="font-medium text-emerald-600 dark:text-emerald-400">
+                      {optionTextById.get(q.correctOptionId)}
+                    </p>
+                  </div>
+                )}
+
+                {isRevealed && q.explanation && (
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{q.explanation}</p>
+                )}
+              </GlassCard>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <Link
+        to="/practice"
+        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400"
+      >
+        <ArrowLeft size={15} />
+        {t('quiz.backToList')}
+      </Link>
+
+      <GlassCard className="p-6">
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{quiz.title}</h1>
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            {answeredCount}/{quiz.questions.length}
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {t('quiz.questionCount', { count: quiz.questions.length })} · {quiz.xpReward} XP
+        </p>
+        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/[0.06]">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-500 ease-out"
+            style={{ width: `${(answeredCount / quiz.questions.length) * 100}%` }}
+          />
+        </div>
+      </GlassCard>
+
+      <div className="space-y-3">
+        {quiz.questions.map((q, index) => (
+          <GlassCard key={q.id} className="p-5">
+            <p className="font-medium text-slate-900 dark:text-slate-100">
+              {index + 1}. {q.text}
+            </p>
+            <div className="mt-3 space-y-2">
+              {q.options.map((option) => (
+                <label
+                  key={option.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-2.5 text-sm transition ${
+                    answers[q.id] === option.id
+                      ? 'border-blue-400 bg-blue-500/10 text-slate-900 dark:text-slate-100'
+                      : 'border-slate-200/70 text-slate-700 hover:border-blue-300 dark:border-white/[0.08] dark:text-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={`question-${q.id}`}
+                    checked={answers[q.id] === option.id}
+                    onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: option.id }))}
+                    className="accent-blue-500"
+                  />
+                  {option.text}
+                </label>
+              ))}
+            </div>
+          </GlassCard>
+        ))}
+      </div>
+
+      {error && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">{error}</p>
+      )}
+
+      <button
+        onClick={() => submitMutation.mutate()}
+        disabled={!allAnswered || submitMutation.isPending}
+        className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 transition hover:brightness-110 disabled:opacity-50"
+      >
+        {submitMutation.isPending ? t('quiz.submitting') : t('quiz.submit')}
+      </button>
+    </div>
+  );
+}

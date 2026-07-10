@@ -39,6 +39,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
         var user = new User
         {
             Username = request.Username,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
             Email = request.Email,
             PasswordHash = _passwordHasher.Hash(request.Password),
             RoleId = studentRole.Id,
@@ -49,6 +51,10 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
         };
 
         _context.Users.Add(user);
+
+        // User.Id is only populated by the database after this save — the access token must not be
+        // minted before it, or every fresh registration gets a JWT with UserId=0 (breaks all writes).
+        await _context.SaveChangesAsync(cancellationToken);
 
         var accessToken = _jwtTokenService.GenerateAccessToken(user);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
