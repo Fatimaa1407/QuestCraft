@@ -38,6 +38,7 @@ public class ExceptionHandlingMiddleware
             NotFoundException ex => (HttpStatusCode.NotFound, ApiResponse<object>.Fail(ex.Message)),
             ConflictException ex => (HttpStatusCode.Conflict, ApiResponse<object>.Fail(ex.Message)),
             UnauthorizedException ex => (HttpStatusCode.Unauthorized, ApiResponse<object>.Fail(ex.Message)),
+            ForbiddenException ex => (HttpStatusCode.Forbidden, ApiResponse<object>.Fail(ex.Message)),
             _ => (HttpStatusCode.InternalServerError, ApiResponse<object>.Fail("Daxili server xətası baş verdi.")),
         };
 

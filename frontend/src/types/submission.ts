@@ -44,4 +44,7 @@ export interface SubmissionResultDto {
   compileErrorMessage: string | null;
   results: SubmissionTestResultDto[];
   newAchievements: string[];
+  totalXp: number;
+  totalCoins: number;
+  level: number;
 }

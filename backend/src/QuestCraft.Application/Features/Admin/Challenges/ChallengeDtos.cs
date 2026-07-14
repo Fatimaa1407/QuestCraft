@@ -7,7 +7,9 @@ public record ChallengeListItemDto(
     string Difficulty,
     int XpReward,
     int CoinReward,
-    bool IsPublished);
+    bool IsPublished,
+    int RequiredLevel,
+    bool IsLocked);
 
 public record TestCaseDto(int Id, string Input, string ExpectedOutput, int OrderIndex);
 
@@ -35,5 +37,7 @@ public record ChallengeDetailDto(
     bool HasHint,
     bool IsHintUnlocked,
     bool IsPublished,
+    int RequiredLevel,
     List<TestCaseDto> TestCases,
-    List<HiddenTestCaseDto>? HiddenTestCases);
+    List<HiddenTestCaseDto>? HiddenTestCases,
+    bool IsAlreadySolved);

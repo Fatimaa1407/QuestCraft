@@ -7,7 +7,9 @@ using QuestCraft.Domain.Entities;
 
 namespace QuestCraft.Application.Features.Admin.Quizzes;
 
-public record UpdateQuizCommand(int Id, string Title, int? CategoryId, int XpReward, bool IsPublished) : ICommand<QuizListItemDto>;
+public record UpdateQuizCommand(
+    int Id, string Title, int? CategoryId, int XpReward, bool IsPublished, int RequiredLevel = 1, string? TitleEn = null)
+    : ICommand<QuizListItemDto>;
 
 public class UpdateQuizCommandValidator : AbstractValidator<UpdateQuizCommand>
 {
@@ -16,6 +18,7 @@ public class UpdateQuizCommandValidator : AbstractValidator<UpdateQuizCommand>
         RuleFor(x => x.Title).NotEmpty().WithMessage("Başlıq boş ola bilməz.")
             .MaximumLength(200).WithMessage("Başlıq 200 simvoldan uzun ola bilməz.");
         RuleFor(x => x.XpReward).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.RequiredLevel).GreaterThanOrEqualTo(1).WithMessage("Tələb olunan level ən azı 1 olmalıdır.");
     }
 }
 
@@ -47,9 +50,11 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, QuizL
         quiz.CategoryId = request.CategoryId;
         quiz.XpReward = request.XpReward;
         quiz.IsPublished = request.IsPublished;
+        quiz.RequiredLevel = request.RequiredLevel;
+        quiz.TitleEn = request.TitleEn;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new QuizListItemDto(quiz.Id, quiz.Title, categoryName, quiz.XpReward, quiz.IsPublished, quiz.Questions.Count);
+        return new QuizListItemDto(quiz.Id, quiz.Title, categoryName, quiz.XpReward, quiz.IsPublished, quiz.Questions.Count, quiz.RequiredLevel, false);
     }
 }

@@ -6,6 +6,8 @@ public class MarketplaceItem : BaseEntity
 {
     public string Name { get; set; } = default!;
     public string? Description { get; set; }
+    public string? NameEn { get; set; }
+    public string? DescriptionEn { get; set; }
     public int Price { get; set; }
     public string? ImageUrl { get; set; }
     public bool IsActive { get; set; } = true;

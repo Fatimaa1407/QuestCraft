@@ -1,8 +1,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Entities;
+using QuestCraft.Domain.Enums;
 
 namespace QuestCraft.Application.Features.Admin.Challenges;
 
@@ -36,6 +38,21 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
             throw new NotFoundException(nameof(Challenge), request.Id);
         }
 
+        if (!isAdmin && challenge.RequiredLevel > 1)
+        {
+            var userLevel = _currentUser.UserId is null
+                ? 1
+                : await _context.UserProfiles
+                    .Where(p => p.UserId == _currentUser.UserId)
+                    .Select(p => p.Level)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+            if (userLevel < challenge.RequiredLevel)
+            {
+                throw new ForbiddenException($"Bu challenge üçün Level {challenge.RequiredLevel} lazımdır.");
+            }
+        }
+
         List<HiddenTestCaseDto>? hiddenTestCases = null;
         if (isAdmin)
         {
@@ -50,10 +67,18 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
         var isHintUnlocked = isAdmin || (hasHint && _currentUser.UserId is not null &&
             await _context.ChallengeHints.AnyAsync(h => h.UserId == _currentUser.UserId && h.ChallengeId == request.Id, cancellationToken));
 
+        var isAlreadySolved = _currentUser.UserId is not null &&
+            await _context.ChallengeSubmissions.AnyAsync(
+                s => s.UserId == _currentUser.UserId && s.ChallengeId == request.Id && s.Verdict == SubmissionVerdict.Accepted,
+                cancellationToken);
+
+        var isEnglish = _currentUser.IsEnglish;
+        var localizedHint = isHintUnlocked ? LocalizationHelper.PickNullable(challenge.Hint, challenge.HintEn, isEnglish) : null;
+
         return new ChallengeDetailDto(
             challenge.Id,
-            challenge.Title,
-            challenge.Description,
+            LocalizationHelper.Pick(challenge.Title, challenge.TitleEn, isEnglish),
+            LocalizationHelper.Pick(challenge.Description, challenge.DescriptionEn, isEnglish),
             challenge.CategoryId,
             challenge.Category.Name,
             challenge.DifficultyId,
@@ -62,19 +87,21 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
             challenge.MemoryLimitMb,
             challenge.XpReward,
             challenge.CoinReward,
-            challenge.StarterCode,
-            challenge.Constraints,
-            challenge.InputFormat,
-            challenge.OutputFormat,
+            LocalizationHelper.Pick(challenge.StarterCode, challenge.StarterCodeEn, isEnglish),
+            LocalizationHelper.PickNullable(challenge.Constraints, challenge.ConstraintsEn, isEnglish),
+            LocalizationHelper.PickNullable(challenge.InputFormat, challenge.InputFormatEn, isEnglish),
+            LocalizationHelper.PickNullable(challenge.OutputFormat, challenge.OutputFormatEn, isEnglish),
             challenge.SampleInput,
             challenge.SampleOutput,
-            isHintUnlocked ? challenge.Hint : null,
+            localizedHint,
             hasHint,
             isHintUnlocked,
             challenge.IsPublished,
+            challenge.RequiredLevel,
             challenge.TestCases.OrderBy(t => t.OrderIndex)
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))
                 .ToList(),
-            hiddenTestCases);
+            hiddenTestCases,
+            isAlreadySolved);
     }
 }

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Entities;
 using QuestCraft.Domain.Enums;
@@ -72,7 +71,8 @@ public class AchievementEvaluator : IAchievementEvaluator
             {
                 profile.Xp += achievement.XpReward;
                 profile.Coins += achievement.CoinReward;
-                profile.Level = GamificationCalculator.CalculateLevel(profile.Xp);
+                // Achievements grant XP/Coins only — Level is completion-based (see IContentCompletionService)
+                // and only changes when a challenge/quiz from the current level is actually finished.
             }
 
             if (achievement.XpReward > 0)

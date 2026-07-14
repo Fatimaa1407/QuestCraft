@@ -12,6 +12,7 @@
     "login": {
       "title": "Xoş gəlmisiniz",
       "subtitle": "Hesabınıza daxil olun və öyrənməyə davam edin",
+      "registeredSuccess": "Qeydiyyat uğurludur. İndi hesabınıza daxil ola bilərsiniz.",
       "emailLabel": "Email",
       "emailPlaceholder": "sizin@email.com",
       "passwordLabel": "Şifrə",
@@ -66,7 +67,16 @@
     "continue": "Davam et",
     "completedBadge": "Tamamlanıb",
     "practiceAgain": "Yenidən başla",
-    "start": "Başla"
+    "start": "Başla",
+    "requiresLevel": "Level {{level}} lazımdır",
+    "levelSection": "Level {{level}}",
+    "levelSectionStatus": {
+      "Completed": "Tamamlanıb",
+      "Current": "Hazırkı Level",
+      "Locked": "Kilidli"
+    },
+    "practiceMode": "Practice Mode",
+    "practiceModeHint": "Bu quiz-i artıq tamamlamısan. Yenidən etsən əlavə XP qazanmayacaqsan."
   },
   "shop": {
     "title": "Mağaza",
@@ -96,6 +106,13 @@
       "Monthly": "Bu ay",
       "AllTime": "Bütün zamanlar"
     }
+  },
+  "achievements": {
+    "title": "Nailiyyətlər",
+    "subtitle": "Uğurlarını qeyd et, mükafatlarını topla.",
+    "unlockedLabel": "Açılıb",
+    "unlockedBadge": "✓ Açıq",
+    "empty": "Hələ heç bir nailiyyət yoxdur."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -134,6 +151,21 @@
     "input": "Giriş",
     "expected": "Gözlənilən",
     "actual": "Nəticə",
+    "requiresLevel": "Level {{level}} lazımdır",
+    "nextChallenge": "Növbəti Challenge",
+    "levelSection": "Level {{level}}",
+    "levelSectionStatus": {
+      "Completed": "Tamamlanıb",
+      "Current": "Hazırkı Level",
+      "Locked": "Kilidli"
+    },
+    "practiceMode": "Practice Mode",
+    "practiceModeHint": "Bu challenge-i artıq tamamlamısan. Yenidən etsən əlavə XP/Coin qazanmayacaqsan.",
+    "status": {
+      "Solved": "Həll edilib",
+      "Attempted": "Cəhd edilib",
+      "NotStarted": "Başlanmayıb"
+    },
     "verdict": {
       "Accepted": "Qəbul edildi",
       "WrongAnswer": "Səhv cavab",
@@ -146,10 +178,17 @@
   "dashboard": {
     "welcome": "Xoş gəldin, {{name}}!",
     "subtitle": "Bugünkü irəliləyişinə nəzər sal.",
+    "achievementUnlocked": "🎉 Yeni nailiyyət: {{name}}",
     "level": "Level",
     "xp": "XP",
     "coins": "Coins",
     "role": "Rol",
+    "levelProgressTitle": "Level {{level}} Proqresi",
+    "levelProgressChallenges": "Challenge-lər",
+    "levelProgressQuizzes": "Quiz-lər",
+    "levelProgressOverall": "Ümumi Proqres",
+    "levelProgressUnlockHint": "Level {{level}} açılması üçün bu {{total}} tapşırığın hamısını tamamla.",
+    "levelProgressMax": "Bu levelin bütün məzmununu tamamlamısan! Yeni məzmun gözlə.",
     "comingSoon": "Challenge, Quiz və Marketplace səhifələri növbəti mərhələlərdə əlavə olunacaq.",
     "dailyQuests": "Gündəlik Tapşırıqlar",
     "noQuests": "Bugün üçün tapşırıq yoxdur.",

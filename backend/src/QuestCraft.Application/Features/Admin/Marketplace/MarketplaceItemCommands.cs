@@ -8,8 +8,9 @@ using QuestCraft.Domain.Entities;
 
 namespace QuestCraft.Application.Features.Admin.Marketplace;
 
-public record CreateMarketplaceItemCommand(string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive)
-    : ICommand<MarketplaceItemDto>;
+public record CreateMarketplaceItemCommand(
+    string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive,
+    string? NameEn = null, string? DescriptionEn = null) : ICommand<MarketplaceItemDto>;
 
 public class CreateMarketplaceItemCommandValidator : AbstractValidator<CreateMarketplaceItemCommand>
 {
@@ -40,6 +41,8 @@ public class CreateMarketplaceItemCommandHandler : IRequestHandler<CreateMarketp
         {
             Name = request.Name,
             Description = request.Description,
+            NameEn = request.NameEn,
+            DescriptionEn = request.DescriptionEn,
             ItemTypeId = itemType.Id,
             Price = request.Price,
             ImageUrl = request.ImageUrl,
@@ -53,8 +56,9 @@ public class CreateMarketplaceItemCommandHandler : IRequestHandler<CreateMarketp
     }
 }
 
-public record UpdateMarketplaceItemCommand(int Id, string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive)
-    : ICommand<MarketplaceItemDto>;
+public record UpdateMarketplaceItemCommand(
+    int Id, string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive,
+    string? NameEn = null, string? DescriptionEn = null) : ICommand<MarketplaceItemDto>;
 
 public class UpdateMarketplaceItemCommandValidator : AbstractValidator<UpdateMarketplaceItemCommand>
 {
@@ -86,6 +90,8 @@ public class UpdateMarketplaceItemCommandHandler : IRequestHandler<UpdateMarketp
 
         item.Name = request.Name;
         item.Description = request.Description;
+        item.NameEn = request.NameEn;
+        item.DescriptionEn = request.DescriptionEn;
         item.ItemTypeId = itemType.Id;
         item.Price = request.Price;
         item.ImageUrl = request.ImageUrl;

@@ -18,6 +18,16 @@ public class Challenge : BaseEntity
     public string? SampleOutput { get; set; }
     public string? Hint { get; set; }
     public bool IsPublished { get; set; }
+    public int RequiredLevel { get; set; } = 1;
+
+    // English translations — nullable; falls back to the Azerbaijani field above when missing.
+    public string? TitleEn { get; set; }
+    public string? DescriptionEn { get; set; }
+    public string? ConstraintsEn { get; set; }
+    public string? InputFormatEn { get; set; }
+    public string? OutputFormatEn { get; set; }
+    public string? HintEn { get; set; }
+    public string? StarterCodeEn { get; set; }
 
     public int CategoryId { get; set; }
     public ChallengeCategory Category { get; set; } = default!;

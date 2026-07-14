@@ -48,6 +48,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("IconUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -61,6 +64,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NameEn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -176,11 +182,17 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<string>("Constraints")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ConstraintsEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionEn")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DifficultyId")
@@ -189,7 +201,13 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<string>("Hint")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("HintEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("InputFormat")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InputFormatEn")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -204,6 +222,12 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<string>("OutputFormat")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OutputFormatEn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RequiredLevel")
+                        .HasColumnType("int");
+
                     b.Property<string>("SampleInput")
                         .HasColumnType("nvarchar(max)");
 
@@ -214,6 +238,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StarterCodeEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("TimeLimitMs")
                         .HasColumnType("int");
 
@@ -221,6 +248,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleEn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -418,6 +448,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -436,6 +469,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleEn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -598,6 +634,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -614,6 +653,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NameEn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Price")
                         .HasColumnType("int");
@@ -754,6 +796,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<string>("Explanation")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ExplanationEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -762,6 +807,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Text")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TextEn")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -799,6 +847,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("TextEn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -829,10 +880,16 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
 
+                    b.Property<int>("RequiredLevel")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleEn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

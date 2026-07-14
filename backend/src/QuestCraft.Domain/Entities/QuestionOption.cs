@@ -6,6 +6,7 @@ public class QuestionOption : BaseEntity
 {
     public string Text { get; set; } = default!;
     public bool IsCorrect { get; set; }
+    public string? TextEn { get; set; }
 
     public int QuestionId { get; set; }
     public Question Question { get; set; } = default!;

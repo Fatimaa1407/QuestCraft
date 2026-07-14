@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Interfaces;
 
 namespace QuestCraft.Application.Features.Gamification;
@@ -42,8 +43,12 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
             .OrderBy(a => a.XpReward)
             .ToListAsync(cancellationToken);
 
+        var isEnglish = _currentUser.IsEnglish;
         return achievements.Select(a => new AchievementDto(
-            a.Id, a.Name, a.Description, a.IconUrl, a.XpReward, a.CoinReward,
+            a.Id,
+            LocalizationHelper.Pick(a.Name, a.NameEn, isEnglish),
+            LocalizationHelper.Pick(a.Description, a.DescriptionEn, isEnglish),
+            a.IconUrl, a.XpReward, a.CoinReward,
             unlockedMap.ContainsKey(a.Id), unlockedMap.GetValueOrDefault(a.Id)))
             .ToList();
     }

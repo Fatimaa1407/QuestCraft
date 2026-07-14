@@ -20,6 +20,8 @@ export interface ChallengeListItemDto {
   xpReward: number;
   coinReward: number;
   isPublished: boolean;
+  requiredLevel: number;
+  isLocked: boolean;
 }
 
 export interface TestCaseDto {
@@ -59,6 +61,8 @@ export interface ChallengeDetailDto {
   hasHint: boolean;
   isHintUnlocked: boolean;
   isPublished: boolean;
+  requiredLevel: number;
   testCases: TestCaseDto[];
   hiddenTestCases: HiddenTestCaseDto[] | null;
+  isAlreadySolved: boolean;
 }

@@ -7,6 +7,9 @@ public class Quiz : BaseEntity
     public string Title { get; set; } = default!;
     public int XpReward { get; set; }
     public bool IsPublished { get; set; }
+    public int RequiredLevel { get; set; } = 1;
+
+    public string? TitleEn { get; set; }
 
     public int? CategoryId { get; set; }
     public ChallengeCategory? Category { get; set; }

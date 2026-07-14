@@ -27,17 +27,20 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
     private readonly ICurrentUserService _currentUser;
     private readonly IDailyQuestService _dailyQuestService;
     private readonly IAchievementEvaluator _achievementEvaluator;
+    private readonly IContentCompletionService _completionService;
 
     public SubmitQuizAttemptCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUser,
         IDailyQuestService dailyQuestService,
-        IAchievementEvaluator achievementEvaluator)
+        IAchievementEvaluator achievementEvaluator,
+        IContentCompletionService completionService)
     {
         _context = context;
         _currentUser = currentUser;
         _dailyQuestService = dailyQuestService;
         _achievementEvaluator = achievementEvaluator;
+        _completionService = completionService;
     }
 
     public async Task<QuizAttemptResultDto> Handle(SubmitQuizAttemptCommand request, CancellationToken cancellationToken)
@@ -49,11 +52,27 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
             .FirstOrDefaultAsync(q => q.Id == request.QuizId, cancellationToken)
             ?? throw new NotFoundException(nameof(Quiz), request.QuizId);
 
-        if (!quiz.IsPublished && _currentUser.Role != "Admin")
+        var isAdmin = _currentUser.Role == "Admin";
+
+        if (!quiz.IsPublished && !isAdmin)
         {
             throw new NotFoundException(nameof(Quiz), request.QuizId);
         }
 
+        if (!isAdmin && quiz.RequiredLevel > 1)
+        {
+            var lockUserLevel = await _context.UserProfiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Level)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (lockUserLevel < quiz.RequiredLevel)
+            {
+                throw new ForbiddenException($"Bu quiz üçün Level {quiz.RequiredLevel} lazımdır.");
+            }
+        }
+
+        var isEnglish = _currentUser.IsEnglish;
         var answersByQuestion = request.Answers.ToDictionary(a => a.QuestionId, a => a.SelectedOptionId);
 
         var attempt = new QuizAttempt
@@ -86,7 +105,10 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
             });
 
             questionResults.Add(new QuestionResultDto(
-                question.Id, question.Text, isCorrect, selectedOptionId, correctOption?.Id ?? 0, question.Explanation));
+                question.Id,
+                LocalizationHelper.Pick(question.Text, question.TextEn, isEnglish),
+                isCorrect, selectedOptionId, correctOption?.Id ?? 0,
+                LocalizationHelper.PickNullable(question.Explanation, question.ExplanationEn, isEnglish)));
         }
 
         var isFirstAttempt = !await _context.QuizAttempts.AnyAsync(a => a.UserId == userId && a.QuizId == quiz.Id, cancellationToken);
@@ -104,13 +126,13 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
             stats.TotalQuizzesCompleted++;
         }
 
+        var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+
         if (xpEarned > 0)
         {
-            var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
             if (profile is not null)
             {
                 profile.Xp += xpEarned;
-                profile.Level = GamificationCalculator.CalculateLevel(profile.Xp);
             }
 
             _context.XpTransactions.Add(new XpTransaction { UserId = userId, Amount = xpEarned, Source = "Quiz" });
@@ -133,10 +155,20 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
             activityLog.ActionCount++;
         }
 
-        await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.CompleteQuiz, 1, cancellationToken);
+        if (isFirstAttempt)
+        {
+            await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.CompleteQuiz, 1, cancellationToken);
+        }
         if (xpEarned > 0)
         {
             await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.EarnXp, xpEarned, cancellationToken);
+        }
+
+        if (isFirstAttempt && profile is not null)
+        {
+            // Flush first so the completion count below sees this attempt.
+            await _context.SaveChangesAsync(cancellationToken);
+            profile.Level = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
         }
 
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
@@ -144,6 +176,7 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
         await _context.SaveChangesAsync(cancellationToken);
 
         return new QuizAttemptResultDto(
-            attempt.Id, score, quiz.Questions.Count, xpEarned, questionResults, newAchievements.Select(a => a.Name).ToList());
+            attempt.Id, score, quiz.Questions.Count, xpEarned, questionResults, newAchievements.Select(a => a.Name).ToList(),
+            profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 1);
     }
 }

@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import Editor from '@monaco-editor/react';
-import { ArrowLeft, Play, Send, Lock, Star, Coins, CheckCircle2, XCircle, Trophy } from 'lucide-react';
-import { getChallengeById, unlockHint } from '../../api/challenges';
+import { ArrowLeft, ArrowRight, Play, Send, Lock, Star, Coins, CheckCircle2, XCircle, Trophy, Sparkles } from 'lucide-react';
+import { getChallengeById, getChallenges, unlockHint } from '../../api/challenges';
 import { runCode, submitCode } from '../../api/submissions';
 import type { RunResultDto, SubmissionResultDto, SubmissionTestResultDto } from '../../types/submission';
 import { useThemeStore } from '../../app/themeStore';
+import { useAuthStore } from '../../app/authStore';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 
 const difficultyStyles: Record<string, string> = {
   Easy: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
@@ -23,12 +26,27 @@ export function ChallengeDetailPage() {
   const challengeId = Number(id);
   const queryClient = useQueryClient();
   const theme = useThemeStore((s) => s.theme);
+  const updateUser = useAuthStore((s) => s.updateUser);
 
   const challengeQuery = useQuery({
     queryKey: ['challenge', challengeId],
     queryFn: () => getChallengeById(challengeId),
     enabled: Number.isFinite(challengeId),
   });
+
+  const sequenceQuery = useQuery({
+    queryKey: ['challenges', 'sequence'],
+    queryFn: () => getChallenges({ page: 1, pageSize: 100 }),
+  });
+
+  const nextChallengeId = (() => {
+    const items = sequenceQuery.data?.items;
+    if (!items) return undefined;
+    const currentIndex = items.findIndex((c) => c.id === challengeId);
+    if (currentIndex === -1) return undefined;
+    const next = items.slice(currentIndex + 1).find((c) => !c.isLocked);
+    return next?.id;
+  })();
 
   const [code, setCode] = useState('');
   const [runResult, setRunResult] = useState<RunResultDto | null>(null);
@@ -57,7 +75,10 @@ export function ChallengeDetailPage() {
       setActionError(null);
       setRunResult(null);
       setSubmitResult(data);
+      updateUser({ xp: data.totalXp, coins: data.totalCoins, level: data.level });
       queryClient.invalidateQueries({ queryKey: ['submissions', 'my'] });
+      queryClient.invalidateQueries({ queryKey: ['challenge', challengeId] });
+      queryClient.invalidateQueries({ queryKey: ['level-progress'] });
     },
     onError: (err) => setActionError(getApiErrorMessage(err, t('challenges.actionError'))),
   });
@@ -83,7 +104,7 @@ export function ChallengeDetailPage() {
   const isSubmitting = submitMutation.isPending;
 
   return (
-    <div className="space-y-4">
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
       <Link
         to="/challenges"
         className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400"
@@ -92,9 +113,18 @@ export function ChallengeDetailPage() {
         {t('challenges.backToList')}
       </Link>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="space-y-4">
-          <GlassCard className="p-6">
+      {challenge.isAlreadySolved && (
+        <div className="flex items-center gap-2.5 rounded-2xl border border-violet-400/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-600 dark:text-violet-400">
+          <Sparkles size={16} className="shrink-0" />
+          <div>
+            <span className="font-semibold">{t('challenges.practiceMode')}</span> — {t('challenges.practiceModeHint')}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <motion.div variants={fadeInUp} className="space-y-6">
+          <GlassCard hoverLift={false} className="p-6">
             <div className="flex items-start justify-between gap-2">
               <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{challenge.title}</h1>
               <span
@@ -164,13 +194,11 @@ export function ChallengeDetailPage() {
             )}
           </GlassCard>
 
-          {(runResult || submitResult) && (
-            <ResultPanel runResult={runResult} submitResult={submitResult} />
-          )}
-        </div>
+          {(runResult || submitResult) && <ResultPanel runResult={runResult} submitResult={submitResult} />}
+        </motion.div>
 
-        <div className="flex flex-col gap-3">
-          <div className="overflow-hidden rounded-[20px] border border-slate-200/70 dark:border-white/[0.08]">
+        <motion.div variants={fadeInUp} className="flex flex-col gap-4">
+          <div className="overflow-hidden rounded-[20px] border border-slate-200/70 shadow-xl dark:border-white/[0.08]">
             <Editor
               height="480px"
               language="csharp"
@@ -188,26 +216,37 @@ export function ChallengeDetailPage() {
           )}
 
           <div className="flex items-center gap-3">
-            <button
+            <motion.button
+              {...buttonTap}
               onClick={() => runMutation.mutate()}
               disabled={isRunning || isSubmitting}
-              className="flex items-center gap-2 rounded-full border border-slate-200/70 bg-white/70 px-4 py-2.5 text-sm font-medium text-slate-700 backdrop-blur-xl transition hover:border-blue-400 disabled:opacity-50 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-200 dark:hover:border-cyan-500"
+              className="flex items-center gap-2 rounded-full border border-slate-200/70 bg-white/70 px-4 py-2.5 text-sm font-medium text-slate-700 backdrop-blur-xl transition-colors hover:border-blue-400 disabled:opacity-50 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-200 dark:hover:border-cyan-500"
             >
               <Play size={15} />
               {isRunning ? t('challenges.running') : t('challenges.run')}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              {...buttonTap}
               onClick={() => submitMutation.mutate()}
               disabled={isRunning || isSubmitting}
-              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 transition hover:brightness-110 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 disabled:opacity-50"
             >
               <Send size={15} />
               {isSubmitting ? t('challenges.submitting') : t('challenges.submit')}
-            </button>
+            </motion.button>
+            {submitResult && nextChallengeId && (
+              <Link
+                to={`/challenges/${nextChallengeId}`}
+                className="flex items-center gap-2 rounded-full border border-blue-400/50 px-4 py-2.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-500/10 dark:text-cyan-400 dark:hover:bg-cyan-500/10"
+              >
+                {t('challenges.nextChallenge')}
+                <ArrowRight size={15} />
+              </Link>
+            )}
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

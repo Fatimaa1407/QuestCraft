@@ -13,6 +13,7 @@ import { QuizListPage } from './features/quiz/QuizListPage';
 import { QuizAttemptPage } from './features/quiz/QuizAttemptPage';
 import { ShopPage } from './features/shop/ShopPage';
 import { LeaderboardPage } from './features/leaderboard/LeaderboardPage';
+import { AchievementsPage } from './features/achievements/AchievementsPage';
 import { ComingSoonPage } from './features/misc/ComingSoonPage';
 
 function App() {
@@ -32,7 +33,7 @@ function App() {
                 <Route path="/practice" element={<QuizListPage />} />
                 <Route path="/practice/:id" element={<QuizAttemptPage />} />
                 <Route path="/leaderboard" element={<LeaderboardPage />} />
-                <Route path="/achievements" element={<ComingSoonPage titleKey="nav.achievements" />} />
+                <Route path="/achievements" element={<AchievementsPage />} />
                 <Route path="/shop" element={<ShopPage />} />
                 <Route path="/profile" element={<ComingSoonPage titleKey="nav.profile" />} />
               </Route>

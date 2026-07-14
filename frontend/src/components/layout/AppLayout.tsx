@@ -1,25 +1,17 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthStore } from '../../app/authStore';
-import { logout } from '../../api/auth';
 import { ThemeSwitcher } from '../ui/ThemeSwitcher';
 import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 import { AmbientGlow } from '../ui/AmbientGlow';
 import { Sidebar } from './Sidebar';
+import { pageTransition } from '../../utils/motion';
 
 export function AppLayout() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } finally {
-      clearAuth();
-    }
-  };
+  const location = useLocation();
 
   return (
     <div className="relative flex min-h-svh bg-app-bg text-slate-900 dark:bg-gradient-to-br dark:from-[#0b1220] dark:via-[#0d1526] dark:to-[#0a0f1c] dark:text-slate-50">
@@ -50,18 +42,15 @@ export function AppLayout() {
 
             <LanguageSwitcher />
             <ThemeSwitcher />
-            <button
-              onClick={handleLogout}
-              title={t('nav.logout')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/70 text-slate-600 transition hover:border-red-300 hover:text-red-600 dark:border-white/[0.08] dark:text-slate-300 dark:hover:border-red-500 dark:hover:text-red-400"
-            >
-              <LogOut size={16} />
-            </button>
           </div>
         </header>
         <main className="relative flex-1 px-5 py-8 sm:px-8">
           <div className="mx-auto max-w-6xl">
-            <Outlet />
+            <AnimatePresence mode="wait">
+              <motion.div key={location.pathname} variants={pageTransition} initial="hidden" animate="show" exit="exit">
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>

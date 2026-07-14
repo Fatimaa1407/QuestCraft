@@ -7,9 +7,11 @@ using QuestCraft.Domain.Entities;
 
 namespace QuestCraft.Application.Features.Admin.Quizzes;
 
-public record QuestionOptionInput(string Text, bool IsCorrect);
+public record QuestionOptionInput(string Text, bool IsCorrect, string? TextEn = null);
 
-public record AddQuestionCommand(int QuizId, string Text, string? Explanation, List<QuestionOptionInput> Options) : ICommand<int>;
+public record AddQuestionCommand(
+    int QuizId, string Text, string? Explanation, List<QuestionOptionInput> Options,
+    string? TextEn = null, string? ExplanationEn = null) : ICommand<int>;
 
 public class AddQuestionCommandValidator : AbstractValidator<AddQuestionCommand>
 {
@@ -45,7 +47,9 @@ public class AddQuestionCommandHandler : IRequestHandler<AddQuestionCommand, int
             QuizId = request.QuizId,
             Text = request.Text,
             Explanation = request.Explanation,
-            Options = request.Options.Select(o => new QuestionOption { Text = o.Text, IsCorrect = o.IsCorrect }).ToList(),
+            TextEn = request.TextEn,
+            ExplanationEn = request.ExplanationEn,
+            Options = request.Options.Select(o => new QuestionOption { Text = o.Text, IsCorrect = o.IsCorrect, TextEn = o.TextEn }).ToList(),
         };
 
         _context.Questions.Add(question);
@@ -55,7 +59,9 @@ public class AddQuestionCommandHandler : IRequestHandler<AddQuestionCommand, int
     }
 }
 
-public record UpdateQuestionCommand(int Id, string Text, string? Explanation, List<QuestionOptionInput> Options) : ICommand<Unit>;
+public record UpdateQuestionCommand(
+    int Id, string Text, string? Explanation, List<QuestionOptionInput> Options,
+    string? TextEn = null, string? ExplanationEn = null) : ICommand<Unit>;
 
 public class UpdateQuestionCommandValidator : AbstractValidator<UpdateQuestionCommand>
 {
@@ -86,6 +92,8 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
 
         question.Text = request.Text;
         question.Explanation = request.Explanation;
+        question.TextEn = request.TextEn;
+        question.ExplanationEn = request.ExplanationEn;
 
         // Soft-delete the old options rather than hard-removing them: past QuizAttemptAnswer rows
         // reference them via a Restrict FK, so a real DELETE would fail once anyone has attempted the quiz.
@@ -96,7 +104,7 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
 
         foreach (var input in request.Options)
         {
-            question.Options.Add(new QuestionOption { Text = input.Text, IsCorrect = input.IsCorrect });
+            question.Options.Add(new QuestionOption { Text = input.Text, IsCorrect = input.IsCorrect, TextEn = input.TextEn });
         }
 
         await _context.SaveChangesAsync(cancellationToken);

@@ -23,7 +23,15 @@ public record CreateChallengeCommand(
     string? SampleInput,
     string? SampleOutput,
     string? Hint,
-    bool IsPublished) : ICommand<ChallengeDetailDto>;
+    bool IsPublished,
+    int RequiredLevel = 1,
+    string? TitleEn = null,
+    string? DescriptionEn = null,
+    string? ConstraintsEn = null,
+    string? InputFormatEn = null,
+    string? OutputFormatEn = null,
+    string? HintEn = null,
+    string? StarterCodeEn = null) : ICommand<ChallengeDetailDto>;
 
 public class CreateChallengeCommandValidator : AbstractValidator<CreateChallengeCommand>
 {
@@ -39,6 +47,7 @@ public class CreateChallengeCommandValidator : AbstractValidator<CreateChallenge
         RuleFor(x => x.XpReward).GreaterThanOrEqualTo(0);
         RuleFor(x => x.CoinReward).GreaterThanOrEqualTo(0);
         RuleFor(x => x.StarterCode).NotEmpty().WithMessage("Starter code boş ola bilməz.");
+        RuleFor(x => x.RequiredLevel).GreaterThanOrEqualTo(1).WithMessage("Tələb olunan level ən azı 1 olmalıdır.");
     }
 }
 
@@ -77,6 +86,14 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             SampleOutput = request.SampleOutput,
             Hint = request.Hint,
             IsPublished = request.IsPublished,
+            RequiredLevel = request.RequiredLevel,
+            TitleEn = request.TitleEn,
+            DescriptionEn = request.DescriptionEn,
+            ConstraintsEn = request.ConstraintsEn,
+            InputFormatEn = request.InputFormatEn,
+            OutputFormatEn = request.OutputFormatEn,
+            HintEn = request.HintEn,
+            StarterCodeEn = request.StarterCodeEn,
         };
 
         _context.Challenges.Add(challenge);
@@ -88,7 +105,7 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             challenge.TimeLimitMs, challenge.MemoryLimitMb, challenge.XpReward, challenge.CoinReward,
             challenge.StarterCode, challenge.Constraints, challenge.InputFormat, challenge.OutputFormat,
             challenge.SampleInput, challenge.SampleOutput, challenge.Hint,
-            !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished,
-            [], []);
+            !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished, challenge.RequiredLevel,
+            [], [], false);
     }
 }

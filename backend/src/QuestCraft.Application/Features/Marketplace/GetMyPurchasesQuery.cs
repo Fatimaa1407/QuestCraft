@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 
@@ -31,8 +32,11 @@ public class GetMyPurchasesQueryHandler : IRequestHandler<GetMyPurchasesQuery, L
             .OrderByDescending(p => p.PurchasedAt)
             .ToListAsync(cancellationToken);
 
+        var isEnglish = _currentUser.IsEnglish;
         return purchases.Select(p => new MyPurchaseDto(
-            p.Id, p.MarketplaceItem.Name, p.MarketplaceItem.ItemType.Name, p.PricePaid, p.PurchasedAt, equippedIds.Contains(p.MarketplaceItemId)))
+            p.Id,
+            LocalizationHelper.Pick(p.MarketplaceItem.Name, p.MarketplaceItem.NameEn, isEnglish),
+            p.MarketplaceItem.ItemType.Name, p.PricePaid, p.PurchasedAt, equippedIds.Contains(p.MarketplaceItemId)))
             .ToList();
     }
 }

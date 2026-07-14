@@ -29,19 +29,22 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
     private readonly ICurrentUserService _currentUser;
     private readonly IDailyQuestService _dailyQuestService;
     private readonly IAchievementEvaluator _achievementEvaluator;
+    private readonly IContentCompletionService _completionService;
 
     public SubmitChallengeCommandHandler(
         IApplicationDbContext context,
         ICodeExecutionEngine codeExecutionEngine,
         ICurrentUserService currentUser,
         IDailyQuestService dailyQuestService,
-        IAchievementEvaluator achievementEvaluator)
+        IAchievementEvaluator achievementEvaluator,
+        IContentCompletionService completionService)
     {
         _context = context;
         _codeExecutionEngine = codeExecutionEngine;
         _currentUser = currentUser;
         _dailyQuestService = dailyQuestService;
         _achievementEvaluator = achievementEvaluator;
+        _completionService = completionService;
     }
 
     public async Task<SubmissionResultDto> Handle(SubmitChallengeCommand request, CancellationToken cancellationToken)
@@ -54,9 +57,24 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             .FirstOrDefaultAsync(c => c.Id == request.ChallengeId, cancellationToken)
             ?? throw new NotFoundException(nameof(Challenge), request.ChallengeId);
 
-        if (!challenge.IsPublished && _currentUser.Role != "Admin")
+        var isAdmin = _currentUser.Role == "Admin";
+
+        if (!challenge.IsPublished && !isAdmin)
         {
             throw new NotFoundException(nameof(Challenge), request.ChallengeId);
+        }
+
+        if (!isAdmin && challenge.RequiredLevel > 1)
+        {
+            var lockUserLevel = await _context.UserProfiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Level)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (lockUserLevel < challenge.RequiredLevel)
+            {
+                throw new ForbiddenException($"Bu challenge üçün Level {challenge.RequiredLevel} lazımdır.");
+            }
         }
 
         var testCaseInputs = challenge.TestCases
@@ -110,17 +128,17 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             }
         }
 
+        var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+
         if (isFirstAcceptedSolve)
         {
             xpEarned = challenge.XpReward;
             coinEarned = challenge.CoinReward;
 
-            var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
             if (profile is not null)
             {
                 profile.Xp += xpEarned;
                 profile.Coins += coinEarned;
-                profile.Level = GamificationCalculator.CalculateLevel(profile.Xp);
             }
 
             if (stats is not null)
@@ -166,6 +184,13 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.EarnXp, xpEarned, cancellationToken);
         }
 
+        if (isFirstAcceptedSolve && profile is not null)
+        {
+            // Flush first so the completion count below sees this submission.
+            await _context.SaveChangesAsync(cancellationToken);
+            profile.Level = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
+        }
+
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -186,7 +211,10 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             coinEarned,
             execution.CompileErrorMessage,
             testCaseResults,
-            newAchievements.Select(a => a.Name).ToList());
+            newAchievements.Select(a => a.Name).ToList(),
+            profile?.Xp ?? 0,
+            profile?.Coins ?? 0,
+            profile?.Level ?? 1);
     }
 
     private static string GetInput(Challenge challenge, int testCaseId) =>

@@ -14,11 +14,16 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUser;
+    private readonly IAchievementEvaluator _achievementEvaluator;
 
-    public ClaimDailyQuestRewardCommandHandler(IApplicationDbContext context, ICurrentUserService currentUser)
+    public ClaimDailyQuestRewardCommandHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUser,
+        IAchievementEvaluator achievementEvaluator)
     {
         _context = context;
         _currentUser = currentUser;
+        _achievementEvaluator = achievementEvaluator;
     }
 
     public async Task<ClaimDailyQuestResultDto> Handle(ClaimDailyQuestRewardCommand request, CancellationToken cancellationToken)
@@ -47,7 +52,8 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
         {
             profile.Xp += quest.DailyQuestTemplate.XpReward;
             profile.Coins += quest.DailyQuestTemplate.CoinReward;
-            profile.Level = GamificationCalculator.CalculateLevel(profile.Xp);
+            // Daily quests grant XP/Coins only — Level is completion-based (see IContentCompletionService)
+            // and only changes when a challenge/quiz from the current level is actually finished.
         }
 
         if (quest.DailyQuestTemplate.XpReward > 0)
@@ -63,13 +69,20 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
             Message = $"\"{quest.DailyQuestTemplate.Title}\" tapşırığının mükafatını aldınız.",
         });
 
+        var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
+
         await _context.SaveChangesAsync(cancellationToken);
 
+        var isEnglish = _currentUser.IsEnglish;
         var questDto = new DailyQuestDto(
-            quest.Id, quest.DailyQuestTemplate.Title, quest.DailyQuestTemplate.Description,
+            quest.Id,
+            LocalizationHelper.Pick(quest.DailyQuestTemplate.Title, quest.DailyQuestTemplate.TitleEn, isEnglish),
+            LocalizationHelper.PickNullable(quest.DailyQuestTemplate.Description, quest.DailyQuestTemplate.DescriptionEn, isEnglish),
             quest.CurrentProgress, quest.TargetValue, quest.IsCompleted, quest.RewardClaimed,
             quest.DailyQuestTemplate.XpReward, quest.DailyQuestTemplate.CoinReward);
 
-        return new ClaimDailyQuestResultDto(questDto, profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 0);
+        return new ClaimDailyQuestResultDto(
+            questDto, profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 0,
+            newAchievements.Select(a => a.Name).ToList());
     }
 }

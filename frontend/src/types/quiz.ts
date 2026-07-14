@@ -15,6 +15,8 @@ export interface QuizListItemDto {
   xpReward: number;
   isPublished: boolean;
   questionCount: number;
+  requiredLevel: number;
+  isLocked: boolean;
 }
 
 export interface QuestionOptionDto {
@@ -33,6 +35,7 @@ export interface QuizAttemptViewDto {
   title: string;
   xpReward: number;
   questions: QuestionDto[];
+  isAlreadyCompleted: boolean;
 }
 
 export interface QuizAnswerInput {
@@ -56,4 +59,7 @@ export interface QuizAttemptResultDto {
   xpEarned: number;
   questions: QuestionResultDto[];
   newAchievements: string[];
+  totalXp: number;
+  totalCoins: number;
+  level: number;
 }

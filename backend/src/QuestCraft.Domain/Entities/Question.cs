@@ -6,6 +6,8 @@ public class Question : BaseEntity
 {
     public string Text { get; set; } = default!;
     public string? Explanation { get; set; }
+    public string? TextEn { get; set; }
+    public string? ExplanationEn { get; set; }
 
     public int QuizId { get; set; }
     public Quiz Quiz { get; set; } = default!;

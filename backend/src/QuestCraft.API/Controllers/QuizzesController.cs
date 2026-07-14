@@ -58,7 +58,9 @@ public class QuizzesController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<QuizListItemDto>>> Update(int id, UpdateQuizRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new UpdateQuizCommand(id, request.Title, request.CategoryId, request.XpReward, request.IsPublished), cancellationToken);
+        var result = await _mediator.Send(
+            new UpdateQuizCommand(id, request.Title, request.CategoryId, request.XpReward, request.IsPublished, request.RequiredLevel, request.TitleEn),
+            cancellationToken);
         return Ok(ApiResponse<QuizListItemDto>.Ok(result, "Quiz yeniləndi."));
     }
 
@@ -74,7 +76,7 @@ public class QuizzesController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<int>>> AddQuestion(int id, AddQuestionRequest request, CancellationToken cancellationToken)
     {
-        var command = new AddQuestionCommand(id, request.Text, request.Explanation, request.Options);
+        var command = new AddQuestionCommand(id, request.Text, request.Explanation, request.Options, request.TextEn, request.ExplanationEn);
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(ApiResponse<int>.Ok(result, "Sual əlavə edildi."));
     }
@@ -83,7 +85,7 @@ public class QuizzesController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateQuestion(int id, UpdateQuestionRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new UpdateQuestionCommand(id, request.Text, request.Explanation, request.Options), cancellationToken);
+        await _mediator.Send(new UpdateQuestionCommand(id, request.Text, request.Explanation, request.Options, request.TextEn, request.ExplanationEn), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null, "Sual yeniləndi."));
     }
 
@@ -121,10 +123,10 @@ public class QuizzesController : ControllerBase
     }
 }
 
-public record UpdateQuizRequest(string Title, int? CategoryId, int XpReward, bool IsPublished);
+public record UpdateQuizRequest(string Title, int? CategoryId, int XpReward, bool IsPublished, int RequiredLevel = 1, string? TitleEn = null);
 
-public record AddQuestionRequest(string Text, string? Explanation, List<QuestionOptionInput> Options);
+public record AddQuestionRequest(string Text, string? Explanation, List<QuestionOptionInput> Options, string? TextEn = null, string? ExplanationEn = null);
 
-public record UpdateQuestionRequest(string Text, string? Explanation, List<QuestionOptionInput> Options);
+public record UpdateQuestionRequest(string Text, string? Explanation, List<QuestionOptionInput> Options, string? TextEn = null, string? ExplanationEn = null);
 
 public record AttemptQuizRequest(List<QuizAnswerInput> Answers);

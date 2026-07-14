@@ -15,6 +15,7 @@ export interface ClaimDailyQuestResult {
   totalXp: number;
   totalCoins: number;
   level: number;
+  newAchievements: string[];
 }
 
 export interface Achievement {
@@ -26,6 +27,17 @@ export interface Achievement {
   coinReward: number;
   isUnlocked: boolean;
   unlockedAt: string | null;
+}
+
+export interface LevelProgress {
+  level: number;
+  challengesCompleted: number;
+  challengesTotal: number;
+  quizzesCompleted: number;
+  quizzesTotal: number;
+  overallCompleted: number;
+  overallTotal: number;
+  isMaxLevel: boolean;
 }
 
 export type LeaderboardPeriod = 'Daily' | 'Weekly' | 'Monthly' | 'AllTime';

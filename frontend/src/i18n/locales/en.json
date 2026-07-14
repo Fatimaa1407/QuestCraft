@@ -12,6 +12,7 @@
     "login": {
       "title": "Welcome back",
       "subtitle": "Sign in to your account and keep learning",
+      "registeredSuccess": "Registration successful. You can now sign in.",
       "emailLabel": "Email",
       "emailPlaceholder": "you@email.com",
       "passwordLabel": "Password",
@@ -66,7 +67,16 @@
     "continue": "Continue",
     "completedBadge": "Completed",
     "practiceAgain": "Practice Again",
-    "start": "Start"
+    "start": "Start",
+    "requiresLevel": "Requires Level {{level}}",
+    "levelSection": "Level {{level}}",
+    "levelSectionStatus": {
+      "Completed": "Completed",
+      "Current": "Current Level",
+      "Locked": "Locked"
+    },
+    "practiceMode": "Practice Mode",
+    "practiceModeHint": "You've already completed this quiz. Redoing it won't earn extra XP."
   },
   "shop": {
     "title": "Shop",
@@ -96,6 +106,13 @@
       "Monthly": "This month",
       "AllTime": "All time"
     }
+  },
+  "achievements": {
+    "title": "Achievements",
+    "subtitle": "Track your wins, collect your rewards.",
+    "unlockedLabel": "Unlocked",
+    "unlockedBadge": "✓ Unlocked",
+    "empty": "No achievements yet."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -134,6 +151,21 @@
     "input": "Input",
     "expected": "Expected",
     "actual": "Actual",
+    "requiresLevel": "Requires Level {{level}}",
+    "nextChallenge": "Next Challenge",
+    "levelSection": "Level {{level}}",
+    "levelSectionStatus": {
+      "Completed": "Completed",
+      "Current": "Current Level",
+      "Locked": "Locked"
+    },
+    "practiceMode": "Practice Mode",
+    "practiceModeHint": "You've already completed this challenge. Redoing it won't earn extra XP/Coins.",
+    "status": {
+      "Solved": "Solved",
+      "Attempted": "Attempted",
+      "NotStarted": "Not Started"
+    },
     "verdict": {
       "Accepted": "Accepted",
       "WrongAnswer": "Wrong Answer",
@@ -146,10 +178,17 @@
   "dashboard": {
     "welcome": "Welcome, {{name}}!",
     "subtitle": "Here's a look at your progress today.",
+    "achievementUnlocked": "🎉 New achievement: {{name}}",
     "level": "Level",
     "xp": "XP",
     "coins": "Coins",
     "role": "Role",
+    "levelProgressTitle": "Level {{level}} Progress",
+    "levelProgressChallenges": "Challenges",
+    "levelProgressQuizzes": "Quizzes",
+    "levelProgressOverall": "Overall Progress",
+    "levelProgressUnlockHint": "Finish all {{total}} items to unlock Level {{level}}.",
+    "levelProgressMax": "You've completed everything in this level! New content coming soon.",
     "comingSoon": "Challenge, Quiz and Marketplace pages will be added in upcoming phases.",
     "dailyQuests": "Daily Quests",
     "noQuests": "No quests for today.",

@@ -1,10 +1,22 @@
 import { apiClient } from './client';
 import type { ApiResponse } from '../types/api';
-import type { ClaimDailyQuestResult, DailyQuest, LeaderboardEntry, LeaderboardPeriod } from '../types/gamification';
+import type {
+  Achievement,
+  ClaimDailyQuestResult,
+  DailyQuest,
+  LeaderboardEntry,
+  LeaderboardPeriod,
+  LevelProgress,
+} from '../types/gamification';
 
 export async function getDailyQuests(): Promise<DailyQuest[]> {
   const { data } = await apiClient.get<ApiResponse<DailyQuest[]>>('/api/gamification/daily-quests');
   return data.data ?? [];
+}
+
+export async function getLevelProgress(): Promise<LevelProgress | null> {
+  const { data } = await apiClient.get<ApiResponse<LevelProgress>>('/api/gamification/level-progress');
+  return data.data;
 }
 
 export async function claimDailyQuest(id: number): Promise<ClaimDailyQuestResult | null> {
@@ -16,5 +28,10 @@ export async function getLeaderboard(period: LeaderboardPeriod = 'AllTime', top 
   const { data } = await apiClient.get<ApiResponse<LeaderboardEntry[]>>('/api/gamification/leaderboard', {
     params: { period, top },
   });
+  return data.data ?? [];
+}
+
+export async function getAchievements(): Promise<Achievement[]> {
+  const { data } = await apiClient.get<ApiResponse<Achievement[]>>('/api/gamification/achievements');
   return data.data ?? [];
 }

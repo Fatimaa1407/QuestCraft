@@ -27,8 +27,11 @@ public class GetQuizByIdAdminQueryHandler : IRequestHandler<GetQuizByIdAdminQuer
 
         var questions = quiz.Questions.Select(q => new QuestionAdminDto(
             q.Id, q.Text, q.Explanation,
-            q.Options.Select(o => new QuestionOptionAdminDto(o.Id, o.Text, o.IsCorrect)).ToList())).ToList();
+            q.Options.Select(o => new QuestionOptionAdminDto(o.Id, o.Text, o.IsCorrect, o.TextEn)).ToList(),
+            q.TextEn, q.ExplanationEn)).ToList();
 
-        return new QuizAdminDetailDto(quiz.Id, quiz.Title, quiz.CategoryId, quiz.Category?.Name, quiz.XpReward, quiz.IsPublished, questions);
+        return new QuizAdminDetailDto(
+            quiz.Id, quiz.Title, quiz.CategoryId, quiz.Category?.Name, quiz.XpReward, quiz.IsPublished, quiz.RequiredLevel,
+            questions, quiz.TitleEn);
     }
 }

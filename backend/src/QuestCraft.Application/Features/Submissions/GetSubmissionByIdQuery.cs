@@ -41,6 +41,8 @@ public class GetSubmissionByIdQueryHandler : IRequestHandler<GetSubmissionByIdQu
             : new SubmissionTestResultDto(false, r.Passed, testCasesById[r.TestCaseId].Input, testCasesById[r.TestCaseId].ExpectedOutput, r.ActualOutput))
             .ToList();
 
+        var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == submission.UserId, cancellationToken);
+
         return new SubmissionResultDto(
             submission.Id,
             submission.Verdict.ToString(),
@@ -52,6 +54,9 @@ public class GetSubmissionByIdQueryHandler : IRequestHandler<GetSubmissionByIdQu
             submission.CoinEarned,
             null,
             testCaseResults,
-            []);
+            [],
+            profile?.Xp ?? 0,
+            profile?.Coins ?? 0,
+            profile?.Level ?? 1);
     }
 }

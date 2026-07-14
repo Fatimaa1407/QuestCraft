@@ -7,20 +7,18 @@ using QuestCraft.Domain.Entities;
 
 namespace QuestCraft.Application.Features.Auth.Commands.Register;
 
-public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponseDto>
+public class RegisterCommandHandler : IRequestHandler<RegisterCommand, UserDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IJwtTokenService _jwtTokenService;
 
-    public RegisterCommandHandler(IApplicationDbContext context, IPasswordHasher passwordHasher, IJwtTokenService jwtTokenService)
+    public RegisterCommandHandler(IApplicationDbContext context, IPasswordHasher passwordHasher)
     {
         _context = context;
         _passwordHasher = passwordHasher;
-        _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<AuthResponseDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<UserDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         if (await _context.Users.AnyAsync(u => u.Email == request.Email, cancellationToken))
         {
@@ -51,28 +49,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
         };
 
         _context.Users.Add(user);
-
-        // User.Id is only populated by the database after this save — the access token must not be
-        // minted before it, or every fresh registration gets a JWT with UserId=0 (breaks all writes).
         await _context.SaveChangesAsync(cancellationToken);
 
-        var accessToken = _jwtTokenService.GenerateAccessToken(user);
-        var refreshToken = _jwtTokenService.GenerateRefreshToken();
-
-        _context.RefreshTokens.Add(new RefreshToken
-        {
-            User = user,
-            Token = refreshToken.Token,
-            ExpiresAt = refreshToken.ExpiresAtUtc,
-        });
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return new AuthResponseDto(
-            accessToken.Token,
-            accessToken.ExpiresAtUtc,
-            refreshToken.Token,
-            refreshToken.ExpiresAtUtc,
-            UserDtoMapper.ToDto(user));
+        return UserDtoMapper.ToDto(user);
     }
 }

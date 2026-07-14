@@ -16,14 +16,31 @@ public record GetChallengesQuery(
 public class GetChallengesQueryHandler : IRequestHandler<GetChallengesQuery, PagedResult<ChallengeListItemDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetChallengesQueryHandler(IApplicationDbContext context)
+    public GetChallengesQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
-    public Task<PagedResult<ChallengeListItemDto>> Handle(GetChallengesQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<ChallengeListItemDto>> Handle(GetChallengesQuery request, CancellationToken cancellationToken)
     {
+        var isEnglish = _currentUser.IsEnglish;
+        var isAdmin = _currentUser.Role == "Admin";
+        var userLevel = 1;
+        if (!isAdmin && _currentUser.UserId is not null)
+        {
+            userLevel = await _context.UserProfiles
+                .Where(p => p.UserId == _currentUser.UserId)
+                .Select(p => p.Level)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (userLevel == 0)
+            {
+                userLevel = 1;
+            }
+        }
+
         var query = _context.Challenges
             .Include(c => c.Category)
             .Include(c => c.Difficulty)
@@ -50,10 +67,14 @@ public class GetChallengesQueryHandler : IRequestHandler<GetChallengesQuery, Pag
         }
 
         var projected = query
-            .OrderByDescending(c => c.CreatedAt)
+            .OrderBy(c => c.RequiredLevel)
+            .ThenByDescending(c => c.CreatedAt)
             .Select(c => new ChallengeListItemDto(
-                c.Id, c.Title, c.Category.Name, c.Difficulty.Name, c.XpReward, c.CoinReward, c.IsPublished));
+                c.Id,
+                isEnglish && c.TitleEn != null && c.TitleEn != "" ? c.TitleEn : c.Title,
+                c.Category.Name, c.Difficulty.Name, c.XpReward, c.CoinReward, c.IsPublished,
+                c.RequiredLevel, !isAdmin && c.RequiredLevel > userLevel));
 
-        return PagedResult<ChallengeListItemDto>.CreateAsync(projected, request.Page, request.PageSize, cancellationToken);
+        return await PagedResult<ChallengeListItemDto>.CreateAsync(projected, request.Page, request.PageSize, cancellationToken);
     }
 }

@@ -34,6 +34,14 @@ public class GamificationController : ControllerBase
         return Ok(ApiResponse<ClaimDailyQuestResultDto>.Ok(result, "Mükafat alındı."));
     }
 
+    [HttpGet("level-progress")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<LevelProgressDto>>> GetLevelProgress(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetLevelProgressQuery(), cancellationToken);
+        return Ok(ApiResponse<LevelProgressDto>.Ok(result));
+    }
+
     [HttpGet("achievements")]
     public async Task<ActionResult<ApiResponse<List<AchievementDto>>>> GetAchievements(CancellationToken cancellationToken)
     {

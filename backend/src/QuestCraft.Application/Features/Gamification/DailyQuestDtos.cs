@@ -11,4 +11,4 @@ public record DailyQuestDto(
     int XpReward,
     int CoinReward);
 
-public record ClaimDailyQuestResultDto(DailyQuestDto Quest, int TotalXp, int TotalCoins, int Level);
+public record ClaimDailyQuestResultDto(DailyQuestDto Quest, int TotalXp, int TotalCoins, int Level, List<string> NewAchievements);

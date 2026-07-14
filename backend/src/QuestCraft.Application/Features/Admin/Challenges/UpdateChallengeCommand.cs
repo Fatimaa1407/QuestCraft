@@ -24,7 +24,15 @@ public record UpdateChallengeCommand(
     string? SampleInput,
     string? SampleOutput,
     string? Hint,
-    bool IsPublished) : ICommand<ChallengeDetailDto>;
+    bool IsPublished,
+    int RequiredLevel = 1,
+    string? TitleEn = null,
+    string? DescriptionEn = null,
+    string? ConstraintsEn = null,
+    string? InputFormatEn = null,
+    string? OutputFormatEn = null,
+    string? HintEn = null,
+    string? StarterCodeEn = null) : ICommand<ChallengeDetailDto>;
 
 public class UpdateChallengeCommandValidator : AbstractValidator<UpdateChallengeCommand>
 {
@@ -40,6 +48,7 @@ public class UpdateChallengeCommandValidator : AbstractValidator<UpdateChallenge
         RuleFor(x => x.XpReward).GreaterThanOrEqualTo(0);
         RuleFor(x => x.CoinReward).GreaterThanOrEqualTo(0);
         RuleFor(x => x.StarterCode).NotEmpty().WithMessage("Starter code boş ola bilməz.");
+        RuleFor(x => x.RequiredLevel).GreaterThanOrEqualTo(1).WithMessage("Tələb olunan level ən azı 1 olmalıdır.");
     }
 }
 
@@ -81,6 +90,14 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
         challenge.SampleOutput = request.SampleOutput;
         challenge.Hint = request.Hint;
         challenge.IsPublished = request.IsPublished;
+        challenge.RequiredLevel = request.RequiredLevel;
+        challenge.TitleEn = request.TitleEn;
+        challenge.DescriptionEn = request.DescriptionEn;
+        challenge.ConstraintsEn = request.ConstraintsEn;
+        challenge.InputFormatEn = request.InputFormatEn;
+        challenge.OutputFormatEn = request.OutputFormatEn;
+        challenge.HintEn = request.HintEn;
+        challenge.StarterCodeEn = request.StarterCodeEn;
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -90,10 +107,11 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
             challenge.TimeLimitMs, challenge.MemoryLimitMb, challenge.XpReward, challenge.CoinReward,
             challenge.StarterCode, challenge.Constraints, challenge.InputFormat, challenge.OutputFormat,
             challenge.SampleInput, challenge.SampleOutput, challenge.Hint,
-            !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished,
+            !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished, challenge.RequiredLevel,
             challenge.TestCases.OrderBy(t => t.OrderIndex)
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))
                 .ToList(),
-            null);
+            null,
+            false);
     }
 }

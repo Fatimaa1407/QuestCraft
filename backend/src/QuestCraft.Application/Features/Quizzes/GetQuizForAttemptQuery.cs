@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Application.Features.Admin.Quizzes;
@@ -27,14 +28,38 @@ public class GetQuizForAttemptQueryHandler : IRequestHandler<GetQuizForAttemptQu
             .FirstOrDefaultAsync(q => q.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Quiz), request.Id);
 
-        if (!quiz.IsPublished && _currentUser.Role != "Admin")
+        var isAdmin = _currentUser.Role == "Admin";
+
+        if (!quiz.IsPublished && !isAdmin)
         {
             throw new NotFoundException(nameof(Quiz), request.Id);
         }
 
-        var questions = quiz.Questions.Select(q => new QuestionDto(
-            q.Id, q.Text, q.Options.Select(o => new QuestionOptionDto(o.Id, o.Text)).ToList())).ToList();
+        if (!isAdmin && quiz.RequiredLevel > 1)
+        {
+            var userLevel = _currentUser.UserId is null
+                ? 1
+                : await _context.UserProfiles
+                    .Where(p => p.UserId == _currentUser.UserId)
+                    .Select(p => p.Level)
+                    .FirstOrDefaultAsync(cancellationToken);
 
-        return new QuizAttemptViewDto(quiz.Id, quiz.Title, quiz.XpReward, questions);
+            if (userLevel < quiz.RequiredLevel)
+            {
+                throw new ForbiddenException($"Bu quiz üçün Level {quiz.RequiredLevel} lazımdır.");
+            }
+        }
+
+        var isEnglish = _currentUser.IsEnglish;
+        var questions = quiz.Questions.Select(q => new QuestionDto(
+            q.Id,
+            LocalizationHelper.Pick(q.Text, q.TextEn, isEnglish),
+            q.Options.Select(o => new QuestionOptionDto(o.Id, LocalizationHelper.Pick(o.Text, o.TextEn, isEnglish))).ToList()))
+            .ToList();
+
+        var isAlreadyCompleted = _currentUser.UserId is not null &&
+            await _context.QuizAttempts.AnyAsync(a => a.UserId == _currentUser.UserId && a.QuizId == request.Id, cancellationToken);
+
+        return new QuizAttemptViewDto(quiz.Id, LocalizationHelper.Pick(quiz.Title, quiz.TitleEn, isEnglish), quiz.XpReward, questions, isAlreadyCompleted);
     }
 }

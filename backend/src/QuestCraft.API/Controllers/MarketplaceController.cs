@@ -44,7 +44,9 @@ public class MarketplaceController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<MarketplaceItemDto>>> UpdateItem(int id, UpdateMarketplaceItemRequest request, CancellationToken cancellationToken)
     {
-        var command = new UpdateMarketplaceItemCommand(id, request.Name, request.Description, request.ItemTypeId, request.Price, request.ImageUrl, request.IsActive);
+        var command = new UpdateMarketplaceItemCommand(
+            id, request.Name, request.Description, request.ItemTypeId, request.Price, request.ImageUrl, request.IsActive,
+            request.NameEn, request.DescriptionEn);
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(ApiResponse<MarketplaceItemDto>.Ok(result, "Məhsul yeniləndi."));
     }
@@ -82,4 +84,6 @@ public class MarketplaceController : ControllerBase
     }
 }
 
-public record UpdateMarketplaceItemRequest(string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive);
+public record UpdateMarketplaceItemRequest(
+    string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive,
+    string? NameEn = null, string? DescriptionEn = null);

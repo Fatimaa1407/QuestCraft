@@ -40,9 +40,26 @@ public class RunChallengeQueryHandler : IRequestHandler<RunChallengeQuery, RunRe
             .FirstOrDefaultAsync(c => c.Id == request.ChallengeId, cancellationToken)
             ?? throw new NotFoundException(nameof(Challenge), request.ChallengeId);
 
-        if (!challenge.IsPublished && _currentUser.Role != "Admin")
+        var isAdmin = _currentUser.Role == "Admin";
+
+        if (!challenge.IsPublished && !isAdmin)
         {
             throw new NotFoundException(nameof(Challenge), request.ChallengeId);
+        }
+
+        if (!isAdmin && challenge.RequiredLevel > 1)
+        {
+            var userLevel = _currentUser.UserId is null
+                ? 1
+                : await _context.UserProfiles
+                    .Where(p => p.UserId == _currentUser.UserId)
+                    .Select(p => p.Level)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+            if (userLevel < challenge.RequiredLevel)
+            {
+                throw new ForbiddenException($"Bu challenge üçün Level {challenge.RequiredLevel} lazımdır.");
+            }
         }
 
         var testCaseInputs = challenge.TestCases

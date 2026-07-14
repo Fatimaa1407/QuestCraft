@@ -23,11 +23,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Register(RegisterCommand command, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<UserDto>>> Register(RegisterCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
-        SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpiresAtUtc);
-        return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Qeydiyyat uğurludur."));
+        return Ok(ApiResponse<UserDto>.Ok(result, "Qeydiyyat uğurludur. İndi daxil ola bilərsiniz."));
     }
 
     [HttpPost("login")]

@@ -32,9 +32,13 @@ export function AmbientGlow() {
         }}
       />
 
-      {/* One-two soft blue glows. */}
+      {/* Soft radial glows for depth. */}
       <div className="absolute -top-20 left-1/4 h-[32rem] w-[32rem] rounded-full bg-blue-500/[0.18] blur-3xl dark:bg-blue-500/[0.28]" />
       <div className="absolute top-1/3 -right-24 h-[26rem] w-[26rem] rounded-full bg-cyan-500/[0.15] blur-3xl dark:bg-cyan-500/[0.24]" />
+      <div className="absolute bottom-0 left-1/2 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-blue-400/[0.08] blur-3xl dark:bg-indigo-500/[0.14]" />
+
+      {/* Film-grain texture for tactility. */}
+      <div className="noise-overlay absolute inset-0" />
 
       {/* Sparse floating code snippets — same idea as CodeBackdrop, toned down. */}
       {snippets.map((snippet, index) => (

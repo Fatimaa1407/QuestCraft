@@ -27,12 +27,17 @@ public class GetDailyQuestsQueryHandler : IRequestHandler<GetDailyQuestsQuery, L
         await _dailyQuestService.EnsureTodayQuestsAsync(userId, cancellationToken);
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var isEnglish = _currentUser.IsEnglish;
 
         return await _context.UserDailyQuests
             .Include(q => q.DailyQuestTemplate)
             .Where(q => q.UserId == userId && q.QuestDate == today)
             .Select(q => new DailyQuestDto(
-                q.Id, q.DailyQuestTemplate.Title, q.DailyQuestTemplate.Description,
+                q.Id,
+                isEnglish && q.DailyQuestTemplate.TitleEn != null && q.DailyQuestTemplate.TitleEn != ""
+                    ? q.DailyQuestTemplate.TitleEn : q.DailyQuestTemplate.Title,
+                isEnglish && q.DailyQuestTemplate.DescriptionEn != null && q.DailyQuestTemplate.DescriptionEn != ""
+                    ? q.DailyQuestTemplate.DescriptionEn : q.DailyQuestTemplate.Description,
                 q.CurrentProgress, q.TargetValue, q.IsCompleted, q.RewardClaimed,
                 q.DailyQuestTemplate.XpReward, q.DailyQuestTemplate.CoinReward))
             .ToListAsync(cancellationToken);

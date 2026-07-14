@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Mail } from 'lucide-react';
 import { login } from '../../api/auth';
@@ -13,7 +13,9 @@ import { Button } from '../../components/ui/Button';
 export function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const registered = Boolean((location.state as { registered?: boolean } | null)?.registered);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +44,11 @@ export function LoginPage() {
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('auth.login.subtitle')}</p>
 
       <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+        {registered && !error && (
+          <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-600 dark:bg-green-950/50 dark:text-green-400">
+            {t('auth.login.registeredSuccess')}
+          </p>
+        )}
         {error && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">{error}</p>
         )}

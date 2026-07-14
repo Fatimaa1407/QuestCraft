@@ -28,4 +28,7 @@ public class CurrentUserService : ICurrentUserService
     public string? Role => User?.FindFirstValue(ClaimTypes.Role);
 
     public string? IpAddress => _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+
+    public bool IsEnglish =>
+        string.Equals(_httpContextAccessor.HttpContext?.Request.Headers["X-Language"].ToString(), "en", StringComparison.OrdinalIgnoreCase);
 }

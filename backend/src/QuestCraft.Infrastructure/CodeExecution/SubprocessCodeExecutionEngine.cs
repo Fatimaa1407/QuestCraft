@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Enums;
 
@@ -43,7 +44,13 @@ public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
         try
         {
             await File.WriteAllTextAsync(Path.Combine(workDir, "Solution.csproj"), CsprojTemplate, cancellationToken);
-            await File.WriteAllTextAsync(Path.Combine(workDir, "Program.cs"), sourceCode, cancellationToken);
+            // A BOM forces the C# compiler to recognize the source file as UTF-8 rather than falling back
+            // to the system code page, which otherwise mangles non-ASCII output (e.g. Azerbaijani ş/ı/ə).
+            await File.WriteAllTextAsync(Path.Combine(workDir, "Program.cs"), sourceCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true), cancellationToken);
+            // Console.OutputEncoding defaults to the legacy OEM code page even when stdout is redirected,
+            // which silently transliterates non-ASCII output (ş→s, ı→i). A module initializer runs before
+            // the submission's own Main, so this fixes it without touching user-submitted source.
+            await File.WriteAllTextAsync(Path.Combine(workDir, "EncodingBootstrap.cs"), EncodingBootstrapSource, cancellationToken);
 
             var outDir = Path.Combine(workDir, "out");
             var buildResult = await RunProcessAsync(
@@ -146,8 +153,32 @@ public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
           </PropertyGroup>
           <ItemGroup>
             <Compile Include="Program.cs" />
+            <Compile Include="EncodingBootstrap.cs" />
           </ItemGroup>
         </Project>
+        """;
+
+    private const string EncodingBootstrapSource = """
+        using System.Runtime.CompilerServices;
+        using System.Text;
+
+        internal static class EncodingBootstrap
+        {
+            [ModuleInitializer]
+            internal static void Init()
+            {
+                var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+                System.Console.OutputEncoding = utf8;
+                try
+                {
+                    System.Console.InputEncoding = utf8;
+                }
+                catch (System.IO.IOException)
+                {
+                    // Input may already be fully consumed or unavailable when redirected — safe to ignore.
+                }
+            }
+        }
         """;
 
     private record ProcessRunResult(int ExitCode, string Stdout, string Stderr, bool TimedOut, bool MemoryExceeded, int ElapsedMs, int PeakMemoryKb);
@@ -166,6 +197,9 @@ public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
+                StandardInputEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                StandardOutputEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                StandardErrorEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
                 UseShellExecute = false,
                 CreateNoWindow = true,
             },

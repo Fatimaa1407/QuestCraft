@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Entities;
@@ -71,6 +72,6 @@ public class PurchaseItemCommandHandler : IRequestHandler<PurchaseItemCommand, P
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new PurchaseResultDto(purchase.Id, item.Name, item.Price, profile.Coins);
+        return new PurchaseResultDto(purchase.Id, LocalizationHelper.Pick(item.Name, item.NameEn, _currentUser.IsEnglish), item.Price, profile.Coins);
     }
 }

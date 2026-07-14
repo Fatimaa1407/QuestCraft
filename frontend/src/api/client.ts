@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import i18n from '../i18n';
 import { useAuthStore } from '../app/authStore';
 import type { ApiResponse } from '../types/api';
 import type { AuthResponse } from '../types/auth';
@@ -12,6 +13,7 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  config.headers['X-Language'] = i18n.language;
   return config;
 });
 

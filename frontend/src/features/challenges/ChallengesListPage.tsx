@@ -1,44 +1,97 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Search, Star, Coins } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Star, Coins, Lock } from 'lucide-react';
 import { getCategories, getChallenges, getDifficulties } from '../../api/challenges';
+import { getMySubmissions } from '../../api/submissions';
+import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { LevelSectionHeader, type LevelSectionStatus } from '../../components/ui/LevelSectionHeader';
+import { fadeInUp, staggerContainer } from '../../utils/motion';
+import type { ChallengeListItemDto } from '../../types/challenge';
+
+type ChallengeStatus = 'Solved' | 'Attempted' | 'NotStarted';
 
 export function ChallengesListPage() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
   const [difficultyId, setDifficultyId] = useState<number | undefined>(undefined);
   const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  const [expandedLevels, setExpandedLevels] = useState<Set<number>>(() => new Set([user?.level ?? 1]));
 
   const categoriesQuery = useQuery({ queryKey: ['categories'], queryFn: getCategories });
   const difficultiesQuery = useQuery({ queryKey: ['difficulties'], queryFn: getDifficulties });
   const challengesQuery = useQuery({
-    queryKey: ['challenges', categoryId, difficultyId, search, page],
-    queryFn: () => getChallenges({ categoryId, difficultyId, search: search || undefined, page, pageSize: 12 }),
+    queryKey: ['challenges', categoryId, difficultyId, search],
+    queryFn: () => getChallenges({ categoryId, difficultyId, search: search || undefined, page: 1, pageSize: 100 }),
   });
 
+  const mySubmissionsQuery = useQuery({
+    queryKey: ['submissions', 'my', 'all'],
+    queryFn: () => getMySubmissions(1, 100),
+  });
+
+  const statusByChallengeId = useMemo(() => {
+    const map = new Map<number, ChallengeStatus>();
+    for (const s of mySubmissionsQuery.data?.items ?? []) {
+      if (s.verdict === 'Accepted') {
+        map.set(s.challengeId, 'Solved');
+      } else if (!map.has(s.challengeId)) {
+        map.set(s.challengeId, 'Attempted');
+      }
+    }
+    return map;
+  }, [mySubmissionsQuery.data]);
+
+  const groupedByLevel = useMemo(() => {
+    const groups = new Map<number, ChallengeListItemDto[]>();
+    for (const c of challengesQuery.data?.items ?? []) {
+      const list = groups.get(c.requiredLevel) ?? [];
+      list.push(c);
+      groups.set(c.requiredLevel, list);
+    }
+    return [...groups.entries()].sort(([a], [b]) => a - b);
+  }, [challengesQuery.data]);
+
+  // Keep the current level expanded by default once we know it (e.g. after auth hydrates).
+  useEffect(() => {
+    if (user?.level) {
+      setExpandedLevels((prev) => (prev.has(user.level) ? prev : new Set(prev).add(user.level)));
+    }
+  }, [user?.level]);
+
+  const toggleLevel = (level: number) => {
+    setExpandedLevels((prev) => {
+      const next = new Set(prev);
+      if (next.has(level)) {
+        next.delete(level);
+      } else {
+        next.add(level);
+      }
+      return next;
+    });
+  };
+
+  const userLevel = user?.level ?? 1;
   const data = challengesQuery.data;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{t('challenges.title')}</h1>
-        <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{t('challenges.subtitle')}</p>
-      </div>
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
+      <motion.div variants={fadeInUp}>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">{t('challenges.title')}</h1>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('challenges.subtitle')}</p>
+      </motion.div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-3">
         <div className="relative">
           <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder={t('challenges.searchPlaceholder')}
             className="w-64 rounded-full border border-slate-200/70 bg-white/80 py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition focus:border-blue-400 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-100"
           />
@@ -46,10 +99,7 @@ export function ChallengesListPage() {
 
         <select
           value={categoryId ?? ''}
-          onChange={(e) => {
-            setCategoryId(e.target.value ? Number(e.target.value) : undefined);
-            setPage(1);
-          }}
+          onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : undefined)}
           className="rounded-full border border-slate-200/70 bg-white/80 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-100"
         >
           <option value="">{t('challenges.allCategories')}</option>
@@ -62,10 +112,7 @@ export function ChallengesListPage() {
 
         <select
           value={difficultyId ?? ''}
-          onChange={(e) => {
-            setDifficultyId(e.target.value ? Number(e.target.value) : undefined);
-            setPage(1);
-          }}
+          onChange={(e) => setDifficultyId(e.target.value ? Number(e.target.value) : undefined)}
           className="rounded-full border border-slate-200/70 bg-white/80 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-100"
         >
           <option value="">{t('challenges.allDifficulties')}</option>
@@ -75,56 +122,103 @@ export function ChallengesListPage() {
             </option>
           ))}
         </select>
-      </div>
+      </motion.div>
 
       {challengesQuery.isLoading ? (
         <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>
       ) : !data || data.items.length === 0 ? (
         <p className="text-sm text-slate-500 dark:text-slate-500">{t('challenges.empty')}</p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {data.items.map((challenge) => (
-            <Link key={challenge.id} to={`/challenges/${challenge.id}`}>
-              <GlassCard className="h-full p-5 transition hover:-translate-y-0.5 hover:shadow-xl">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="font-semibold text-slate-900 dark:text-slate-100">{challenge.title}</h2>
-                  <DifficultyBadge name={challenge.difficulty} />
-                </div>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{challenge.category}</p>
-                <div className="mt-4 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <Star size={13} className="text-blue-500 dark:text-cyan-400" />
-                    {challenge.xpReward} XP
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Coins size={13} className="text-amber-500" />
-                    {challenge.coinReward}
-                  </span>
-                </div>
-              </GlassCard>
-            </Link>
-          ))}
-        </div>
-      )}
+        <div className="space-y-4">
+          {groupedByLevel.map(([level, items]) => {
+            const allUnlocked = items.every((c) => !c.isLocked);
+            const sectionStatus: LevelSectionStatus =
+              level < userLevel ? 'Completed' : level === userLevel || allUnlocked ? 'Current' : 'Locked';
+            const isExpanded = expandedLevels.has(level);
 
-      {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-2">
-          {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={`h-8 w-8 rounded-full text-sm font-medium transition ${
-                p === page
-                  ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm shadow-blue-500/30'
-                  : 'border border-slate-200/70 text-slate-600 hover:border-blue-400 dark:border-white/[0.08] dark:text-slate-300'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
+            return (
+              <motion.div key={level} variants={fadeInUp}>
+                <LevelSectionHeader
+                  level={level}
+                  status={sectionStatus}
+                  isExpanded={isExpanded}
+                  onToggle={() => toggleLevel(level)}
+                  i18nNamespace="challenges"
+                />
+
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      <motion.div
+                        variants={staggerContainer}
+                        initial="hidden"
+                        animate="show"
+                        className="grid grid-cols-1 gap-6 pb-2 pt-4 sm:grid-cols-2 lg:grid-cols-3"
+                      >
+                        {items.map((challenge) => {
+                          const status = statusByChallengeId.get(challenge.id) ?? 'NotStarted';
+                          const card = (
+                            <GlassCard
+                              glow={!challenge.isLocked}
+                              hoverLift={!challenge.isLocked}
+                              className={`relative flex h-full flex-col p-6 ${challenge.isLocked ? 'opacity-60 grayscale-[40%]' : ''}`}
+                            >
+                              {challenge.isLocked && (
+                                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-400 backdrop-blur-sm">
+                                  <Lock size={12} />
+                                  {t('challenges.requiresLevel', { level: challenge.requiredLevel })}
+                                </span>
+                              )}
+                              <div className="flex items-start justify-between gap-2 pr-2">
+                                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{challenge.title}</h2>
+                                {!challenge.isLocked && <DifficultyBadge name={challenge.difficulty} />}
+                              </div>
+                              <div className="mt-1 flex items-center justify-between gap-2">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{challenge.category}</p>
+                                {!challenge.isLocked && <StatusBadge status={status} />}
+                              </div>
+
+                              <div className="mt-5 flex-1" />
+
+                              <div className="flex items-center gap-4 border-t border-slate-200/70 pt-4 text-xs text-slate-500 dark:border-white/[0.06] dark:text-slate-400">
+                                <span className="flex items-center gap-1.5 font-medium text-blue-600 dark:text-cyan-400">
+                                  <Star size={14} />
+                                  {challenge.xpReward} XP
+                                </span>
+                                <span className="flex items-center gap-1.5 font-medium text-amber-600 dark:text-amber-400">
+                                  <Coins size={14} />
+                                  {challenge.coinReward}
+                                </span>
+                              </div>
+                            </GlassCard>
+                          );
+
+                          return (
+                            <motion.div key={challenge.id} variants={fadeInUp}>
+                              {challenge.isLocked ? (
+                                <div className="cursor-not-allowed">{card}</div>
+                              ) : (
+                                <Link to={`/challenges/${challenge.id}`}>{card}</Link>
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -136,5 +230,23 @@ const difficultyStyles: Record<string, string> = {
 
 function DifficultyBadge({ name }: { name: string }) {
   const style = difficultyStyles[name] ?? 'bg-slate-500/10 text-slate-600 dark:text-slate-400';
-  return <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${style}`}>{name}</span>;
+  return <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${style}`}>{name}</span>;
 }
+
+const statusStyles: Record<ChallengeStatus, { dot: string; text: string }> = {
+  Solved: { dot: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400' },
+  Attempted: { dot: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400' },
+  NotStarted: { dot: 'bg-slate-400 dark:bg-slate-500', text: 'text-slate-500 dark:text-slate-400' },
+};
+
+function StatusBadge({ status }: { status: ChallengeStatus }) {
+  const { t } = useTranslation();
+  const style = statusStyles[status];
+  return (
+    <span className={`flex shrink-0 items-center gap-1.5 text-[11px] font-medium ${style.text}`}>
+      <span className={`h-2 w-2 rounded-full ${style.dot}`} />
+      {t(`challenges.status.${status}`)}
+    </span>
+  );
+}
+

@@ -7,6 +7,8 @@ public class Achievement : BaseEntity
 {
     public string Name { get; set; } = default!;
     public string Description { get; set; } = default!;
+    public string? NameEn { get; set; }
+    public string? DescriptionEn { get; set; }
     public string? IconUrl { get; set; }
     public AchievementConditionType ConditionType { get; set; }
     public int ConditionValue { get; set; }

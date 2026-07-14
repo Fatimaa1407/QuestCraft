@@ -6,4 +6,7 @@ public interface ICurrentUserService
     string? Username { get; }
     string? Role { get; }
     string? IpAddress { get; }
+
+    /// <summary>True when the client requested English content via the X-Language header.</summary>
+    bool IsEnglish { get; }
 }

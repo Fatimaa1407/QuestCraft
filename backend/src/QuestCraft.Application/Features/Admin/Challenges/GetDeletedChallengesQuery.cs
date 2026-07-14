@@ -23,6 +23,6 @@ public class GetDeletedChallengesQueryHandler : IRequestHandler<GetDeletedChalle
             .Include(c => c.Difficulty)
             .OrderByDescending(c => c.UpdatedAt)
             .Select(c => new ChallengeListItemDto(
-                c.Id, c.Title, c.Category.Name, c.Difficulty.Name, c.XpReward, c.CoinReward, c.IsPublished))
+                c.Id, c.Title, c.Category.Name, c.Difficulty.Name, c.XpReward, c.CoinReward, c.IsPublished, c.RequiredLevel, false))
             .ToListAsync(cancellationToken);
 }

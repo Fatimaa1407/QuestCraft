@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AtSign, Mail, User as UserIcon } from 'lucide-react';
 import { register } from '../../api/auth';
-import { useAuthStore } from '../../app/authStore';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { TextField } from '../../components/ui/TextField';
@@ -14,7 +13,6 @@ import { Button } from '../../components/ui/Button';
 export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const setAuth = useAuthStore((s) => s.setAuth);
 
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -38,8 +36,7 @@ export function RegisterPage() {
     try {
       const response = await register({ username, firstName, lastName, email, password });
       if (response.data) {
-        setAuth(response.data.user, response.data.accessToken);
-        navigate('/', { replace: true });
+        navigate('/login', { replace: true, state: { registered: true } });
       }
     } catch (err) {
       setError(getApiErrorMessage(err, t('auth.register.errorFallback')));
