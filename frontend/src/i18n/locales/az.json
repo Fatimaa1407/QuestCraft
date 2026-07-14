@@ -114,6 +114,17 @@
     "unlockedBadge": "✓ Açıq",
     "empty": "Hələ heç bir nailiyyət yoxdur."
   },
+  "profile": {
+    "equippedTitle": "Taxılmış Əşyalar",
+    "changeInShop": "Mağazada dəyiş",
+    "noEquipped": "Hələ heç bir əşya taxılmayıb.",
+    "bioTitle": "Haqqımda",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Özün haqqında qısa bir şey yaz...",
+    "save": "Yadda saxla",
+    "saving": "Yadda saxlanılır...",
+    "saved": "Yadda saxlanıldı ✓"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "challenges": "Challenges",
@@ -122,6 +133,7 @@
     "achievements": "Nailiyyətlər",
     "shop": "Mağaza",
     "profile": "Profil",
+    "admin": "Admin",
     "logout": "Çıxış"
   },
   "challenges": {
@@ -200,10 +212,101 @@
     "noQuizzes": "Hələ heç bir quiz cəhdi yoxdur.",
     "viewAll": "Hamısına bax"
   },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Platformanın məzmununu idarə et.",
+    "actions": "Əməliyyatlar",
+    "empty": "Heç bir qeyd tapılmadı.",
+    "showDeleted": "Silinmişləri göstər",
+    "showingDeleted": "Silinmişlər göstərilir",
+    "edit": "Redaktə et",
+    "delete": "Sil",
+    "restore": "Bərpa et",
+    "save": "Yadda saxla",
+    "saving": "Yadda saxlanılır...",
+    "confirmDelete": "Silmək istədiyinizə əminsiniz?",
+    "backToPanel": "Admin Panelə qayıt",
+    "add": "Əlavə et",
+    "sections": {
+      "challenges": "Challenge-lər",
+      "challengesDesc": "Kod tapşırıqlarını yarat və idarə et",
+      "quizzes": "Quiz-lər",
+      "quizzesDesc": "Quiz və sualları idarə et",
+      "categories": "Kateqoriyalar",
+      "categoriesDesc": "Challenge kateqoriyaları",
+      "difficulties": "Çətinlik dərəcələri",
+      "difficultiesDesc": "Easy/Medium/Hard səviyyələri",
+      "marketplace": "Mağaza",
+      "marketplaceDesc": "Mağaza əşyaları",
+      "achievements": "Nailiyyətlər",
+      "achievementsDesc": "Nailiyyət şərtləri və mükafatları",
+      "dailyQuests": "Gündəlik Tapşırıqlar",
+      "dailyQuestsDesc": "Gündəlik tapşırıq şablonları",
+      "excel": "Excel Alətləri",
+      "excelDesc": "Toplu idxal/ixrac",
+      "auditLog": "Audit Jurnalı",
+      "auditLogDesc": "Admin əməliyyatları tarixçəsi"
+    },
+    "categories": {
+      "title": "Kateqoriyalar",
+      "add": "Yeni kateqoriya",
+      "name": "Ad",
+      "description": "Təsvir",
+      "iconUrl": "İkon URL"
+    },
+    "difficulties": {
+      "title": "Çətinlik dərəcələri",
+      "add": "Yeni dərəcə",
+      "name": "Ad",
+      "color": "Rəng",
+      "xpMultiplier": "XP əmsalı"
+    },
+    "marketplace": {
+      "title": "Mağaza əşyaları",
+      "add": "Yeni əşya",
+      "name": "Ad",
+      "nameEn": "Ad (EN)",
+      "description": "Təsvir",
+      "itemType": "Əşya növü",
+      "price": "Qiymət",
+      "imageUrl": "Şəkil URL",
+      "active": "Aktiv"
+    },
+    "achievements": {
+      "title": "Nailiyyətlər",
+      "add": "Yeni nailiyyət",
+      "name": "Ad",
+      "nameEn": "Ad (EN)",
+      "description": "Təsvir",
+      "iconUrl": "İkon URL",
+      "conditionType": "Şərt tipi",
+      "conditionValue": "Şərt dəyəri",
+      "xpReward": "XP mükafatı",
+      "coinReward": "Coin mükafatı",
+      "active": "Aktiv"
+    },
+    "dailyQuests": {
+      "title": "Gündəlik tapşırıqlar",
+      "add": "Yeni tapşırıq",
+      "questTitle": "Başlıq",
+      "questTitleEn": "Başlıq (EN)",
+      "description": "Təsvir",
+      "targetType": "Hədəf tipi",
+      "targetValue": "Hədəf dəyəri",
+      "xpReward": "XP mükafatı",
+      "coinReward": "Coin mükafatı",
+      "active": "Aktiv"
+    }
+  },
   "notifications": {
     "title": "Bildirişlər",
     "empty": "Hələ bildiriş yoxdur.",
     "unreadBadge": "{{count}} oxunmamış",
+    "markAllRead": "Hamısını oxu",
+    "today": "Bu gün",
+    "yesterday": "Dünən",
+    "thisWeek": "Bu həftə",
+    "older": "Daha əvvəl",
     "justNow": "indicə",
     "minutesAgo": "{{count}} dəq əvvəl",
     "hoursAgo": "{{count}} saat əvvəl",

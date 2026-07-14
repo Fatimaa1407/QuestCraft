@@ -40,4 +40,13 @@ public record ChallengeDetailDto(
     int RequiredLevel,
     List<TestCaseDto> TestCases,
     List<HiddenTestCaseDto>? HiddenTestCases,
-    bool IsAlreadySolved);
+    bool IsAlreadySolved,
+    // Raw (unresolved) English variants, for the admin edit form only — every other field above is
+    // already localized to the current viewer's language via LocalizationHelper.
+    string? TitleEn = null,
+    string? DescriptionEn = null,
+    string? ConstraintsEn = null,
+    string? InputFormatEn = null,
+    string? OutputFormatEn = null,
+    string? HintEn = null,
+    string? StarterCodeEn = null);

@@ -49,6 +49,7 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
 
         var isEnglish = _currentUser.IsEnglish;
         var localizedQuestTitle = LocalizationHelper.Pick(quest.DailyQuestTemplate.Title, quest.DailyQuestTemplate.TitleEn, isEnglish);
+        var questTitleEn = string.IsNullOrWhiteSpace(quest.DailyQuestTemplate.TitleEn) ? quest.DailyQuestTemplate.Title : quest.DailyQuestTemplate.TitleEn;
 
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
         if (profile is not null)
@@ -68,10 +69,10 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
         {
             UserId = userId,
             Type = NotificationType.DailyQuestReminder,
-            Title = isEnglish ? "Quest reward" : "Tapşırıq mükafatı",
-            Message = isEnglish
-                ? $"You claimed the reward for \"{localizedQuestTitle}\"."
-                : $"\"{localizedQuestTitle}\" tapşırığının mükafatını aldınız.",
+            Title = "Tapşırıq mükafatı",
+            Message = $"\"{quest.DailyQuestTemplate.Title}\" tapşırığının mükafatını aldınız.",
+            TitleEn = "Quest reward",
+            MessageEn = $"You claimed the reward for \"{questTitleEn}\".",
         });
 
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);

@@ -65,4 +65,12 @@ export interface ChallengeDetailDto {
   testCases: TestCaseDto[];
   hiddenTestCases: HiddenTestCaseDto[] | null;
   isAlreadySolved: boolean;
+  // Admin-only: raw (unresolved) English variants, populated only when the requester is an Admin.
+  titleEn: string | null;
+  descriptionEn: string | null;
+  constraintsEn: string | null;
+  inputFormatEn: string | null;
+  outputFormatEn: string | null;
+  hintEn: string | null;
+  starterCodeEn: string | null;
 }

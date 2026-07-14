@@ -35,4 +35,11 @@ public class NotificationsController : ControllerBase
         await _mediator.Send(new MarkNotificationReadCommand(id), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null, "Oxundu kimi işarələndi."));
     }
+
+    [HttpPut("read-all")]
+    public async Task<IActionResult> MarkAllRead(CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new MarkAllNotificationsReadCommand(), cancellationToken);
+        return Ok(ApiResponse<object?>.Ok(null, "Hamısı oxundu kimi işarələndi."));
+    }
 }

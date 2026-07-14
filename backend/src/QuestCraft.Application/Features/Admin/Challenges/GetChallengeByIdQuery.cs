@@ -102,6 +102,13 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))
                 .ToList(),
             hiddenTestCases,
-            isAlreadySolved);
+            isAlreadySolved,
+            isAdmin ? challenge.TitleEn : null,
+            isAdmin ? challenge.DescriptionEn : null,
+            isAdmin ? challenge.ConstraintsEn : null,
+            isAdmin ? challenge.InputFormatEn : null,
+            isAdmin ? challenge.OutputFormatEn : null,
+            isAdmin ? challenge.HintEn : null,
+            isAdmin ? challenge.StarterCodeEn : null);
     }
 }

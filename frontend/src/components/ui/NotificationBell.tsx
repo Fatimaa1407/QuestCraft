@@ -3,10 +3,40 @@ import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info } from 'lucide-react';
-import { getNotifications, markNotificationRead } from '../../api/notifications';
+import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck } from 'lucide-react';
+import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/notifications';
 import type { AppNotification, NotificationType } from '../../types/notification';
 import { Z_INDEX } from '../../styles/zIndex';
+
+const MAX_NOTIFICATIONS = 30;
+
+type DateBucket = 'today' | 'yesterday' | 'thisWeek' | 'older';
+const BUCKET_ORDER: DateBucket[] = ['today', 'yesterday', 'thisWeek', 'older'];
+
+function getDateBucket(isoDate: string): DateBucket {
+  const date = new Date(isoDate);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfWeek.getDate() - 7);
+
+  if (date >= startOfToday) return 'today';
+  if (date >= startOfYesterday) return 'yesterday';
+  if (date >= startOfWeek) return 'thisWeek';
+  return 'older';
+}
+
+function groupByDate(items: AppNotification[]): Array<{ bucket: DateBucket; items: AppNotification[] }> {
+  const groups = new Map<DateBucket, AppNotification[]>();
+  for (const item of items) {
+    const bucket = getDateBucket(item.createdAt);
+    if (!groups.has(bucket)) groups.set(bucket, []);
+    groups.get(bucket)!.push(item);
+  }
+  return BUCKET_ORDER.filter((bucket) => groups.has(bucket)).map((bucket) => ({ bucket, items: groups.get(bucket)! }));
+}
 
 const iconByType: Record<NotificationType, typeof Sparkles> = {
   AchievementUnlock: Sparkles,
@@ -56,7 +86,7 @@ export function NotificationBell() {
 
   const { data: list } = useQuery({
     queryKey: ['notifications', 'recent'],
-    queryFn: () => getNotifications({ page: 1, pageSize: 10 }),
+    queryFn: () => getNotifications({ page: 1, pageSize: MAX_NOTIFICATIONS }),
     enabled: isOpen,
     refetchInterval: isOpen ? 60_000 : false,
   });
@@ -116,6 +146,13 @@ export function NotificationBell() {
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 
+  const handleMarkAllRead = async () => {
+    await markAllNotificationsRead();
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+  };
+
+  const groupedItems = list ? groupByDate(list.items) : [];
+
   return (
     <>
       <button
@@ -146,9 +183,21 @@ export function NotificationBell() {
               className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-xl backdrop-blur-xl dark:border-white/[0.08] dark:bg-slate-900/95"
             >
               <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 dark:border-white/[0.06]">
-                <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t('notifications.title')}</span>
+                <span className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  {t('notifications.title')}
+                  {unreadCount > 0 && (
+                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400">{t('notifications.unreadBadge', { count: unreadCount })}</span>
+                  )}
+                </span>
                 {unreadCount > 0 && (
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{t('notifications.unreadBadge', { count: unreadCount })}</span>
+                  <button
+                    type="button"
+                    onClick={handleMarkAllRead}
+                    className="flex items-center gap-1 text-xs font-medium text-indigo-600 transition hover:text-indigo-700 dark:text-cyan-400 dark:hover:text-cyan-300"
+                  >
+                    <CheckCheck size={13} />
+                    {t('notifications.markAllRead')}
+                  </button>
                 )}
               </div>
 
@@ -156,31 +205,38 @@ export function NotificationBell() {
                 {!list || list.items.length === 0 ? (
                   <p className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">{t('notifications.empty')}</p>
                 ) : (
-                  list.items.map((notification) => {
-                    const Icon = iconByType[notification.type];
-                    return (
-                      <button
-                        key={notification.id}
-                        type="button"
-                        onClick={() => handleItemClick(notification)}
-                        className={`flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 dark:hover:bg-white/5 ${
-                          notification.isRead ? '' : 'bg-indigo-50/60 dark:bg-cyan-500/[0.06]'
-                        }`}
-                      >
-                        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 text-white">
-                          <Icon size={14} />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-1.5">
-                            <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{notification.title}</span>
-                            {!notification.isRead && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-cyan-400" />}
-                          </span>
-                          <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{notification.message}</span>
-                          <span className="mt-1 block text-[11px] text-slate-400 dark:text-slate-500">{formatRelative(notification.createdAt)}</span>
-                        </span>
-                      </button>
-                    );
-                  })
+                  groupedItems.map(({ bucket, items }) => (
+                    <div key={bucket}>
+                      <p className="sticky top-0 bg-white/95 px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 backdrop-blur-xl dark:bg-slate-900/95 dark:text-slate-500">
+                        {t(`notifications.${bucket}`)}
+                      </p>
+                      {items.map((notification) => {
+                        const Icon = iconByType[notification.type];
+                        return (
+                          <button
+                            key={notification.id}
+                            type="button"
+                            onClick={() => handleItemClick(notification)}
+                            className={`flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 dark:hover:bg-white/5 ${
+                              notification.isRead ? '' : 'bg-indigo-50/60 dark:bg-cyan-500/[0.06]'
+                            }`}
+                          >
+                            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 text-white">
+                              <Icon size={14} />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-center gap-1.5">
+                                <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{notification.title}</span>
+                                {!notification.isRead && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-cyan-400" />}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{notification.message}</span>
+                              <span className="mt-1 block text-[11px] text-slate-400 dark:text-slate-500">{formatRelative(notification.createdAt)}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))
                 )}
               </div>
             </motion.div>

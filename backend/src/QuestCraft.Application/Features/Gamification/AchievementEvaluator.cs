@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Entities;
 using QuestCraft.Domain.Enums;
@@ -18,12 +17,10 @@ public interface IAchievementEvaluator
 public class AchievementEvaluator : IAchievementEvaluator
 {
     private readonly IApplicationDbContext _context;
-    private readonly ICurrentUserService _currentUser;
 
-    public AchievementEvaluator(IApplicationDbContext context, ICurrentUserService currentUser)
+    public AchievementEvaluator(IApplicationDbContext context)
     {
         _context = context;
-        _currentUser = currentUser;
     }
 
     public async Task<List<Achievement>> EvaluateAsync(int userId, CancellationToken cancellationToken)
@@ -83,16 +80,15 @@ public class AchievementEvaluator : IAchievementEvaluator
                 _context.XpTransactions.Add(new XpTransaction { UserId = userId, Amount = achievement.XpReward, Source = "Achievement" });
             }
 
-            var isEnglish = _currentUser.IsEnglish;
-            var localizedName = LocalizationHelper.Pick(achievement.Name, achievement.NameEn, isEnglish);
+            var nameEn = string.IsNullOrWhiteSpace(achievement.NameEn) ? achievement.Name : achievement.NameEn;
             _context.Notifications.Add(new Notification
             {
                 UserId = userId,
                 Type = NotificationType.AchievementUnlock,
-                Title = isEnglish ? "New achievement!" : "Yeni nailiyyət!",
-                Message = isEnglish
-                    ? $"You unlocked \"{localizedName}\"."
-                    : $"\"{localizedName}\" nailiyyətini əldə etdiniz.",
+                Title = "Yeni nailiyyət!",
+                Message = $"\"{achievement.Name}\" nailiyyətini əldə etdiniz.",
+                TitleEn = "New achievement!",
+                MessageEn = $"You unlocked \"{nameEn}\".",
             });
 
             unlocked.Add(achievement);

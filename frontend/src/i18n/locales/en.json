@@ -114,6 +114,17 @@
     "unlockedBadge": "✓ Unlocked",
     "empty": "No achievements yet."
   },
+  "profile": {
+    "equippedTitle": "Equipped Items",
+    "changeInShop": "Change in Shop",
+    "noEquipped": "Nothing equipped yet.",
+    "bioTitle": "About Me",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Write a short bio about yourself...",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved ✓"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "challenges": "Challenges",
@@ -122,6 +133,7 @@
     "achievements": "Achievements",
     "shop": "Shop",
     "profile": "Profile",
+    "admin": "Admin",
     "logout": "Log out"
   },
   "challenges": {
@@ -200,10 +212,101 @@
     "noQuizzes": "No quiz attempts yet.",
     "viewAll": "View all"
   },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Manage the platform's content.",
+    "actions": "Actions",
+    "empty": "No records found.",
+    "showDeleted": "Show deleted",
+    "showingDeleted": "Showing deleted",
+    "edit": "Edit",
+    "delete": "Delete",
+    "restore": "Restore",
+    "save": "Save",
+    "saving": "Saving...",
+    "confirmDelete": "Are you sure you want to delete this?",
+    "backToPanel": "Back to Admin Panel",
+    "add": "Add",
+    "sections": {
+      "challenges": "Challenges",
+      "challengesDesc": "Create and manage coding challenges",
+      "quizzes": "Quizzes",
+      "quizzesDesc": "Manage quizzes and questions",
+      "categories": "Categories",
+      "categoriesDesc": "Challenge categories",
+      "difficulties": "Difficulties",
+      "difficultiesDesc": "Easy/Medium/Hard levels",
+      "marketplace": "Marketplace",
+      "marketplaceDesc": "Shop items",
+      "achievements": "Achievements",
+      "achievementsDesc": "Achievement conditions and rewards",
+      "dailyQuests": "Daily Quests",
+      "dailyQuestsDesc": "Daily quest templates",
+      "excel": "Excel Tools",
+      "excelDesc": "Bulk import/export",
+      "auditLog": "Audit Log",
+      "auditLogDesc": "Admin action history"
+    },
+    "categories": {
+      "title": "Categories",
+      "add": "New category",
+      "name": "Name",
+      "description": "Description",
+      "iconUrl": "Icon URL"
+    },
+    "difficulties": {
+      "title": "Difficulties",
+      "add": "New difficulty",
+      "name": "Name",
+      "color": "Color",
+      "xpMultiplier": "XP multiplier"
+    },
+    "marketplace": {
+      "title": "Marketplace items",
+      "add": "New item",
+      "name": "Name",
+      "nameEn": "Name (EN)",
+      "description": "Description",
+      "itemType": "Item type",
+      "price": "Price",
+      "imageUrl": "Image URL",
+      "active": "Active"
+    },
+    "achievements": {
+      "title": "Achievements",
+      "add": "New achievement",
+      "name": "Name",
+      "nameEn": "Name (EN)",
+      "description": "Description",
+      "iconUrl": "Icon URL",
+      "conditionType": "Condition type",
+      "conditionValue": "Condition value",
+      "xpReward": "XP reward",
+      "coinReward": "Coin reward",
+      "active": "Active"
+    },
+    "dailyQuests": {
+      "title": "Daily quests",
+      "add": "New quest",
+      "questTitle": "Title",
+      "questTitleEn": "Title (EN)",
+      "description": "Description",
+      "targetType": "Target type",
+      "targetValue": "Target value",
+      "xpReward": "XP reward",
+      "coinReward": "Coin reward",
+      "active": "Active"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications yet.",
     "unreadBadge": "{{count}} unread",
+    "markAllRead": "Mark all read",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "older": "Older",
     "justNow": "just now",
     "minutesAgo": "{{count}}m ago",
     "hoursAgo": "{{count}}h ago",

@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Code2, LayoutDashboard, Swords, Dumbbell, Trophy, Award, User, ShoppingBag, LogOut } from 'lucide-react';
+import { Code2, LayoutDashboard, Swords, Dumbbell, Trophy, Award, User, ShoppingBag, LogOut, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { logout } from '../../api/auth';
 
@@ -15,11 +15,15 @@ const navItems = [
   { to: '/profile', labelKey: 'nav.profile', icon: User, end: false },
 ];
 
+const adminNavItem = { to: '/admin', labelKey: 'nav.admin', icon: ShieldCheck, end: false };
+
 const MotionNavLink = motion.create(NavLink);
 
 export function Sidebar() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const visibleNavItems = user?.role === 'Admin' ? [...navItems, adminNavItem] : navItems;
 
   const handleLogout = async () => {
     try {
@@ -42,7 +46,7 @@ export function Sidebar() {
       </motion.div>
 
       <nav className="flex flex-1 flex-col items-center gap-2">
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <MotionNavLink
             key={item.to}
             to={item.to}

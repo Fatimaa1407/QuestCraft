@@ -18,3 +18,7 @@ export async function getNotifications(params: { unreadOnly?: boolean; page?: nu
 export async function markNotificationRead(id: number): Promise<void> {
   await apiClient.put(`/api/notifications/${id}/read`);
 }
+
+export async function markAllNotificationsRead(): Promise<void> {
+  await apiClient.put('/api/notifications/read-all');
+}

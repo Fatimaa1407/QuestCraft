@@ -19,9 +19,29 @@ public class GetNotificationsQueryHandler : IRequestHandler<GetNotificationsQuer
         _currentUser = currentUser;
     }
 
-    public Task<PagedResult<NotificationDto>> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
+    private const int MaxRetainedPerUser = 30;
+
+    public async Task<PagedResult<NotificationDto>> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
+
+        // Opportunistic retention: prune anything beyond the most recent N on every read, rather than
+        // wiring cleanup into every notification-creation call site (achievements, daily quests, ...).
+        var staleIds = await _context.Notifications
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.CreatedAt)
+            .Skip(MaxRetainedPerUser)
+            .Select(n => n.Id)
+            .ToListAsync(cancellationToken);
+
+        if (staleIds.Count > 0)
+        {
+            await _context.Notifications
+                .Where(n => staleIds.Contains(n.Id))
+                .ExecuteDeleteAsync(cancellationToken);
+        }
+
+        var isEnglish = _currentUser.IsEnglish;
 
         var query = _context.Notifications.Where(n => n.UserId == userId);
         if (request.UnreadOnly)
@@ -31,8 +51,14 @@ public class GetNotificationsQueryHandler : IRequestHandler<GetNotificationsQuer
 
         var projected = query
             .OrderByDescending(n => n.CreatedAt)
-            .Select(n => new NotificationDto(n.Id, n.Type.ToString(), n.Title, n.Message, n.IsRead, n.CreatedAt));
+            .Select(n => new NotificationDto(
+                n.Id,
+                n.Type.ToString(),
+                isEnglish && n.TitleEn != null && n.TitleEn != "" ? n.TitleEn : n.Title,
+                isEnglish && n.MessageEn != null && n.MessageEn != "" ? n.MessageEn : n.Message,
+                n.IsRead,
+                n.CreatedAt));
 
-        return PagedResult<NotificationDto>.CreateAsync(projected, request.Page, request.PageSize, cancellationToken);
+        return await PagedResult<NotificationDto>.CreateAsync(projected, request.Page, request.PageSize, cancellationToken);
     }
 }
