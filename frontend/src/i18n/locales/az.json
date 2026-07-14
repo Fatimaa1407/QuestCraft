@@ -200,6 +200,15 @@
     "noQuizzes": "Hələ heç bir quiz cəhdi yoxdur.",
     "viewAll": "Hamısına bax"
   },
+  "notifications": {
+    "title": "Bildirişlər",
+    "empty": "Hələ bildiriş yoxdur.",
+    "unreadBadge": "{{count}} oxunmamış",
+    "justNow": "indicə",
+    "minutesAgo": "{{count}} dəq əvvəl",
+    "hoursAgo": "{{count}} saat əvvəl",
+    "daysAgo": "{{count}} gün əvvəl"
+  },
   "common": {
     "loading": "Yüklənir...",
     "toggleTheme": "Tema dəyiş",

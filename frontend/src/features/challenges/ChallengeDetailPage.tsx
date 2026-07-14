@@ -75,6 +75,7 @@ export function ChallengeDetailPage() {
       setActionError(null);
       setRunResult(null);
       setSubmitResult(data);
+      if (!data) return;
       updateUser({ xp: data.totalXp, coins: data.totalCoins, level: data.level });
       queryClient.invalidateQueries({ queryKey: ['submissions', 'my'] });
       queryClient.invalidateQueries({ queryKey: ['challenge', challengeId] });

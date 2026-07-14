@@ -50,6 +50,7 @@ export function QuizAttemptPage() {
     onSuccess: (data) => {
       setError(null);
       setResult(data);
+      if (!data) return;
       updateUser({ xp: data.totalXp, coins: data.totalCoins, level: data.level });
       queryClient.invalidateQueries({ queryKey: ['quizzes', 'attempts', 'my'] });
       queryClient.invalidateQueries({ queryKey: ['quiz-attempt-view', quizId] });

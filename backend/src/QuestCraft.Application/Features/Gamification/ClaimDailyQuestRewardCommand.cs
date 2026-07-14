@@ -47,6 +47,9 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
 
         quest.RewardClaimed = true;
 
+        var isEnglish = _currentUser.IsEnglish;
+        var localizedQuestTitle = LocalizationHelper.Pick(quest.DailyQuestTemplate.Title, quest.DailyQuestTemplate.TitleEn, isEnglish);
+
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
         if (profile is not null)
         {
@@ -65,24 +68,25 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
         {
             UserId = userId,
             Type = NotificationType.DailyQuestReminder,
-            Title = "Tapşırıq mükafatı",
-            Message = $"\"{quest.DailyQuestTemplate.Title}\" tapşırığının mükafatını aldınız.",
+            Title = isEnglish ? "Quest reward" : "Tapşırıq mükafatı",
+            Message = isEnglish
+                ? $"You claimed the reward for \"{localizedQuestTitle}\"."
+                : $"\"{localizedQuestTitle}\" tapşırığının mükafatını aldınız.",
         });
 
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        var isEnglish = _currentUser.IsEnglish;
         var questDto = new DailyQuestDto(
             quest.Id,
-            LocalizationHelper.Pick(quest.DailyQuestTemplate.Title, quest.DailyQuestTemplate.TitleEn, isEnglish),
+            localizedQuestTitle,
             LocalizationHelper.PickNullable(quest.DailyQuestTemplate.Description, quest.DailyQuestTemplate.DescriptionEn, isEnglish),
             quest.CurrentProgress, quest.TargetValue, quest.IsCompleted, quest.RewardClaimed,
             quest.DailyQuestTemplate.XpReward, quest.DailyQuestTemplate.CoinReward);
 
         return new ClaimDailyQuestResultDto(
             questDto, profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 0,
-            newAchievements.Select(a => a.Name).ToList());
+            newAchievements.Select(a => LocalizationHelper.Pick(a.Name, a.NameEn, isEnglish)).ToList());
     }
 }

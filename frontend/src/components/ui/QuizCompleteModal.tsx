@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from './GlassCard';
+import { Z_INDEX } from '../../styles/zIndex';
 
 export function QuizCompleteModal({
   xp,
@@ -18,7 +19,7 @@ export function QuizCompleteModal({
   const isPerfect = stars === 3;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm">
+    <div className="fixed inset-0 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm" style={{ zIndex: Z_INDEX.modal }}>
       <GlassCard className="animate-modal-in mx-4 w-full max-w-sm p-8 text-center">
         <p className="text-4xl">🎉</p>
         <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">{t('quiz.completed')}</h2>

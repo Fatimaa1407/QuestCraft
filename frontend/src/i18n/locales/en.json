@@ -200,6 +200,15 @@
     "noQuizzes": "No quiz attempts yet.",
     "viewAll": "View all"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "unreadBadge": "{{count}} unread",
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
   "common": {
     "loading": "Loading...",
     "toggleTheme": "Toggle theme",

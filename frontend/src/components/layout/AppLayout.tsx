@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthStore } from '../../app/authStore';
 import { ThemeSwitcher } from '../ui/ThemeSwitcher';
 import { LanguageSwitcher } from '../ui/LanguageSwitcher';
+import { NotificationBell } from '../ui/NotificationBell';
 import { AmbientGlow } from '../ui/AmbientGlow';
 import { Sidebar } from './Sidebar';
 import { pageTransition } from '../../utils/motion';
@@ -40,6 +41,7 @@ export function AppLayout() {
               <span className="hidden text-amber-500 sm:inline">{user?.coins} 🪙</span>
             </div>
 
+            <NotificationBell />
             <LanguageSwitcher />
             <ThemeSwitcher />
           </div>
