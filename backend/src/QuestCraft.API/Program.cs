@@ -70,6 +70,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IRealtimeNotifier, SignalRNotifier>();
+builder.Services.AddScoped<IBattleHubNotifier, SignalRBattleNotifier>();
 builder.Services.AddHostedService<QuestCraft.API.Services.WeeklyRecapBackgroundService>();
 
 builder.Services.AddMemoryCache();
@@ -158,5 +159,6 @@ app.UseRateLimiter();
 
 app.MapControllers();
 app.MapHub<NotificationsHub>("/hubs/notifications");
+app.MapHub<QuestCraft.API.Hubs.BattleHub>("/hubs/battle");
 
 app.Run();

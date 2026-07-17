@@ -14,7 +14,30 @@
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+/* Ties native form control rendering (select dropdowns, date pickers, etc.) to the app's own
+   manual dark-mode class instead of the OS preference — otherwise browsers render native popups
+   (like <select> option lists) using their own light/dark guess, which can mismatch the app's
+   actual theme and produce unreadable near-white-on-white text. */
+.dark {
+  color-scheme: dark;
+}
+
+/* color-scheme alone isn't consistently enough for native <select> dropdown popups across
+   browsers, especially when the select itself uses a translucent Tailwind background (e.g.
+   bg-white/5) — a native popup can't render translucent, so the browser falls back to its own
+   default (usually white), leaving light dark-mode text unreadable. Force an explicit opaque
+   background/text color on both the closed select and its option list so it's never ambiguous. */
+.dark select {
+  background-color: #111827;
+  color: #f1f5f9;
+}
+
+.dark select option {
+  background-color: #111827;
+  color: #f1f5f9;
 }
 
 body {

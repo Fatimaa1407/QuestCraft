@@ -33,7 +33,8 @@ public record UpdateChallengeCommand(
     string? OutputFormatEn = null,
     string? HintEn = null,
     string? StarterCodeEn = null,
-    string? Tags = null) : ICommand<ChallengeDetailDto>;
+    string? Tags = null,
+    bool IsBattleOnly = false) : ICommand<ChallengeDetailDto>;
 
 public class UpdateChallengeCommandValidator : AbstractValidator<UpdateChallengeCommand>
 {
@@ -110,6 +111,7 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
         challenge.HintEn = request.HintEn;
         challenge.StarterCodeEn = request.StarterCodeEn;
         challenge.Tags = request.Tags;
+        challenge.IsBattleOnly = request.IsBattleOnly;
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -124,6 +126,6 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))
                 .ToList(),
             null,
-            false, Tags: challenge.Tags);
+            false, Tags: challenge.Tags, IsBattleOnly: challenge.IsBattleOnly);
     }
 }

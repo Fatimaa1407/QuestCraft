@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
@@ -25,7 +25,7 @@ const emptyForm: ChallengePayload = {
   xpReward: 20, coinReward: 5, starterCode: '', constraints: '', inputFormat: '', outputFormat: '',
   sampleInput: '', sampleOutput: '', hint: '', isPublished: true, requiredLevel: 1,
   titleEn: '', descriptionEn: '', constraintsEn: '', inputFormatEn: '', outputFormatEn: '', hintEn: '', starterCodeEn: '',
-  tags: '',
+  tags: '', isBattleOnly: false,
 };
 
 export function ChallengeEditPage() {
@@ -33,10 +33,13 @@ export function ChallengeEditPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const isNew = id === 'new';
   const challengeId = isNew ? null : Number(id);
 
-  const [form, setForm] = useState<ChallengePayload>(emptyForm);
+  const [form, setForm] = useState<ChallengePayload>(() =>
+    isNew && searchParams.get('battleOnly') ? { ...emptyForm, isBattleOnly: true } : emptyForm,
+  );
 
   const categoriesQuery = useQuery({ queryKey: ['categories'], queryFn: getCategories });
   const difficultiesQuery = useQuery({ queryKey: ['difficulties'], queryFn: getDifficulties });
@@ -58,7 +61,7 @@ export function ChallengeEditPage() {
         titleEn: c.titleEn ?? '', descriptionEn: c.descriptionEn ?? '', constraintsEn: c.constraintsEn ?? '',
         inputFormatEn: c.inputFormatEn ?? '', outputFormatEn: c.outputFormatEn ?? '', hintEn: c.hintEn ?? '',
         starterCodeEn: c.starterCodeEn ?? '',
-        tags: c.tags ?? '',
+        tags: c.tags ?? '', isBattleOnly: c.isBattleOnly,
       });
     }
   }, [challengeQuery.data]);
@@ -138,7 +141,31 @@ export function ChallengeEditPage() {
             <TextField id="memoryLimitMb" label="Memory Limit (MB)" type="number" value={form.memoryLimitMb} onChange={(e) => set('memoryLimitMb', Number(e.target.value))} />
           </div>
 
-          <TextField id="tags" label="Tags (comma-separated)" placeholder="linq, collections, beginner" value={form.tags ?? ''} onChange={(e) => set('tags', e.target.value)} />
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <TextField
+                id="tags"
+                label="Tags (comma-separated)"
+                placeholder="linq, collections, beginner"
+                value={form.tags ?? ''}
+                onChange={(e) => set('tags', e.target.value)}
+              />
+            </div>
+            <label className="flex shrink-0 items-center gap-2 pt-6 text-sm font-medium text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                checked={form.isBattleOnly}
+                onChange={(e) => set('isBattleOnly', e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600 dark:border-slate-700"
+              />
+              Battle Pool
+            </label>
+          </div>
+          {form.isBattleOnly && (
+            <p className="text-xs text-amber-500">
+              Bu tapşırıq Battle Pool-a aiddir — heç bir leveldə görünməyəcək, yalnız Code Battle yaradılanda təsadüfi seçiləcək.
+            </p>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <TextField id="constraints" label="Constraints" value={form.constraints ?? ''} onChange={(e) => set('constraints', e.target.value)} />

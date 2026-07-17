@@ -42,6 +42,7 @@ export interface ChallengePayload {
   hintEn: string | null;
   starterCodeEn: string | null;
   tags: string | null;
+  isBattleOnly: boolean;
 }
 export async function getChallengeAdminById(id: number) {
   const { data } = await apiClient.get<ApiResponse<ChallengeDetailDto>>(`/api/challenges/${id}`);
@@ -65,6 +66,10 @@ export async function getDeletedChallenges() {
 export async function restoreChallenge(id: number) {
   const { data } = await apiClient.post<ApiResponse<ChallengeListItemDto>>(`/api/challenges/${id}/restore`);
   return data.data;
+}
+export async function getBattlePoolChallenges() {
+  const { data } = await apiClient.get<ApiResponse<ChallengeListItemDto[]>>('/api/challenges/battle-pool');
+  return data.data ?? [];
 }
 
 export interface TestCasePayload {

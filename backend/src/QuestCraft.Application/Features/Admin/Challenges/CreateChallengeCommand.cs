@@ -32,7 +32,8 @@ public record CreateChallengeCommand(
     string? OutputFormatEn = null,
     string? HintEn = null,
     string? StarterCodeEn = null,
-    string? Tags = null) : ICommand<ChallengeDetailDto>;
+    string? Tags = null,
+    bool IsBattleOnly = false) : ICommand<ChallengeDetailDto>;
 
 public class CreateChallengeCommandValidator : AbstractValidator<CreateChallengeCommand>
 {
@@ -106,6 +107,7 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             HintEn = request.HintEn,
             StarterCodeEn = request.StarterCodeEn,
             Tags = request.Tags,
+            IsBattleOnly = request.IsBattleOnly,
         };
 
         _context.Challenges.Add(challenge);
@@ -118,6 +120,6 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             challenge.StarterCode, challenge.Constraints, challenge.InputFormat, challenge.OutputFormat,
             challenge.SampleInput, challenge.SampleOutput, challenge.Hint,
             !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished, challenge.RequiredLevel,
-            [], [], false, Tags: challenge.Tags);
+            [], [], false, Tags: challenge.Tags, IsBattleOnly: challenge.IsBattleOnly);
     }
 }

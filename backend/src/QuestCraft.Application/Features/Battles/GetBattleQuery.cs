@@ -1,0 +1,54 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common.Exceptions;
+using QuestCraft.Application.Common.Interfaces;
+using QuestCraft.Domain.Entities;
+
+namespace QuestCraft.Application.Features.Battles;
+
+public record GetBattleQuery(int BattleId) : IQuery<BattleDto>;
+
+public class GetBattleQueryHandler : IRequestHandler<GetBattleQuery, BattleDto>
+{
+    private readonly IApplicationDbContext _context;
+
+    public GetBattleQueryHandler(IApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<BattleDto> Handle(GetBattleQuery request, CancellationToken cancellationToken)
+    {
+        var battle = await _context.Battles
+            .Include(b => b.Challenge)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
+            .FirstOrDefaultAsync(b => b.Id == request.BattleId, cancellationToken)
+            ?? throw new NotFoundException(nameof(Battle), request.BattleId);
+
+        return BattleMapper.ToDto(battle);
+    }
+}
+
+public record GetBattleByCodeQuery(string Code) : IQuery<BattleDto>;
+
+public class GetBattleByCodeQueryHandler : IRequestHandler<GetBattleByCodeQuery, BattleDto>
+{
+    private readonly IApplicationDbContext _context;
+
+    public GetBattleByCodeQueryHandler(IApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<BattleDto> Handle(GetBattleByCodeQuery request, CancellationToken cancellationToken)
+    {
+        var code = request.Code.Trim().ToUpperInvariant();
+        var battle = await _context.Battles
+            .Include(b => b.Challenge)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
+            .FirstOrDefaultAsync(b => b.JoinCode == code, cancellationToken)
+            ?? throw new NotFoundException(nameof(Battle), request.Code);
+
+        return BattleMapper.ToDto(battle);
+    }
+}

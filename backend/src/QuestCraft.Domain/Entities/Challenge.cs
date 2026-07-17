@@ -24,6 +24,11 @@ public class Challenge : BaseEntity
     // normalized many-to-many table, since search/filter is the only consumer and volume is small.
     public string? Tags { get; set; }
 
+    // Battle-pool challenges are a separate set from the leveled practice list: excluded from
+    // GetChallengesQuery entirely (never appear at any level) and drawn from at random when a
+    // Battle room/duel is created, so no participant could have already seen or solved it.
+    public bool IsBattleOnly { get; set; }
+
     // English translations — nullable; falls back to the Azerbaijani field above when missing.
     public string? TitleEn { get; set; }
     public string? DescriptionEn { get; set; }

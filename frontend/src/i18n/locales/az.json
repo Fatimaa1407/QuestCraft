@@ -109,6 +109,83 @@
       "AllTime": "Bütün zamanlar"
     }
   },
+  "friends": {
+    "title": "Dostlar",
+    "subtitle": "Dostlarınla əlaqədə ol, yeni dostlar tap.",
+    "searchPlaceholder": "İstifadəçi adı ilə axtar...",
+    "searchResults": "Axtarış nəticələri",
+    "noResults": "Heç bir istifadəçi tapılmadı.",
+    "add": "Əlavə et",
+    "pendingSent": "İstək göndərilib",
+    "pendingReceived": "Sizə istək göndərib",
+    "alreadyFriends": "Artıq dostsunuz",
+    "incomingRequests": "Gələn istəklər",
+    "accept": "Qəbul et",
+    "decline": "Rədd et",
+    "myFriends": "Mənim dostlarım",
+    "empty": "Hələ heç bir dostunuz yoxdur.",
+    "emptyHint": "Yuxarıdakı axtarışdan istifadə edərək dost tapın.",
+    "remove": "Dostluqdan sil",
+    "challenge": "Duel dəvəti",
+    "message": "Mesaj yaz"
+  },
+  "chat": {
+    "title": "Söhbət",
+    "subtitle": "Dostlarınla mesajlaş.",
+    "conversations": "Söhbətlər",
+    "noConversations": "Hələ söhbət yoxdur.",
+    "noConversationsHint": "Dostlarınla söhbətə başlamaq üçün Dostlar səhifəsindən mesaj düyməsinə bas.",
+    "noMessagesYet": "Hələ mesaj yoxdur",
+    "selectConversation": "Söhbətə başlamaq üçün soldan bir dost seç.",
+    "messagePlaceholder": "Mesaj yaz..."
+  },
+  "battles": {
+    "title": "Kod Döyüşləri",
+    "subtitle": "Dostlarınla 1-ə-1 duel edin, ya da otaqda çoxlu oyunçu ilə yarışın.",
+    "newDuel": "Yeni Duel",
+    "newRoom": "Yeni Otaq",
+    "joinByCode": "Kodla qoşul",
+    "codePlaceholder": "MƏS: K7QX2P",
+    "join": "Qoşul",
+    "joinCodeError": "Bu kodla otaq tapılmadı.",
+    "myBattles": "Mənim döyüşlərim",
+    "noneActive": "Hazırda aktiv döyüşünüz yoxdur.",
+    "openRooms": "Açıq otaqlar",
+    "noOpenRooms": "Hazırda açıq otaq yoxdur.",
+    "players": "oyunçu",
+    "selectFriend": "Dost seç",
+    "selectChallenge": "Tapşırıq seç",
+    "sendInvite": "Dəvət göndər",
+    "createRoom": "Otaq yarat",
+    "maxPlayers": "Maksimum oyunçu",
+    "noFriendsHint": "Duelə çıxmaq üçün əvvəlcə dost əlavə etməlisiniz.",
+    "backToLobby": "Lobiyə qayıt",
+    "participants": "İştirakçılar",
+    "host": "sahib",
+    "waitingForOpponent": "Rəqib gözlənilir...",
+    "acceptDuel": "Dueli qəbul et",
+    "start": "Başlat",
+    "cancel": "Ləğv et",
+    "submit": "Göndər",
+    "submitting": "Göndərilir...",
+    "testsFailed": "{{passed}}/{{total}} test keçdi",
+    "actionError": "Əməliyyat uğursuz oldu.",
+    "liveScoreboard": "Canlı Nəticələr",
+    "solved": "Həll etdi",
+    "youWon": "Siz qalib gəldiniz!",
+    "battleOver": "Döyüş bitdi",
+    "wasCancelled": "Bu döyüş ləğv edilib.",
+    "mode": {
+      "Duel": "Duel",
+      "Room": "Otaq"
+    },
+    "status": {
+      "Waiting": "Gözləyir",
+      "InProgress": "Davam edir",
+      "Finished": "Bitdi",
+      "Cancelled": "Ləğv edilib"
+    }
+  },
   "achievements": {
     "title": "Nailiyyətlər",
     "subtitle": "Uğurlarını qeyd et, mükafatlarını topla.",
@@ -134,6 +211,9 @@
     "challenges": "Challenges",
     "practice": "Practice",
     "leaderboard": "Liderlik Lövhəsi",
+    "friends": "Dostlar",
+    "chat": "Söhbət",
+    "battles": "Döyüşlər",
     "achievements": "Nailiyyətlər",
     "shop": "Mağaza",
     "profile": "Profil",
@@ -283,7 +363,16 @@
       "activityToday": "Bugünkü Fəaliyyət",
       "activityTodayDesc": "Bugün göndərilən tapşırıq və quizlər",
       "seasonalEvents": "Mövsümi Hadisələr",
-      "seasonalEventsDesc": "Bayram/mövsüm temalı elanlar"
+      "seasonalEventsDesc": "Bayram/mövsüm temalı elanlar",
+      "battlePool": "Battle Pool",
+      "battlePoolDesc": "Code Battle üçün gizli tapşırıqlar"
+    },
+    "battlePool": {
+      "title": "Battle Pool",
+      "subtitle": "Bu tapşırıqlar heç bir leveldə görünmür — yalnız Code Battle yaradılanda təsadüfi seçilir.",
+      "add": "Battle tapşırığı əlavə et",
+      "empty": "Battle Pool boşdur.",
+      "emptyHint": "Döyüş yarada bilmək üçün ən azı bir tapşırıq əlavə edin."
     },
     "categories": {
       "title": "Kateqoriyalar",
@@ -413,7 +502,8 @@
     "showPassword": "Şifrəni göstər",
     "hidePassword": "Şifrəni gizlət",
     "comingSoon": "Bu bölmə tezliklə hazır olacaq.",
-    "close": "Bağla"
+    "close": "Bağla",
+    "cancel": "İmtina et"
   },
   "levelUp": {
     "congratulations": "Təbriklər!",

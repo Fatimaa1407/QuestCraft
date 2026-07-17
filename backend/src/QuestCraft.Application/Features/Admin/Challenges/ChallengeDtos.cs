@@ -10,7 +10,8 @@ public record ChallengeListItemDto(
     bool IsPublished,
     int RequiredLevel,
     bool IsLocked,
-    string? Tags = null);
+    string? Tags = null,
+    bool IsBattleOnly = false);
 
 public record TestCaseDto(int Id, string Input, string ExpectedOutput, int OrderIndex);
 
@@ -51,4 +52,5 @@ public record ChallengeDetailDto(
     string? OutputFormatEn = null,
     string? HintEn = null,
     string? StarterCodeEn = null,
-    string? Tags = null);
+    string? Tags = null,
+    bool IsBattleOnly = false);

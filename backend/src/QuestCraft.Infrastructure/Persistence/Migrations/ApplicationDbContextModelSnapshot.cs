@@ -165,6 +165,120 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.Battle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("HostUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InvitedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JoinCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("MaxPlayers")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChallengeId");
+
+                    b.HasIndex("HostUserId");
+
+                    b.HasIndex("InvitedUserId");
+
+                    b.HasIndex("JoinCode")
+                        .IsUnique()
+                        .HasFilter("[JoinCode] IS NOT NULL");
+
+                    b.ToTable("Battles");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.BattleParticipant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BattleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("HasFinished")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PassedTestCases")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SubmittedCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalTestCases")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("BattleId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("BattleParticipants");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.Challenge", b =>
                 {
                     b.Property<int>("Id")
@@ -209,6 +323,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("InputFormatEn")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsBattleOnly")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -437,6 +554,46 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.ToTable("ChallengeSubmissions");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RecipientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SenderId", "RecipientId", "CreatedAt");
+
+                    b.ToTable("ChatMessages");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.DailyQuestTemplate", b =>
                 {
                     b.Property<int>("Id")
@@ -540,6 +697,47 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ExcelImportLogs");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.FriendRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AddresseeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RequesterId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddresseeId");
+
+                    b.HasIndex("RequesterId", "AddresseeId")
+                        .IsUnique();
+
+                    b.ToTable("FriendRequests");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.HiddenTestCase", b =>
@@ -1629,6 +1827,51 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.Battle", b =>
+                {
+                    b.HasOne("QuestCraft.Domain.Entities.Challenge", "Challenge")
+                        .WithMany()
+                        .HasForeignKey("ChallengeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuestCraft.Domain.Entities.User", "HostUser")
+                        .WithMany()
+                        .HasForeignKey("HostUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuestCraft.Domain.Entities.User", "InvitedUser")
+                        .WithMany()
+                        .HasForeignKey("InvitedUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Challenge");
+
+                    b.Navigation("HostUser");
+
+                    b.Navigation("InvitedUser");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.BattleParticipant", b =>
+                {
+                    b.HasOne("QuestCraft.Domain.Entities.Battle", "Battle")
+                        .WithMany("Participants")
+                        .HasForeignKey("BattleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuestCraft.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Battle");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.Challenge", b =>
                 {
                     b.HasOne("QuestCraft.Domain.Entities.ChallengeCategory", "Category")
@@ -1686,6 +1929,25 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.ChatMessage", b =>
+                {
+                    b.HasOne("QuestCraft.Domain.Entities.User", "Recipient")
+                        .WithMany()
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuestCraft.Domain.Entities.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.ExcelImportLog", b =>
                 {
                     b.HasOne("QuestCraft.Domain.Entities.User", "User")
@@ -1695,6 +1957,25 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.FriendRequest", b =>
+                {
+                    b.HasOne("QuestCraft.Domain.Entities.User", "Addressee")
+                        .WithMany()
+                        .HasForeignKey("AddresseeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuestCraft.Domain.Entities.User", "Requester")
+                        .WithMany()
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Addressee");
+
+                    b.Navigation("Requester");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.HiddenTestCase", b =>
@@ -1987,6 +2268,11 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("QuestCraft.Domain.Entities.Achievement", b =>
                 {
                     b.Navigation("UnlockedBy");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.Battle", b =>
+                {
+                    b.Navigation("Participants");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Challenge", b =>

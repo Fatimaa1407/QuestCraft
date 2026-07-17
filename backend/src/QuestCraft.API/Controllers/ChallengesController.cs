@@ -59,7 +59,7 @@ public class ChallengesController : ControllerBase
             request.StarterCode, request.Constraints, request.InputFormat, request.OutputFormat,
             request.SampleInput, request.SampleOutput, request.Hint, request.IsPublished, request.RequiredLevel,
             request.TitleEn, request.DescriptionEn, request.ConstraintsEn, request.InputFormatEn,
-            request.OutputFormatEn, request.HintEn, request.StarterCodeEn, request.Tags);
+            request.OutputFormatEn, request.HintEn, request.StarterCodeEn, request.Tags, request.IsBattleOnly);
 
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(ApiResponse<ChallengeDetailDto>.Ok(result, "Challenge yeniləndi."));
@@ -71,6 +71,14 @@ public class ChallengesController : ControllerBase
     {
         await _mediator.Send(new DeleteChallengeCommand(id), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null, "Challenge silindi."));
+    }
+
+    [HttpGet("battle-pool")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<List<ChallengeListItemDto>>>> GetBattlePool(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetBattlePoolChallengesQuery(), cancellationToken);
+        return Ok(ApiResponse<List<ChallengeListItemDto>>.Ok(result));
     }
 
     [HttpGet("deleted")]
@@ -149,7 +157,8 @@ public record UpdateChallengeRequest(
     string? OutputFormatEn = null,
     string? HintEn = null,
     string? StarterCodeEn = null,
-    string? Tags = null);
+    string? Tags = null,
+    bool IsBattleOnly = false);
 
 public record AddTestCaseRequest(string Input, string ExpectedOutput, int OrderIndex, bool IsHidden, int Weight = 1);
 

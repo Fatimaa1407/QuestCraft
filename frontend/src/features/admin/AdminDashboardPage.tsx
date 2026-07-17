@@ -17,6 +17,7 @@ import {
   Activity,
   UserPlus,
   PartyPopper,
+  Gamepad2,
 } from 'lucide-react';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { StatCard } from '../../components/ui/StatCard';
@@ -37,6 +38,7 @@ const sections = [
   { to: '/admin/audit-log', icon: ScrollText, titleKey: 'admin.sections.auditLog', descKey: 'admin.sections.auditLogDesc' },
   { to: '/admin/activity-today', icon: Activity, titleKey: 'admin.sections.activityToday', descKey: 'admin.sections.activityTodayDesc' },
   { to: '/admin/seasonal-events', icon: PartyPopper, titleKey: 'admin.sections.seasonalEvents', descKey: 'admin.sections.seasonalEventsDesc' },
+  { to: '/admin/battle-pool', icon: Gamepad2, titleKey: 'admin.sections.battlePool', descKey: 'admin.sections.battlePoolDesc' },
 ];
 
 export function AdminDashboardPage() {

@@ -41,10 +41,13 @@ public class GetChallengesQueryHandler : IRequestHandler<GetChallengesQuery, Pag
             }
         }
 
+        // Battle-pool challenges are a separate set entirely — never shown in the leveled
+        // practice list (student or admin), only ever surfaced via GetBattlePoolChallengesQuery
+        // and picked at random when a Battle room/duel is created.
         var query = _context.Challenges
             .Include(c => c.Category)
             .Include(c => c.Difficulty)
-            .AsQueryable();
+            .Where(c => !c.IsBattleOnly);
 
         if (!request.IncludeUnpublished)
         {

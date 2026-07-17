@@ -48,6 +48,10 @@ public interface IApplicationDbContext
     DbSet<ExcelImportLog> ExcelImportLogs { get; }
     DbSet<RateLimitLog> RateLimitLogs { get; }
     DbSet<SeasonalEvent> SeasonalEvents { get; }
+    DbSet<FriendRequest> FriendRequests { get; }
+    DbSet<ChatMessage> ChatMessages { get; }
+    DbSet<Battle> Battles { get; }
+    DbSet<BattleParticipant> BattleParticipants { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -5,7 +5,9 @@ export type NotificationType =
   | 'MarketplacePurchase'
   | 'SystemNotification'
   | 'LevelUp'
-  | 'WeeklyRecap';
+  | 'WeeklyRecap'
+  | 'FriendRequest'
+  | 'FriendRequestAccepted';
 
 export interface AppNotification {
   id: number;

@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutDashboard, Swords, Dumbbell, User, Trophy, Award, ShoppingBag, LogOut, ShieldCheck, MoreHorizontal, X } from 'lucide-react';
+import { LayoutDashboard, Swords, Dumbbell, User, Trophy, Award, ShoppingBag, LogOut, ShieldCheck, MoreHorizontal, X, Users, MessageCircle, Gamepad2 } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { logout } from '../../api/auth';
 import { Z_INDEX } from '../../styles/zIndex';
@@ -19,6 +19,9 @@ const tabItems = [
 // Everything else lives behind "More" — mirrors Sidebar.tsx's remaining items.
 const moreItems = [
   { to: '/leaderboard', labelKey: 'nav.leaderboard', icon: Trophy, end: false },
+  { to: '/friends', labelKey: 'nav.friends', icon: Users, end: false },
+  { to: '/chat', labelKey: 'nav.chat', icon: MessageCircle, end: false },
+  { to: '/battles', labelKey: 'nav.battles', icon: Gamepad2, end: false },
   { to: '/achievements', labelKey: 'nav.achievements', icon: Award, end: false },
   { to: '/shop', labelKey: 'nav.shop', icon: ShoppingBag, end: false },
 ];

@@ -51,6 +51,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<ExcelImportLog> ExcelImportLogs => Set<ExcelImportLog>();
     public DbSet<RateLimitLog> RateLimitLogs => Set<RateLimitLog>();
     public DbSet<SeasonalEvent> SeasonalEvents => Set<SeasonalEvent>();
+    public DbSet<FriendRequest> FriendRequests => Set<FriendRequest>();
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<Battle> Battles => Set<Battle>();
+    public DbSet<BattleParticipant> BattleParticipants => Set<BattleParticipant>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

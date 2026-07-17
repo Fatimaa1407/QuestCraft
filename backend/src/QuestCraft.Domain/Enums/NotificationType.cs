@@ -9,4 +9,6 @@ public enum NotificationType
     SystemNotification,
     LevelUp,
     WeeklyRecap,
+    FriendRequest,
+    FriendRequestAccepted,
 }

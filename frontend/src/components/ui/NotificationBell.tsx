@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck, CalendarDays } from 'lucide-react';
+import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck, CalendarDays, UserPlus, UserCheck } from 'lucide-react';
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/notifications';
 import type { AppNotification, NotificationType } from '../../types/notification';
 import { Z_INDEX } from '../../styles/zIndex';
@@ -47,6 +47,8 @@ const iconByType: Record<NotificationType, typeof Sparkles> = {
   ChallengeAccepted: Sparkles,
   SystemNotification: Info,
   WeeklyRecap: CalendarDays,
+  FriendRequest: UserPlus,
+  FriendRequestAccepted: UserCheck,
 };
 
 const PANEL_WIDTH = 320;

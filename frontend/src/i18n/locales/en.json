@@ -109,6 +109,83 @@
       "AllTime": "All time"
     }
   },
+  "friends": {
+    "title": "Friends",
+    "subtitle": "Stay connected with friends, find new ones.",
+    "searchPlaceholder": "Search by username...",
+    "searchResults": "Search results",
+    "noResults": "No users found.",
+    "add": "Add",
+    "pendingSent": "Request sent",
+    "pendingReceived": "Sent you a request",
+    "alreadyFriends": "Already friends",
+    "incomingRequests": "Incoming requests",
+    "accept": "Accept",
+    "decline": "Decline",
+    "myFriends": "My friends",
+    "empty": "You don't have any friends yet.",
+    "emptyHint": "Use the search above to find friends.",
+    "remove": "Remove friend",
+    "challenge": "Duel invite",
+    "message": "Message"
+  },
+  "chat": {
+    "title": "Chat",
+    "subtitle": "Message your friends.",
+    "conversations": "Conversations",
+    "noConversations": "No conversations yet.",
+    "noConversationsHint": "Start a chat with a friend from the Friends page.",
+    "noMessagesYet": "No messages yet",
+    "selectConversation": "Select a friend on the left to start chatting.",
+    "messagePlaceholder": "Type a message..."
+  },
+  "battles": {
+    "title": "Code Battles",
+    "subtitle": "Duel a friend 1-on-1, or compete against multiple players in a room.",
+    "newDuel": "New Duel",
+    "newRoom": "New Room",
+    "joinByCode": "Join by code",
+    "codePlaceholder": "E.G. K7QX2P",
+    "join": "Join",
+    "joinCodeError": "No room found with that code.",
+    "myBattles": "My battles",
+    "noneActive": "You don't have any active battles.",
+    "openRooms": "Open rooms",
+    "noOpenRooms": "No open rooms right now.",
+    "players": "players",
+    "selectFriend": "Select a friend",
+    "selectChallenge": "Select a challenge",
+    "sendInvite": "Send invite",
+    "createRoom": "Create room",
+    "maxPlayers": "Max players",
+    "noFriendsHint": "You need to add a friend before starting a duel.",
+    "backToLobby": "Back to lobby",
+    "participants": "Participants",
+    "host": "host",
+    "waitingForOpponent": "Waiting for opponent...",
+    "acceptDuel": "Accept duel",
+    "start": "Start",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "testsFailed": "{{passed}}/{{total}} tests passed",
+    "actionError": "Action failed.",
+    "liveScoreboard": "Live Scoreboard",
+    "solved": "Solved",
+    "youWon": "You won!",
+    "battleOver": "Battle over",
+    "wasCancelled": "This battle was cancelled.",
+    "mode": {
+      "Duel": "Duel",
+      "Room": "Room"
+    },
+    "status": {
+      "Waiting": "Waiting",
+      "InProgress": "In progress",
+      "Finished": "Finished",
+      "Cancelled": "Cancelled"
+    }
+  },
   "achievements": {
     "title": "Achievements",
     "subtitle": "Track your wins, collect your rewards.",
@@ -134,6 +211,9 @@
     "challenges": "Challenges",
     "practice": "Practice",
     "leaderboard": "Leaderboard",
+    "friends": "Friends",
+    "chat": "Chat",
+    "battles": "Battles",
     "achievements": "Achievements",
     "shop": "Shop",
     "profile": "Profile",
@@ -283,7 +363,16 @@
       "activityToday": "Today's Activity",
       "activityTodayDesc": "Challenges and quizzes submitted today",
       "seasonalEvents": "Seasonal Events",
-      "seasonalEventsDesc": "Holiday/season-themed announcements"
+      "seasonalEventsDesc": "Holiday/season-themed announcements",
+      "battlePool": "Battle Pool",
+      "battlePoolDesc": "Hidden challenges for Code Battle"
+    },
+    "battlePool": {
+      "title": "Battle Pool",
+      "subtitle": "These challenges never appear at any level — they're randomly picked only when a Code Battle is created.",
+      "add": "Add battle challenge",
+      "empty": "Battle Pool is empty.",
+      "emptyHint": "Add at least one challenge before battles can be created."
     },
     "categories": {
       "title": "Categories",
@@ -413,7 +502,8 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "comingSoon": "This section will be ready soon.",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "levelUp": {
     "congratulations": "Congratulations!",
