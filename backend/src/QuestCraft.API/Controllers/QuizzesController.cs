@@ -59,7 +59,7 @@ public class QuizzesController : ControllerBase
     public async Task<ActionResult<ApiResponse<QuizListItemDto>>> Update(int id, UpdateQuizRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
-            new UpdateQuizCommand(id, request.Title, request.CategoryId, request.XpReward, request.IsPublished, request.RequiredLevel, request.TitleEn),
+            new UpdateQuizCommand(id, request.Title, request.CategoryId, request.XpReward, request.IsPublished, request.RequiredLevel, request.TitleEn, request.Tags),
             cancellationToken);
         return Ok(ApiResponse<QuizListItemDto>.Ok(result, "Quiz yeniləndi."));
     }
@@ -123,7 +123,7 @@ public class QuizzesController : ControllerBase
     }
 }
 
-public record UpdateQuizRequest(string Title, int? CategoryId, int XpReward, bool IsPublished, int RequiredLevel = 1, string? TitleEn = null);
+public record UpdateQuizRequest(string Title, int? CategoryId, int XpReward, bool IsPublished, int RequiredLevel = 1, string? TitleEn = null, string? Tags = null);
 
 public record AddQuestionRequest(string Text, string? Explanation, List<QuestionOptionInput> Options, string? TextEn = null, string? ExplanationEn = null);
 

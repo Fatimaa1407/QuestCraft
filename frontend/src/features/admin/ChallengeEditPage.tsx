@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { getCategories, getDifficulties } from '../../api/challenges';
 import {
@@ -17,12 +18,14 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { TextField } from '../../components/ui/TextField';
 import { Textarea } from '../../components/ui/Textarea';
 import { Select } from '../../components/ui/Select';
+import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 const emptyForm: ChallengePayload = {
   title: '', description: '', categoryId: 0, difficultyId: 0, timeLimitMs: 2000, memoryLimitMb: 256,
   xpReward: 20, coinReward: 5, starterCode: '', constraints: '', inputFormat: '', outputFormat: '',
   sampleInput: '', sampleOutput: '', hint: '', isPublished: true, requiredLevel: 1,
   titleEn: '', descriptionEn: '', constraintsEn: '', inputFormatEn: '', outputFormatEn: '', hintEn: '', starterCodeEn: '',
+  tags: '',
 };
 
 export function ChallengeEditPage() {
@@ -55,6 +58,7 @@ export function ChallengeEditPage() {
         titleEn: c.titleEn ?? '', descriptionEn: c.descriptionEn ?? '', constraintsEn: c.constraintsEn ?? '',
         inputFormatEn: c.inputFormatEn ?? '', outputFormatEn: c.outputFormatEn ?? '', hintEn: c.hintEn ?? '',
         starterCodeEn: c.starterCodeEn ?? '',
+        tags: c.tags ?? '',
       });
     }
   }, [challengeQuery.data]);
@@ -80,12 +84,15 @@ export function ChallengeEditPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="space-y-6">
-      <Link to="/admin/challenges" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-cyan-400">
-        <ArrowLeft size={14} />
-        {t('admin.sections.challenges')}
-      </Link>
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
+      <motion.div variants={fadeInUp}>
+        <Link to="/admin/challenges" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400">
+          <ArrowLeft size={14} />
+          {t('admin.sections.challenges')}
+        </Link>
+      </motion.div>
 
+      <motion.div variants={fadeInUp}>
       <GlassCard className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -119,7 +126,7 @@ export function ChallengeEditPage() {
             )}
             <TextField id="requiredLevel" label="Required Level" type="number" min={1} value={form.requiredLevel} onChange={(e) => set('requiredLevel', Number(e.target.value))} />
             <label className="flex items-center gap-2 pt-6 text-sm font-medium text-slate-700 dark:text-slate-300">
-              <input type="checkbox" checked={form.isPublished} onChange={(e) => set('isPublished', e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-indigo-600 dark:border-slate-700" />
+              <input type="checkbox" checked={form.isPublished} onChange={(e) => set('isPublished', e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-blue-600 dark:border-slate-700" />
               Published
             </label>
           </div>
@@ -130,6 +137,8 @@ export function ChallengeEditPage() {
             <TextField id="timeLimitMs" label="Time Limit (ms)" type="number" value={form.timeLimitMs} onChange={(e) => set('timeLimitMs', Number(e.target.value))} />
             <TextField id="memoryLimitMb" label="Memory Limit (MB)" type="number" value={form.memoryLimitMb} onChange={(e) => set('memoryLimitMb', Number(e.target.value))} />
           </div>
+
+          <TextField id="tags" label="Tags (comma-separated)" placeholder="linq, collections, beginner" value={form.tags ?? ''} onChange={(e) => set('tags', e.target.value)} />
 
           <div className="grid grid-cols-2 gap-3">
             <TextField id="constraints" label="Constraints" value={form.constraints ?? ''} onChange={(e) => set('constraints', e.target.value)} />
@@ -152,21 +161,24 @@ export function ChallengeEditPage() {
           <button
             type="submit"
             disabled={saveMutation.isPending}
-            className="rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saveMutation.isPending ? t('admin.saving') : t('admin.save')}
           </button>
         </form>
       </GlassCard>
+      </motion.div>
 
       {challengeId !== null && challengeQuery.data && (
-        <TestCaseManager
-          challengeId={challengeId}
-          testCases={challengeQuery.data.testCases}
-          hiddenTestCases={challengeQuery.data.hiddenTestCases ?? []}
-        />
+        <motion.div variants={fadeInUp}>
+          <TestCaseManager
+            challengeId={challengeId}
+            testCases={challengeQuery.data.testCases}
+            hiddenTestCases={challengeQuery.data.hiddenTestCases ?? []}
+          />
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -217,7 +229,7 @@ function TestCaseManager({
       <div className="mt-4 space-y-2">
         {allCases.map((tc) => (
           <div key={`${tc.isHidden}-${tc.id}`} className="flex items-center gap-3 rounded-lg border border-slate-200/70 px-3 py-2 text-sm dark:border-white/[0.08]">
-            <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${tc.isHidden ? 'bg-slate-200 text-slate-600 dark:bg-white/10 dark:text-slate-300' : 'bg-indigo-500/10 text-indigo-600 dark:text-cyan-400'}`}>
+            <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${tc.isHidden ? 'bg-slate-200 text-slate-600 dark:bg-white/10 dark:text-slate-300' : 'bg-blue-500/10 text-blue-600 dark:text-cyan-400'}`}>
               {tc.isHidden ? 'HIDDEN' : 'VISIBLE'}
             </span>
             <code className="min-w-0 flex-1 truncate text-slate-700 dark:text-slate-200">
@@ -246,7 +258,7 @@ function TestCaseManager({
           type="button"
           onClick={() => addMutation.mutate()}
           disabled={!newCase.input || !newCase.expectedOutput || addMutation.isPending}
-          className="col-span-2 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          className="col-span-2 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus size={14} />
           {t('admin.add')}

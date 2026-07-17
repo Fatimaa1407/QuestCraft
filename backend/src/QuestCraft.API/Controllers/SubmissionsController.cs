@@ -28,7 +28,7 @@ public class SubmissionsController : ControllerBase
     [HttpPost("submit")]
     public async Task<ActionResult<ApiResponse<SubmissionResultDto>>> Submit(SubmitRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new SubmitChallengeCommand(request.ChallengeId, request.SourceCode), cancellationToken);
+        var result = await _mediator.Send(new SubmitChallengeCommand(request.ChallengeId, request.SourceCode, request.SolveTimeMs), cancellationToken);
         var message = result.Verdict == "Accepted" ? "Təbriklər, qəbul edildi!" : "Göndərildi.";
         return Ok(ApiResponse<SubmissionResultDto>.Ok(result, message));
     }
@@ -51,4 +51,4 @@ public class SubmissionsController : ControllerBase
 
 public record RunRequest(int ChallengeId, string SourceCode);
 
-public record SubmitRequest(int ChallengeId, string SourceCode);
+public record SubmitRequest(int ChallengeId, string SourceCode, int? SolveTimeMs = null);

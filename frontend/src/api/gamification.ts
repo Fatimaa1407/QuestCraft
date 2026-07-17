@@ -3,10 +3,14 @@ import type { ApiResponse } from '../types/api';
 import type {
   Achievement,
   ClaimDailyQuestResult,
+  CurrentSeasonalEventDto,
   DailyQuest,
+  DashboardAnalyticsDto,
   LeaderboardEntry,
   LeaderboardPeriod,
   LevelProgress,
+  MyRankDto,
+  StreakDto,
 } from '../types/gamification';
 
 export async function getDailyQuests(): Promise<DailyQuest[]> {
@@ -34,4 +38,26 @@ export async function getLeaderboard(period: LeaderboardPeriod = 'AllTime', top 
 export async function getAchievements(): Promise<Achievement[]> {
   const { data } = await apiClient.get<ApiResponse<Achievement[]>>('/api/gamification/achievements');
   return data.data ?? [];
+}
+
+export async function getDashboardAnalytics(): Promise<DashboardAnalyticsDto> {
+  const { data } = await apiClient.get<ApiResponse<DashboardAnalyticsDto>>('/api/gamification/analytics');
+  return data.data ?? { xpLast30Days: [], categoryProgress: [], activeDaysLast30: 0 };
+}
+
+export async function getMyStreak(): Promise<StreakDto> {
+  const { data } = await apiClient.get<ApiResponse<StreakDto>>('/api/gamification/streak');
+  return data.data ?? { currentStreak: 0, longestStreak: 0, lastActivityDate: null, activeDatesLast30: [] };
+}
+
+export async function getMyRank(period: LeaderboardPeriod = 'AllTime'): Promise<MyRankDto> {
+  const { data } = await apiClient.get<ApiResponse<MyRankDto>>('/api/gamification/my-rank', {
+    params: { period },
+  });
+  return data.data ?? { rank: 0, totalUsers: 0, xp: 0, level: 1 };
+}
+
+export async function getCurrentSeasonalEvent(): Promise<CurrentSeasonalEventDto | null> {
+  const { data } = await apiClient.get<ApiResponse<CurrentSeasonalEventDto | null>>('/api/seasonal-events/current');
+  return data.data;
 }

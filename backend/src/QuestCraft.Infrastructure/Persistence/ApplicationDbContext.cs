@@ -50,6 +50,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
     public DbSet<ExcelImportLog> ExcelImportLogs => Set<ExcelImportLog>();
     public DbSet<RateLimitLog> RateLimitLogs => Set<RateLimitLog>();
+    public DbSet<SeasonalEvent> SeasonalEvents => Set<SeasonalEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

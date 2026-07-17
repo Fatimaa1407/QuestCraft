@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mail } from 'lucide-react';
+import { User as UserIcon } from 'lucide-react';
 import { login } from '../../api/auth';
 import { useAuthStore } from '../../app/authStore';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -16,7 +16,7 @@ export function LoginPage() {
   const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
   const registered = Boolean((location.state as { registered?: boolean } | null)?.registered);
-  const [email, setEmail] = useState('');
+  const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,7 +26,7 @@ export function LoginPage() {
     setError(null);
     setIsSubmitting(true);
     try {
-      const response = await login({ email, password });
+      const response = await login({ emailOrUsername, password });
       if (response.data) {
         setAuth(response.data.user, response.data.accessToken);
         navigate('/', { replace: true });
@@ -54,14 +54,14 @@ export function LoginPage() {
         )}
 
         <TextField
-          id="email"
-          type="email"
+          id="emailOrUsername"
+          type="text"
           label={t('auth.login.emailLabel')}
           placeholder={t('auth.login.emailPlaceholder')}
-          icon={<Mail size={16} />}
+          icon={<UserIcon size={16} />}
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={emailOrUsername}
+          onChange={(e) => setEmailOrUsername(e.target.value)}
         />
 
         <PasswordField

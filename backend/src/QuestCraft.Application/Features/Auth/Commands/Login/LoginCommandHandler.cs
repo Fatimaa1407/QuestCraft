@@ -25,12 +25,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
         var user = await _context.Users
             .Include(u => u.Role)
             .Include(u => u.Profile)
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == request.EmailOrUsername || u.Username == request.EmailOrUsername, cancellationToken);
 
-        // Same generic message whether the email doesn't exist or the password is wrong — avoids leaking which one.
+        // Same generic message whether the identifier doesn't exist or the password is wrong — avoids leaking which one.
         if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
-            throw new UnauthorizedException("Email və ya şifrə yanlışdır.");
+            throw new UnauthorizedException("Email/istifadəçi adı və ya şifrə yanlışdır.");
         }
 
         if (!user.IsActive)

@@ -50,3 +50,42 @@ export interface LeaderboardEntry {
   xp: number;
   level: number;
 }
+
+export interface XpDayPoint {
+  date: string; // "YYYY-MM-DD"
+  xp: number;
+}
+
+export interface CategoryProgress {
+  categoryName: string;
+  completed: number;
+  total: number;
+}
+
+export interface DashboardAnalyticsDto {
+  xpLast30Days: XpDayPoint[];
+  categoryProgress: CategoryProgress[];
+  activeDaysLast30: number;
+}
+
+export interface StreakDto {
+  currentStreak: number;
+  longestStreak: number;
+  lastActivityDate: string | null;
+  activeDatesLast30: string[];
+}
+
+export interface CurrentSeasonalEventDto {
+  id: number;
+  name: string;
+  description: string | null;
+  emoji: string | null;
+  endDate: string;
+}
+
+export interface MyRankDto {
+  rank: number;
+  totalUsers: number;
+  xp: number;
+  level: number;
+}

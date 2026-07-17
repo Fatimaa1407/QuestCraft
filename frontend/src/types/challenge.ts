@@ -22,6 +22,7 @@ export interface ChallengeListItemDto {
   isPublished: boolean;
   requiredLevel: number;
   isLocked: boolean;
+  tags: string | null;
 }
 
 export interface TestCaseDto {
@@ -73,4 +74,5 @@ export interface ChallengeDetailDto {
   outputFormatEn: string | null;
   hintEn: string | null;
   starterCodeEn: string | null;
+  tags: string | null;
 }

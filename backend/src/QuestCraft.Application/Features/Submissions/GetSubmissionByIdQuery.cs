@@ -57,6 +57,10 @@ public class GetSubmissionByIdQueryHandler : IRequestHandler<GetSubmissionByIdQu
             [],
             profile?.Xp ?? 0,
             profile?.Coins ?? 0,
-            profile?.Level ?? 1);
+            profile?.Level ?? 1,
+            // Historical view of a past submission — never re-trigger the level-up celebration.
+            profile?.Level ?? 1,
+            0,
+            0);
     }
 }

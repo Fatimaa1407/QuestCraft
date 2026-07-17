@@ -9,7 +9,8 @@ public record ChallengeListItemDto(
     int CoinReward,
     bool IsPublished,
     int RequiredLevel,
-    bool IsLocked);
+    bool IsLocked,
+    string? Tags = null);
 
 public record TestCaseDto(int Id, string Input, string ExpectedOutput, int OrderIndex);
 
@@ -49,4 +50,5 @@ public record ChallengeDetailDto(
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
     string? HintEn = null,
-    string? StarterCodeEn = null);
+    string? StarterCodeEn = null,
+    string? Tags = null);

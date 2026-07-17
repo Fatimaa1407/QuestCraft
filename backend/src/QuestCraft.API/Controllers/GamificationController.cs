@@ -58,4 +58,30 @@ public class GamificationController : ControllerBase
         var result = await _mediator.Send(new GetLeaderboardQuery(period, top), cancellationToken);
         return Ok(ApiResponse<List<LeaderboardEntryDto>>.Ok(result));
     }
+
+    [HttpGet("analytics")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<DashboardAnalyticsDto>>> GetDashboardAnalytics(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDashboardAnalyticsQuery(), cancellationToken);
+        return Ok(ApiResponse<DashboardAnalyticsDto>.Ok(result));
+    }
+
+    [HttpGet("streak")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<StreakDto>>> GetMyStreak(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetMyStreakQuery(), cancellationToken);
+        return Ok(ApiResponse<StreakDto>.Ok(result));
+    }
+
+    [HttpGet("my-rank")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<MyRankDto>>> GetMyRank(
+        [FromQuery] LeaderboardPeriod period = LeaderboardPeriod.AllTime,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetMyRankQuery(period), cancellationToken);
+        return Ok(ApiResponse<MyRankDto>.Ok(result));
+    }
 }

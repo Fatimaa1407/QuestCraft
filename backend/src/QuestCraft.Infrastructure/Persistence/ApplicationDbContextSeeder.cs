@@ -99,7 +99,7 @@ public static class ApplicationDbContextSeeder
             return;
         }
 
-        string[] types = ["Hint", "Avatar", "ProfileFrame", "Theme", "Badge", "Title"];
+        string[] types = ["Hint", "Avatar", "ProfileFrame", "Theme", "Badge", "Title", "StreakFreeze"];
         context.MarketplaceItemTypes.AddRange(types.Select(name => new MarketplaceItemType { Name = name }));
 
         // Committed immediately so SeedMarketplaceItemsAsync can look these up by real Id right after.
@@ -117,12 +117,22 @@ public static class ApplicationDbContextSeeder
         var titleTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Title").Select(t => t.Id).FirstAsync();
         var themeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Theme").Select(t => t.Id).FirstAsync();
         var badgeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Badge").Select(t => t.Id).FirstAsync();
+        var streakFreezeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "StreakFreeze").Select(t => t.Id).FirstAsync();
 
         context.MarketplaceItems.AddRange(
             new MarketplaceItem { Name = "Qızıl Çərçivə", ItemTypeId = frameTypeId, Price = 100 },
             new MarketplaceItem { Name = "Kod Ustası", ItemTypeId = titleTypeId, Price = 150 },
             new MarketplaceItem { Name = "Tünd Tema", ItemTypeId = themeTypeId, Price = 80 },
-            new MarketplaceItem { Name = "İlk Addım Nişanı", ItemTypeId = badgeTypeId, Price = 30 }
+            new MarketplaceItem { Name = "İlk Addım Nişanı", ItemTypeId = badgeTypeId, Price = 30 },
+            new MarketplaceItem
+            {
+                Name = "Streak Dondurma",
+                NameEn = "Streak Freeze",
+                Description = "Bir gün fəaliyyətsiz qalsanız belə ardıcıllığınızı qorumaq üçün birdəfəlik daimi qoruma.",
+                DescriptionEn = "A one-time, permanent safeguard that protects your streak if you miss a single day.",
+                ItemTypeId = streakFreezeTypeId,
+                Price = 120,
+            }
         );
     }
 

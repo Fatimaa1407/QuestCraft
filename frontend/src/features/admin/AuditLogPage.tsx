@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, ScrollText } from 'lucide-react';
 import { getAuditLogs } from '../../api/admin';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 export function AuditLogPage() {
   const { t } = useTranslation();
@@ -17,13 +21,16 @@ export function AuditLogPage() {
   const data = logsQuery.data;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('admin.sections.auditLog')}</h1>
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
+      <motion.div variants={fadeInUp}>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">{t('admin.sections.auditLog')}</h1>
+      </motion.div>
 
+      <motion.div variants={fadeInUp}>
       <GlassCard className="p-6">
-        <div className="overflow-x-auto">
+        <div className="max-h-[26rem] overflow-auto rounded-lg">
           <table className="w-full text-left text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm dark:bg-slate-900/90">
               <tr className="border-b border-slate-200/70 text-xs uppercase tracking-wide text-slate-400 dark:border-white/[0.06] dark:text-slate-500">
                 <th className="px-3 py-2 font-medium">Timestamp</th>
                 <th className="px-3 py-2 font-medium">User</th>
@@ -33,15 +40,30 @@ export function AuditLogPage() {
               </tr>
             </thead>
             <tbody>
-              {!data || data.items.length === 0 ? (
+              {logsQuery.isLoading ? (
+                Array.from({ length: 8 }).map((_, rowIndex) => (
+                  <tr key={`skeleton-${rowIndex}`} className="border-b border-slate-100 last:border-0 dark:border-white/[0.04]">
+                    {Array.from({ length: 5 }).map((__, colIndex) => (
+                      <td key={colIndex} className="px-3 py-2.5">
+                        <Skeleton className="h-4 w-full max-w-[140px]" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : !data || data.items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center text-slate-500 dark:text-slate-400">
-                    {t('admin.empty')}
+                  <td colSpan={5} className="px-3 py-6">
+                    <EmptyState bare icon={ScrollText} title={t('admin.empty')} />
                   </td>
                 </tr>
               ) : (
-                data.items.map((log) => (
-                  <tr key={log.id} className="border-b border-slate-100 last:border-0 dark:border-white/[0.04]">
+                data.items.map((log, idx) => (
+                  <tr
+                    key={log.id}
+                    className={`border-b border-slate-100 last:border-0 transition-colors dark:border-white/[0.04] ${
+                      idx % 2 === 1 ? 'bg-slate-50/60 dark:bg-white/[0.02]' : ''
+                    } hover:bg-blue-50/60 dark:hover:bg-white/[0.06]`}
+                  >
                     <td className="px-3 py-2.5 whitespace-nowrap text-slate-700 dark:text-slate-200">{new Date(log.timestamp).toLocaleString()}</td>
                     <td className="px-3 py-2.5 text-slate-700 dark:text-slate-200">{log.username ?? '—'}</td>
                     <td className="px-3 py-2.5 text-slate-700 dark:text-slate-200">{log.action}</td>
@@ -81,6 +103,7 @@ export function AuditLogPage() {
           </div>
         )}
       </GlassCard>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

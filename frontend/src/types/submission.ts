@@ -47,4 +47,7 @@ export interface SubmissionResultDto {
   totalXp: number;
   totalCoins: number;
   level: number;
+  previousLevel: number;
+  newChallengesUnlocked: number;
+  newQuizzesUnlocked: number;
 }

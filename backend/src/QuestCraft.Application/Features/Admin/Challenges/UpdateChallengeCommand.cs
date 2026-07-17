@@ -32,7 +32,8 @@ public record UpdateChallengeCommand(
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
     string? HintEn = null,
-    string? StarterCodeEn = null) : ICommand<ChallengeDetailDto>;
+    string? StarterCodeEn = null,
+    string? Tags = null) : ICommand<ChallengeDetailDto>;
 
 public class UpdateChallengeCommandValidator : AbstractValidator<UpdateChallengeCommand>
 {
@@ -74,6 +75,16 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
         var difficulty = await _context.ChallengeDifficulties.FirstOrDefaultAsync(d => d.Id == request.DifficultyId, cancellationToken)
             ?? throw new NotFoundException(nameof(ChallengeDifficulty), request.DifficultyId);
 
+        var normalizedTitle = request.Title.Trim().ToLower();
+        var duplicateLevel = await _context.Challenges
+            .Where(c => c.Id != request.Id && c.Title.ToLower() == normalizedTitle && c.RequiredLevel != request.RequiredLevel)
+            .Select(c => (int?)c.RequiredLevel)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (duplicateLevel is not null)
+        {
+            throw new ConflictException($"\"{request.Title}\" başlıqlı çağırış artıq Level {duplicateLevel}-də mövcuddur. Hər çağırış yalnız bir səviyyədə istifadə oluna bilər.");
+        }
+
         challenge.Title = request.Title;
         challenge.Description = request.Description;
         challenge.CategoryId = category.Id;
@@ -98,6 +109,7 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
         challenge.OutputFormatEn = request.OutputFormatEn;
         challenge.HintEn = request.HintEn;
         challenge.StarterCodeEn = request.StarterCodeEn;
+        challenge.Tags = request.Tags;
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -112,6 +124,6 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))
                 .ToList(),
             null,
-            false);
+            false, Tags: challenge.Tags);
     }
 }

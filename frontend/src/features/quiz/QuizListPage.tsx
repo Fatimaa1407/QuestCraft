@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, HelpCircle, Star, CheckCircle2, Play, RotateCcw, Lock } from 'lucide-react';
+import { Search, HelpCircle, Star, CheckCircle2, Play, RotateCcw, Lock, FileQuestion } from 'lucide-react';
 import { getQuizzes, getMyQuizAttempts } from '../../api/quizzes';
 import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { LevelSectionHeader, type LevelSectionStatus } from '../../components/ui/LevelSectionHeader';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import type { QuizListItemDto } from '../../types/quiz';
 
@@ -82,9 +84,32 @@ export function QuizListPage() {
       </motion.div>
 
       {quizzesQuery.isLoading ? (
-        <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>
+        <div className="space-y-4">
+          {[0, 1].map((section) => (
+            <div key={section} className="space-y-4">
+              <Skeleton className="h-14 w-full rounded-2xl" />
+              <div className="grid grid-cols-1 gap-6 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <QuizCardSkeleton key={i} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : !data || data.items.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-500">{t('quiz.empty')}</p>
+        <EmptyState
+          icon={FileQuestion}
+          tint="cyan"
+          title={t('quiz.empty')}
+          action={
+            search
+              ? {
+                  label: t('quiz.clearSearch'),
+                  onClick: () => setSearch(''),
+                }
+              : undefined
+          }
+        />
       ) : (
         <div className="space-y-4">
           {groupedByLevel.map(([level, items]) => {
@@ -144,6 +169,16 @@ export function QuizListPage() {
                               <h2 className="pr-24 text-lg font-semibold text-slate-900 dark:text-slate-100">{quiz.title}</h2>
                               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{quiz.category ?? t('quiz.uncategorized')}</p>
 
+                              {quiz.tags && (
+                                <div className="mt-3 flex flex-wrap gap-1.5">
+                                  {quiz.tags.split(',').map((tag) => tag.trim()).filter(Boolean).map((tag) => (
+                                    <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-white/5 dark:text-slate-400">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
                               <div className="mt-5 flex-1" />
 
                               <div className="flex items-center gap-4 border-t border-slate-200/70 pt-4 text-xs text-slate-500 dark:border-white/[0.06] dark:text-slate-400">
@@ -197,5 +232,22 @@ export function QuizListPage() {
         </div>
       )}
     </motion.div>
+  );
+}
+
+// Mirrors the real quiz card's layout (title, category line, question-count/XP footer, action
+// pill) so the page doesn't visually "jump" once real data replaces the skeleton.
+function QuizCardSkeleton() {
+  return (
+    <GlassCard hoverLift={false} className="flex h-full flex-col p-6">
+      <Skeleton className="h-5 w-2/3" />
+      <Skeleton className="mt-2 h-3 w-1/3" />
+      <div className="mt-5 flex-1" />
+      <div className="flex items-center gap-4 border-t border-slate-200/70 pt-4 dark:border-white/[0.06]">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-4 w-12" />
+      </div>
+      <Skeleton className="mt-4 h-8 w-full rounded-full" />
+    </GlassCard>
   );
 }

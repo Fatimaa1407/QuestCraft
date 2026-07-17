@@ -20,6 +20,10 @@ public class Challenge : BaseEntity
     public bool IsPublished { get; set; }
     public int RequiredLevel { get; set; } = 1;
 
+    // Comma-separated, e.g. "linq,collections,beginner" — simple free-text tagging rather than a
+    // normalized many-to-many table, since search/filter is the only consumer and volume is small.
+    public string? Tags { get; set; }
+
     // English translations — nullable; falls back to the Azerbaijani field above when missing.
     public string? TitleEn { get; set; }
     public string? DescriptionEn { get; set; }

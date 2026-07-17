@@ -36,10 +36,17 @@ public class AddQuestionCommandHandler : IRequestHandler<AddQuestionCommand, int
 
     public async Task<int> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
     {
-        var quizExists = await _context.Quizzes.AnyAsync(q => q.Id == request.QuizId, cancellationToken);
-        if (!quizExists)
+        var quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == request.QuizId, cancellationToken)
+            ?? throw new NotFoundException(nameof(Quiz), request.QuizId);
+
+        var normalizedText = request.Text.Trim().ToLower();
+        var duplicateLevel = await _context.Questions
+            .Where(q => q.Text.ToLower() == normalizedText && q.Quiz.RequiredLevel != quiz.RequiredLevel)
+            .Select(q => (int?)q.Quiz.RequiredLevel)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (duplicateLevel is not null)
         {
-            throw new NotFoundException(nameof(Quiz), request.QuizId);
+            throw new ConflictException($"Bu sual artıq Level {duplicateLevel}-dəki bir testdə istifadə olunub. Hər sual yalnız bir səviyyədə istifadə oluna bilər.");
         }
 
         var question = new Question
@@ -87,8 +94,19 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
     {
         var question = await _context.Questions
             .Include(q => q.Options)
+            .Include(q => q.Quiz)
             .FirstOrDefaultAsync(q => q.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Question), request.Id);
+
+        var normalizedText = request.Text.Trim().ToLower();
+        var duplicateLevel = await _context.Questions
+            .Where(q => q.Id != request.Id && q.Text.ToLower() == normalizedText && q.Quiz.RequiredLevel != question.Quiz.RequiredLevel)
+            .Select(q => (int?)q.Quiz.RequiredLevel)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (duplicateLevel is not null)
+        {
+            throw new ConflictException($"Bu sual artıq Level {duplicateLevel}-dəki bir testdə istifadə olunub. Hər sual yalnız bir səviyyədə istifadə oluna bilər.");
+        }
 
         question.Text = request.Text;
         question.Explanation = request.Explanation;

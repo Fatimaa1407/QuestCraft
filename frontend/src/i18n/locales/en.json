@@ -13,15 +13,15 @@
       "title": "Welcome back",
       "subtitle": "Sign in to your account and keep learning",
       "registeredSuccess": "Registration successful. You can now sign in.",
-      "emailLabel": "Email",
-      "emailPlaceholder": "you@email.com",
+      "emailLabel": "Email or username",
+      "emailPlaceholder": "you@email.com or username",
       "passwordLabel": "Password",
       "passwordPlaceholder": "••••••••",
       "submit": "Sign in",
       "submitting": "Please wait...",
       "noAccount": "Don't have an account?",
       "registerLink": "Sign up",
-      "errorFallback": "Sign in failed."
+      "errorFallback": "Couldn't reach the server. Check your connection and try again."
     },
     "register": {
       "title": "Create your account",
@@ -46,7 +46,7 @@
       "submitting": "Please wait...",
       "haveAccount": "Already have an account?",
       "loginLink": "Sign in",
-      "errorFallback": "Registration failed.",
+      "errorFallback": "Couldn't reach the server. Check your connection and try again.",
       "passwordMismatch": "Passwords do not match."
     }
   },
@@ -55,6 +55,7 @@
     "subtitle": "Test your knowledge, earn XP.",
     "searchPlaceholder": "Search...",
     "empty": "No quizzes found.",
+    "clearSearch": "Clear search",
     "notFound": "Quiz not found.",
     "uncategorized": "Uncategorized",
     "questionCount": "{{count}} questions",
@@ -100,6 +101,7 @@
     "subtitle": "Compare yourself with the best players.",
     "empty": "No results yet.",
     "you": "You",
+    "outOfTotal": "out of {{total}} users",
     "period": {
       "Daily": "Today",
       "Weekly": "This week",
@@ -118,12 +120,14 @@
     "equippedTitle": "Equipped Items",
     "changeInShop": "Change in Shop",
     "noEquipped": "Nothing equipped yet.",
+    "browseShop": "Browse the shop",
     "bioTitle": "About Me",
     "bioLabel": "Bio",
     "bioPlaceholder": "Write a short bio about yourself...",
     "save": "Save",
     "saving": "Saving...",
-    "saved": "Saved ✓"
+    "saved": "Saved ✓",
+    "rank": "Rank"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -134,7 +138,9 @@
     "shop": "Shop",
     "profile": "Profile",
     "admin": "Admin",
-    "logout": "Log out"
+    "logout": "Log out",
+    "more": "More",
+    "mobileNavLabel": "Main navigation"
   },
   "challenges": {
     "title": "Coding Challenges",
@@ -143,6 +149,7 @@
     "allCategories": "All categories",
     "allDifficulties": "All difficulties",
     "empty": "No challenges found.",
+    "clearFilters": "Clear filters",
     "notFound": "Challenge not found.",
     "backToList": "Back to list",
     "constraints": "Constraints",
@@ -173,6 +180,9 @@
     },
     "practiceMode": "Practice Mode",
     "practiceModeHint": "You've already completed this challenge. Redoing it won't earn extra XP/Coins.",
+    "completed": "Challenge completed!",
+    "perfectScore": "Perfect score!",
+    "continue": "Continue",
     "status": {
       "Solved": "Solved",
       "Attempted": "Attempted",
@@ -210,7 +220,22 @@
     "noSubmissions": "No submissions yet.",
     "recentQuizzes": "Recent Quiz Results",
     "noQuizzes": "No quiz attempts yet.",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "xpTrendTitle": "XP Trend — Last 30 Days",
+    "xpTooltip": "{{xp}} XP",
+    "noXpData": "No XP data yet.",
+    "categoryBreakdownTitle": "Progress by Category",
+    "categoryTooltip": "{{completed}}/{{total}} completed",
+    "noCategoryData": "No category data yet.",
+    "activityHeatmapTitle": "Activity Map",
+    "activityHeatmapActive": "active day",
+    "activityHeatmapLess": "less",
+    "activityHeatmapMore": "more",
+    "streak": "Streak",
+    "streakDays": "{{count}} days",
+    "longestStreak": "Longest streak: {{count}} days",
+    "activityFeedTitle": "Recent Activity",
+    "noActivity": "No activity yet."
   },
   "admin": {
     "title": "Admin Panel",
@@ -227,7 +252,16 @@
     "confirmDelete": "Are you sure you want to delete this?",
     "backToPanel": "Back to Admin Panel",
     "add": "Add",
+    "dashboard": {
+      "totalUsers": "Users",
+      "contentItems": "Content items",
+      "submissionsToday": "Submissions today",
+      "activeUsersToday": "Active today",
+      "newUsersThisWeek": "New this week"
+    },
     "sections": {
+      "users": "Users",
+      "usersDesc": "View and manage all users",
       "challenges": "Challenges",
       "challengesDesc": "Create and manage coding challenges",
       "quizzes": "Quizzes",
@@ -245,7 +279,11 @@
       "excel": "Excel Tools",
       "excelDesc": "Bulk import/export",
       "auditLog": "Audit Log",
-      "auditLogDesc": "Admin action history"
+      "auditLogDesc": "Admin action history",
+      "activityToday": "Today's Activity",
+      "activityTodayDesc": "Challenges and quizzes submitted today",
+      "seasonalEvents": "Seasonal Events",
+      "seasonalEventsDesc": "Holiday/season-themed announcements"
     },
     "categories": {
       "title": "Categories",
@@ -296,6 +334,62 @@
       "xpReward": "XP reward",
       "coinReward": "Coin reward",
       "active": "Active"
+    },
+    "users": {
+      "title": "Users",
+      "searchPlaceholder": "Search users (name or email)...",
+      "columnUser": "User",
+      "columnRole": "Role",
+      "columnLevel": "Level",
+      "columnStatus": "Status",
+      "columnLastLogin": "Last login",
+      "columnJoined": "Joined",
+      "you": "you",
+      "roleAdmin": "Admin",
+      "roleStudent": "Student",
+      "active": "Active",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "never": "Never"
+    },
+    "seasonalEvents": {
+      "title": "Seasonal Events",
+      "add": "New event",
+      "name": "Name",
+      "nameEn": "Name (EN)",
+      "description": "Description",
+      "descriptionEn": "Description (EN)",
+      "emoji": "Emoji",
+      "startDate": "Start date (YYYY-MM-DD)",
+      "endDate": "End date (YYYY-MM-DD)",
+      "active": "Active"
+    },
+    "activityToday": {
+      "title": "Today's Activity",
+      "subtitle": "Challenges and quizzes submitted by all users today.",
+      "columnUser": "User",
+      "columnItem": "Item",
+      "columnResult": "Result",
+      "columnTime": "Time",
+      "empty": "No activity yet today."
+    },
+    "excel": {
+      "importChallenges": "Import — Challenges",
+      "importTestCases": "Import — Test Cases",
+      "importQuestions": "Import — Quiz Questions",
+      "exportTitle": "Export",
+      "chooseFile": "Choose file",
+      "noFileChosen": "No file chosen",
+      "challengeId": "Challenge ID",
+      "quizId": "Quiz ID",
+      "exportKinds": {
+        "users": "Users",
+        "challenges": "Challenges",
+        "quiz-results": "Quiz Results",
+        "leaderboard": "Leaderboard",
+        "marketplace": "Marketplace"
+      }
     }
   },
   "notifications": {
@@ -318,6 +412,162 @@
     "toggleLanguage": "Change language",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "comingSoon": "This section will be ready soon."
+    "comingSoon": "This section will be ready soon.",
+    "close": "Close"
+  },
+  "levelUp": {
+    "congratulations": "Congratulations!",
+    "unlocked": "Level {{level}} Unlocked",
+    "xpEarned": "+{{xp}} XP",
+    "coinsEarned": "+{{coins}} Coins",
+    "challengesUnlocked": "{{count}} New Challenges Unlocked",
+    "quizzesUnlocked": "{{count}} New Quiz Unlocked",
+    "continue": "Continue"
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "how": "How it works",
+      "audience": "Who it's for",
+      "testimonials": "Reviews",
+      "faq": "FAQ",
+      "login": "Log in",
+      "cta": "Get Started Free",
+      "skipLink": "Skip to main content",
+      "ariaLabel": "Main navigation",
+      "menuOpen": "Open menu"
+    },
+    "hero": {
+      "eyebrow": "C# · XP · LEADERBOARD",
+      "titleLine1": "Learn to code.",
+      "titleLine2": "Earn points.",
+      "titleGrad": "Level up.",
+      "lead": "Learn C# by writing code, not just reading about it. Every challenge is graded in seconds, earns you XP and coins, raises your level, and moves you up the leaderboard.",
+      "ctaPrimary": "Get Started Free",
+      "ctaSecondary": "See how it works",
+      "stat1Label": "Learning levels",
+      "stat2Label": "Coding challenges",
+      "stat3Label": "Knowledge quizzes",
+      "stat4Label": "Categories",
+      "editorFile": "Fibonacci.cs",
+      "verdictPending": "Not run yet",
+      "verdictChecking": "Running...",
+      "verdictAccepted": "Accepted",
+      "rewardXp": "+40 XP",
+      "rewardCoin": "+10 coin",
+      "levelCap": "{{xp}} XP to next level"
+    },
+    "features": {
+      "eyebrow": "PRODUCT",
+      "title": "Everything you need to learn, in one place.",
+      "subtitle": "Six core pieces that turn theory into practice — each one built on real grading and a real reward system.",
+      "challengesTitle": "Coding Challenges",
+      "challengesDesc": "From arrays to recursion, LINQ to async programming — every challenge is checked against real test cases and unlocks as you level up.",
+      "challengesSnippet": "12/12 tests passed · 84ms · Accepted",
+      "quizzesTitle": "Quick Quizzes",
+      "quizzesDesc": "Explained multiple-choice questions put what you've learned to the test in minutes.",
+      "xpTitle": "XP & Levels",
+      "xpDesc": "Every challenge you solve earns XP and coins; each new level unlocks a fresh set of challenges.",
+      "leaderboardTitle": "Leaderboard",
+      "leaderboardDesc": "Compete head-to-head with friends on daily, weekly, monthly, and all-time rankings.",
+      "marketplaceTitle": "Marketplace",
+      "marketplaceDesc": "Spend the coins you've earned: buy a profile frame, a theme, a title, and equip it in one click.",
+      "achievementsTitle": "Achievements",
+      "achievementsDesc": "Unlock hidden and visible achievements — every win lands on your profile as a notification."
+    },
+    "how": {
+      "eyebrow": "MECHANICS",
+      "title": "The life cycle of a challenge.",
+      "subtitle": "Four steps from picking a challenge to collecting your reward — all in a matter of seconds.",
+      "stepLabel": "STEP",
+      "step1Title": "Pick a challenge",
+      "step1Desc": "Filter by category and difficulty to find a challenge that matches your level.",
+      "step2Title": "Write the code",
+      "step2Desc": "Write your C# solution in the built-in editor and check the sample input/output.",
+      "step3Title": "Get instant results",
+      "step3Desc": "The automated judge grades your code against real test cases in seconds.",
+      "step4Title": "Collect your reward",
+      "step4Desc": "Earn XP and coins, level up, and climb the leaderboard."
+    },
+    "audience": {
+      "eyebrow": "WHO IT'S FOR",
+      "title": "There's a place for students and teachers alike.",
+      "tabStudent": "For students",
+      "tabTeacher": "For teachers/admins",
+      "studentHeading": "From theory to practice, step by step",
+      "studentBullet1": "Level-gated challenges let you start from zero and build up.",
+      "studentBullet2": "Instant, precise feedback on every attempt — no waiting around.",
+      "studentBullet3": "A daily challenge streak turns learning into a habit.",
+      "studentStat1Label": "Current level",
+      "studentStat2Label": "Challenges solved",
+      "studentStat3Label": "Daily streak",
+      "studentStat3Value": "9 days",
+      "studentStat4Label": "Leaderboard rank",
+      "teacherHeading": "Full control, from the admin panel",
+      "teacherBullet1": "Manage challenges, quizzes, categories, and difficulty levels end to end.",
+      "teacherBullet2": "Bulk-import challenges and questions straight from Excel.",
+      "teacherBullet3": "Track every admin action in the audit log.",
+      "teacherStat1Label": "Managed sections",
+      "teacherStat2Label": "Bulk import format",
+      "teacherStat3Label": "Audit logging",
+      "teacherStat3Value": "live",
+      "teacherStat4Label": "Role control"
+    },
+    "testimonials": {
+      "eyebrow": "REVIEWS",
+      "title": "What people are saying.",
+      "review1Quote": "I still remember solving a recursion challenge at 2am just to pass a friend on the leaderboard.",
+      "review1Meta": "Level 14 · 61 challenges solved",
+      "review1Name": "Kamran",
+      "review1Role": "C# student",
+      "review2Quote": "The daily streak is what makes me open the app every single day — I'm at 9 days now.",
+      "review2Meta": "Level 5 · 9-day streak",
+      "review2Name": "Aysel",
+      "review2Role": "Beginner",
+      "review3Quote": "The profile frame I bought from the Marketplace sounds small, but there's real satisfaction in spending the XP you've earned.",
+      "review3Meta": "Level 9 · 3 cosmetic items",
+      "review3Name": "Ali",
+      "review3Role": "Intermediate",
+      "review4Quote": "Being able to restore a challenge I accidentally deleted with one click gives me real peace of mind.",
+      "review4Meta": "Manages 120+ challenges",
+      "review4Name": "Revan",
+      "review4Role": "Teacher"
+    },
+    "faq": {
+      "eyebrow": "QUESTIONS",
+      "title": "Frequently asked questions.",
+      "q1": "Is QuestCraft free?",
+      "a1": "Yes — registration and all core features are completely free.",
+      "q2": "Which programming language does it teach?",
+      "a2": "The platform is fully focused on C# and the .NET ecosystem.",
+      "q3": "Do I need prior experience?",
+      "a3": "No. The level-gated challenge system lets you start from zero.",
+      "q4": "What's the difference between XP and coins?",
+      "a4": "XP raises your level and unlocks new challenges; coins are what you spend on cosmetic items in the Marketplace.",
+      "q5": "How is the leaderboard calculated?",
+      "a5": "It's calculated separately for daily, weekly, monthly, and all-time periods, and you can switch between them anytime."
+    },
+    "cta": {
+      "title": "Your next achievement is one click away.",
+      "subtitle": "Sign up, pick your first challenge, and start earning XP.",
+      "button": "Sign Up Free",
+      "note": "No credit card required."
+    },
+    "footer": {
+      "tagline": "The gamified way to learn C# — real challenges, instant results, steady progress.",
+      "platformHeading": "Platform",
+      "platformChallenges": "Challenges",
+      "platformQuizzes": "Quizzes",
+      "platformLeaderboard": "Leaderboard",
+      "platformMarketplace": "Marketplace",
+      "resourcesHeading": "Resources",
+      "resourcesHow": "How it works",
+      "resourcesFaq": "FAQ",
+      "newsletterHeading": "Newsletter",
+      "newsletterText": "Get notified about new challenges.",
+      "newsletterPlaceholder": "email@example.com",
+      "newsletterButton": "Subscribe",
+      "copyright": "© {{year}} QuestCraft. All rights reserved."
+    }
   }
 }

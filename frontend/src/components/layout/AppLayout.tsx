@@ -6,13 +6,21 @@ import { ThemeSwitcher } from '../ui/ThemeSwitcher';
 import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 import { NotificationBell } from '../ui/NotificationBell';
 import { AmbientGlow } from '../ui/AmbientGlow';
+import { SeasonalEventBanner } from '../ui/SeasonalEventBanner';
 import { Sidebar } from './Sidebar';
+import { MobileNav } from './MobileNav';
 import { pageTransition } from '../../utils/motion';
+import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
+import { useNotificationsHub } from '../../utils/useNotificationsHub';
 
 export function AppLayout() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
+  useNotificationsHub();
+  const animatedLevel = useAnimatedNumber(user?.level ?? 0);
+  const animatedXp = useAnimatedNumber(user?.xp ?? 0);
+  const animatedCoins = useAnimatedNumber(user?.coins ?? 0);
 
   return (
     <div className="relative flex min-h-svh bg-app-bg text-slate-900 dark:bg-gradient-to-br dark:from-[#0b1220] dark:via-[#0d1526] dark:to-[#0a0f1c] dark:text-slate-50">
@@ -35,10 +43,10 @@ export function AppLayout() {
                 </span>
               )}
               <span className="text-slate-700 dark:text-slate-100">{user?.username}</span>
-              <span className="hidden text-slate-400 sm:inline dark:text-slate-600">·</span>
-              <span className="hidden text-slate-500 sm:inline dark:text-slate-400">Lvl {user?.level}</span>
-              <span className="hidden text-blue-600 sm:inline dark:text-cyan-400">{user?.xp} XP</span>
-              <span className="hidden text-amber-500 sm:inline">{user?.coins} 🪙</span>
+              <span className="text-slate-400 dark:text-slate-600">·</span>
+              <span className="text-slate-500 dark:text-slate-400">Lvl {animatedLevel}</span>
+              <span className="hidden text-blue-600 sm:inline dark:text-cyan-400">{animatedXp} XP</span>
+              <span className="hidden text-amber-500 sm:inline">{animatedCoins} 🪙</span>
             </div>
 
             <NotificationBell />
@@ -46,7 +54,8 @@ export function AppLayout() {
             <ThemeSwitcher />
           </div>
         </header>
-        <main className="relative flex-1 px-5 py-8 sm:px-8">
+        <SeasonalEventBanner />
+        <main className="relative flex-1 px-5 py-8 pb-24 sm:px-8 sm:pb-8">
           <div className="mx-auto max-w-6xl">
             <AnimatePresence mode="wait">
               <motion.div key={location.pathname} variants={pageTransition} initial="hidden" animate="show" exit="exit">
@@ -56,6 +65,8 @@ export function AppLayout() {
           </div>
         </main>
       </div>
+
+      <MobileNav />
     </div>
   );
 }

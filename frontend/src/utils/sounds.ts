@@ -40,3 +40,13 @@ export function playFanfareSound() {
   playTone(659, 0.12, 0.14, 'sine');
   playTone(784, 0.24, 0.22, 'sine');
 }
+
+// A bigger moment than the quiz fanfare: a rising C-E-G-C major arpeggio that
+// resolves into a soft two-note shimmer, instead of just repeating playFanfareSound.
+export function playLevelUpSound() {
+  playTone(523.25, 0, 0.16, 'sine');
+  playTone(659.25, 0.1, 0.16, 'sine');
+  playTone(783.99, 0.2, 0.18, 'sine');
+  playTone(1046.5, 0.32, 0.5, 'sine', 0.18);
+  playTone(1318.51, 0.36, 0.45, 'sine', 0.09);
+}

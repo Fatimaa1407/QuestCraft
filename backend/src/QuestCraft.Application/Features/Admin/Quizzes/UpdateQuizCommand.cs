@@ -8,7 +8,7 @@ using QuestCraft.Domain.Entities;
 namespace QuestCraft.Application.Features.Admin.Quizzes;
 
 public record UpdateQuizCommand(
-    int Id, string Title, int? CategoryId, int XpReward, bool IsPublished, int RequiredLevel = 1, string? TitleEn = null)
+    int Id, string Title, int? CategoryId, int XpReward, bool IsPublished, int RequiredLevel = 1, string? TitleEn = null, string? Tags = null)
     : ICommand<QuizListItemDto>;
 
 public class UpdateQuizCommandValidator : AbstractValidator<UpdateQuizCommand>
@@ -52,9 +52,10 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, QuizL
         quiz.IsPublished = request.IsPublished;
         quiz.RequiredLevel = request.RequiredLevel;
         quiz.TitleEn = request.TitleEn;
+        quiz.Tags = request.Tags;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new QuizListItemDto(quiz.Id, quiz.Title, categoryName, quiz.XpReward, quiz.IsPublished, quiz.Questions.Count, quiz.RequiredLevel, false);
+        return new QuizListItemDto(quiz.Id, quiz.Title, categoryName, quiz.XpReward, quiz.IsPublished, quiz.Questions.Count, quiz.RequiredLevel, false, quiz.Tags);
     }
 }

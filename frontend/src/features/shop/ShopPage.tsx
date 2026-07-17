@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Lightbulb, UserCircle, Frame, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet } from 'lucide-react';
+import { Lightbulb, UserCircle, Frame, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake } from 'lucide-react';
 import { getMarketplaceItems, getItemTypes, purchaseItem, equipItem } from '../../api/marketplace';
 import { EQUIPABLE_ITEM_TYPES } from '../../types/marketplace';
 import { getRarity, RARITY_STYLES } from '../../utils/rarity';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
 import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
@@ -20,6 +22,7 @@ const typeIcons: Record<string, typeof Lightbulb> = {
   Theme: Palette,
   Badge: Award,
   Title: Type,
+  StreakFreeze: Snowflake,
 };
 
 const typeEmoji: Record<string, string> = {
@@ -29,6 +32,7 @@ const typeEmoji: Record<string, string> = {
   ProfileFrame: '🖼️',
   Theme: '🎨',
   Title: '👑',
+  StreakFreeze: '❄️',
 };
 
 export function ShopPage() {
@@ -145,9 +149,25 @@ export function ShopPage() {
       </motion.div>
 
       {itemsQuery.isLoading ? (
-        <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ShopItemSkeleton key={i} />
+          ))}
+        </div>
       ) : items.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-500">{t('shop.empty')}</p>
+        <EmptyState
+          icon={ShoppingBag}
+          tint="amber"
+          title={t('shop.empty')}
+          action={
+            typeId !== undefined
+              ? {
+                  label: t('shop.all'),
+                  onClick: () => setTypeId(undefined),
+                }
+              : undefined
+          }
+        />
       ) : (
         <motion.div variants={staggerContainer} className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => {
@@ -250,5 +270,23 @@ export function ShopPage() {
         </motion.div>
       )}
     </motion.div>
+  );
+}
+
+// Mirrors the real item card's layout (icon square, title, type/rarity line, description,
+// price/action footer) so the page doesn't visually "jump" once real data replaces the skeleton.
+function ShopItemSkeleton() {
+  return (
+    <GlassCard hoverLift={false} className="flex flex-col p-6">
+      <Skeleton className="h-14 w-14 rounded-2xl" />
+      <Skeleton className="mt-4 h-5 w-2/3" />
+      <Skeleton className="mt-2 h-3 w-1/3" />
+      <Skeleton className="mt-3 h-3 w-full" />
+      <Skeleton className="mt-1.5 h-3 w-4/5" />
+      <div className="mt-5 flex items-center justify-between gap-2 border-t border-slate-200/70 pt-4 dark:border-white/[0.06]">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-7 w-16 rounded-full" />
+      </div>
+    </GlassCard>
   );
 }

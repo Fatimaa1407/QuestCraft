@@ -14,7 +14,7 @@ export async function runCode(challengeId: number, sourceCode: string): Promise<
   return data.data;
 }
 
-export async function submitCode(challengeId: number, sourceCode: string): Promise<SubmissionResultDto | null> {
-  const { data } = await apiClient.post<ApiResponse<SubmissionResultDto>>('/api/submissions/submit', { challengeId, sourceCode });
+export async function submitCode(challengeId: number, sourceCode: string, solveTimeMs?: number): Promise<SubmissionResultDto | null> {
+  const { data } = await apiClient.post<ApiResponse<SubmissionResultDto>>('/api/submissions/submit', { challengeId, sourceCode, solveTimeMs });
   return data.data;
 }

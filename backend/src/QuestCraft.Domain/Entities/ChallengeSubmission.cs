@@ -13,6 +13,11 @@ public class ChallengeSubmission : BaseEntity
     public int CoinEarned { get; set; }
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
+    // Client-reported wall-clock time from opening the challenge to hitting Submit — client-controlled
+    // like any quiz timer, so treated as a soft signal for the SpeedSolve achievement only, never for
+    // scoring/rewards. Null for submissions made before this field existed or without a client timer.
+    public int? SolveTimeMs { get; set; }
+
     public int UserId { get; set; }
     public User User { get; set; } = default!;
 

@@ -4,7 +4,8 @@ export type NotificationType =
   | 'ChallengeAccepted'
   | 'MarketplacePurchase'
   | 'SystemNotification'
-  | 'LevelUp';
+  | 'LevelUp'
+  | 'WeeklyRecap';
 
 export interface AppNotification {
   id: number;

@@ -32,6 +32,6 @@ public class GetQuizByIdAdminQueryHandler : IRequestHandler<GetQuizByIdAdminQuer
 
         return new QuizAdminDetailDto(
             quiz.Id, quiz.Title, quiz.CategoryId, quiz.Category?.Name, quiz.XpReward, quiz.IsPublished, quiz.RequiredLevel,
-            questions, quiz.TitleEn);
+            questions, quiz.TitleEn, quiz.Tags);
     }
 }

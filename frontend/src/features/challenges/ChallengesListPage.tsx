@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Star, Coins, Lock } from 'lucide-react';
+import { Search, Star, Coins, Lock, SearchX } from 'lucide-react';
 import { getCategories, getChallenges, getDifficulties } from '../../api/challenges';
 import { getMySubmissions } from '../../api/submissions';
 import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { LevelSectionHeader, type LevelSectionStatus } from '../../components/ui/LevelSectionHeader';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import type { ChallengeListItemDto } from '../../types/challenge';
 
@@ -125,9 +127,36 @@ export function ChallengesListPage() {
       </motion.div>
 
       {challengesQuery.isLoading ? (
-        <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>
+        <div className="space-y-4">
+          {[0, 1].map((section) => (
+            <div key={section} className="space-y-4">
+              <Skeleton className="h-14 w-full rounded-2xl" />
+              <div className="grid grid-cols-1 gap-6 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <ChallengeCardSkeleton key={i} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : !data || data.items.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-500">{t('challenges.empty')}</p>
+        <EmptyState
+          icon={SearchX}
+          tint="blue"
+          title={t('challenges.empty')}
+          action={
+            search || categoryId !== undefined || difficultyId !== undefined
+              ? {
+                  label: t('challenges.clearFilters'),
+                  onClick: () => {
+                    setSearch('');
+                    setCategoryId(undefined);
+                    setDifficultyId(undefined);
+                  },
+                }
+              : undefined
+          }
+        />
       ) : (
         <div className="space-y-4">
           {groupedByLevel.map(([level, items]) => {
@@ -184,6 +213,16 @@ export function ChallengesListPage() {
                                 {!challenge.isLocked && <StatusBadge status={status} />}
                               </div>
 
+                              {challenge.tags && (
+                                <div className="mt-3 flex flex-wrap gap-1.5">
+                                  {challenge.tags.split(',').map((tag) => tag.trim()).filter(Boolean).map((tag) => (
+                                    <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-white/5 dark:text-slate-400">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
                               <div className="mt-5 flex-1" />
 
                               <div className="flex items-center gap-4 border-t border-slate-200/70 pt-4 text-xs text-slate-500 dark:border-white/[0.06] dark:text-slate-400">
@@ -231,6 +270,25 @@ const difficultyStyles: Record<string, string> = {
 function DifficultyBadge({ name }: { name: string }) {
   const style = difficultyStyles[name] ?? 'bg-slate-500/10 text-slate-600 dark:text-slate-400';
   return <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${style}`}>{name}</span>;
+}
+
+// Mirrors the real challenge card's layout (title + badge, category line, XP/coin footer) so the
+// page doesn't visually "jump" once real data replaces the skeleton.
+function ChallengeCardSkeleton() {
+  return (
+    <GlassCard hoverLift={false} className="flex h-full flex-col p-6">
+      <div className="flex items-start justify-between gap-2 pr-2">
+        <Skeleton className="h-5 w-2/3" />
+        <Skeleton className="h-5 w-14 shrink-0 rounded-full" />
+      </div>
+      <Skeleton className="mt-2 h-3 w-1/3" />
+      <div className="mt-5 flex-1" />
+      <div className="flex items-center gap-4 border-t border-slate-200/70 pt-4 dark:border-white/[0.06]">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-4 w-10" />
+      </div>
+    </GlassCard>
+  );
 }
 
 const statusStyles: Record<ChallengeStatus, { dot: string; text: string }> = {

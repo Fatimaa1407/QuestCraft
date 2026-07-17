@@ -21,6 +21,9 @@ public record SubmissionResultDto(
     List<string> NewAchievements,
     int TotalXp,
     int TotalCoins,
-    int Level);
+    int Level,
+    int PreviousLevel,
+    int NewChallengesUnlocked,
+    int NewQuizzesUnlocked);
 
 public record SubmissionListItemDto(int Id, int ChallengeId, string ChallengeTitle, string Verdict, DateTime SubmittedAt, int ExecutionTimeMs);

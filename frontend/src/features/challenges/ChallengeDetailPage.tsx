@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -12,6 +12,11 @@ import { useThemeStore } from '../../app/themeStore';
 import { useAuthStore } from '../../app/authStore';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { Confetti } from '../../components/ui/Confetti';
+import { FloatingXp } from '../../components/ui/FloatingXp';
+import { ChallengeCompleteModal } from '../../components/ui/ChallengeCompleteModal';
+import { LevelUpModal } from '../../components/ui/LevelUpModal';
+import { playFanfareSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 
 const difficultyStyles: Record<string, string> = {
@@ -25,6 +30,7 @@ export function ChallengeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const challengeId = Number(id);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const theme = useThemeStore((s) => s.theme);
   const updateUser = useAuthStore((s) => s.updateUser);
 
@@ -52,12 +58,22 @@ export function ChallengeDetailPage() {
   const [runResult, setRunResult] = useState<RunResultDto | null>(null);
   const [submitResult, setSubmitResult] = useState<SubmissionResultDto | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [levelUpInfo, setLevelUpInfo] = useState<SubmissionResultDto | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
+  // Seed the editor with starter code only the first time a given challenge loads —
+  // submit/hint mutations invalidate and refetch `challengeQuery`, and without this
+  // guard that refetch would wipe out whatever the user had already typed.
+  const seededChallengeId = useRef<number | null>(null);
+  const startedAtRef = useRef<number>(Date.now());
   useEffect(() => {
-    if (challengeQuery.data) {
+    if (challengeQuery.data && seededChallengeId.current !== challengeId) {
       setCode(challengeQuery.data.starterCode);
+      seededChallengeId.current = challengeId;
+      startedAtRef.current = Date.now();
     }
-  }, [challengeQuery.data]);
+  }, [challengeQuery.data, challengeId]);
 
   const runMutation = useMutation({
     mutationFn: () => runCode(challengeId, code),
@@ -70,7 +86,7 @@ export function ChallengeDetailPage() {
   });
 
   const submitMutation = useMutation({
-    mutationFn: () => submitCode(challengeId, code),
+    mutationFn: () => submitCode(challengeId, code, Date.now() - startedAtRef.current),
     onSuccess: (data) => {
       setActionError(null);
       setRunResult(null);
@@ -80,6 +96,17 @@ export function ChallengeDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['submissions', 'my'] });
       queryClient.invalidateQueries({ queryKey: ['challenge', challengeId] });
       queryClient.invalidateQueries({ queryKey: ['level-progress'] });
+      // A level-up here can unlock the next challenge — refetch the sequence so
+      // its `isLocked` flags are current and the "Next Challenge" link appears.
+      queryClient.invalidateQueries({ queryKey: ['challenges', 'sequence'] });
+      if (data.verdict === 'Accepted') {
+        playFanfareSound();
+        setCelebrate(true);
+        setShowCompleteModal(true);
+        setTimeout(() => setCelebrate(false), 2500);
+      } else if (data.level > data.previousLevel) {
+        setLevelUpInfo(data);
+      }
     },
     onError: (err) => setActionError(getApiErrorMessage(err, t('challenges.actionError'))),
   });
@@ -106,6 +133,24 @@ export function ChallengeDetailPage() {
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
+      {celebrate && <Confetti />}
+      {celebrate && submitResult && <FloatingXp xp={submitResult.xpEarned} />}
+
+      {showCompleteModal && submitResult && (
+        <ChallengeCompleteModal
+          xp={submitResult.xpEarned}
+          coins={submitResult.coinEarned}
+          passedTestCases={submitResult.passedTestCases}
+          totalTestCases={submitResult.totalTestCases}
+          onContinue={() => {
+            setShowCompleteModal(false);
+            if (submitResult.level > submitResult.previousLevel) {
+              setLevelUpInfo(submitResult);
+            }
+          }}
+        />
+      )}
+
       <Link
         to="/challenges"
         className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400"
@@ -247,6 +292,22 @@ export function ChallengeDetailPage() {
           </div>
         </motion.div>
       </div>
+
+      {levelUpInfo && (
+        <LevelUpModal
+          isOpen
+          previousLevel={levelUpInfo.previousLevel}
+          newLevel={levelUpInfo.level}
+          xpEarned={levelUpInfo.xpEarned}
+          coinsEarned={levelUpInfo.coinEarned}
+          newChallengesUnlocked={levelUpInfo.newChallengesUnlocked}
+          newQuizzesUnlocked={levelUpInfo.newQuizzesUnlocked}
+          onContinue={() => {
+            setLevelUpInfo(null);
+            navigate('/challenges');
+          }}
+        />
+      )}
     </motion.div>
   );
 }

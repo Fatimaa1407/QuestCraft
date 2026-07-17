@@ -1,6 +1,6 @@
 namespace QuestCraft.Application.Features.Admin.Quizzes;
 
-public record QuizListItemDto(int Id, string Title, string? Category, int XpReward, bool IsPublished, int QuestionCount, int RequiredLevel, bool IsLocked);
+public record QuizListItemDto(int Id, string Title, string? Category, int XpReward, bool IsPublished, int QuestionCount, int RequiredLevel, bool IsLocked, string? Tags = null);
 
 public record QuestionOptionDto(int Id, string Text);
 
@@ -16,4 +16,4 @@ public record QuizAttemptViewDto(int Id, string Title, int XpReward, List<Questi
 // Full detail for admins editing the quiz — includes correct-answer flags.
 public record QuizAdminDetailDto(
     int Id, string Title, int? CategoryId, string? Category, int XpReward, bool IsPublished, int RequiredLevel,
-    List<QuestionAdminDto> Questions, string? TitleEn);
+    List<QuestionAdminDto> Questions, string? TitleEn, string? Tags = null);

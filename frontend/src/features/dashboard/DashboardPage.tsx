@@ -2,17 +2,22 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Swords, ClipboardList, Trophy, Lock, TrendingUp } from 'lucide-react';
+import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Trophy, Lock, TrendingUp } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
-import { getDailyQuests, claimDailyQuest, getLevelProgress } from '../../api/gamification';
+import { getDailyQuests, claimDailyQuest, getLevelProgress, getDashboardAnalytics, getMyStreak } from '../../api/gamification';
 import type { LevelProgress } from '../../types/gamification';
 import { getMySubmissions } from '../../api/submissions';
 import { getMyQuizAttempts } from '../../api/quizzes';
-import { VerdictBadge } from '../../components/ui/VerdictBadge';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { StatCard } from '../../components/ui/StatCard';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 import { playSuccessSound } from '../../utils/sounds';
+import { XpTrendChart } from './XpTrendChart';
+import { ActivityHeatmap } from './ActivityHeatmap';
+import { CategoryBreakdown } from './CategoryBreakdown';
+import { StreakStat } from './StreakStat';
+import { ActivityFeed } from './ActivityFeed';
 
 export function DashboardPage() {
   const { t } = useTranslation();
@@ -30,6 +35,8 @@ export function DashboardPage() {
     queryKey: ['quizzes', 'attempts', 'my', 1, 5],
     queryFn: () => getMyQuizAttempts(1, 5),
   });
+  const analyticsQuery = useQuery({ queryKey: ['dashboard-analytics'], queryFn: getDashboardAnalytics });
+  const streakQuery = useQuery({ queryKey: ['streak', 'my'], queryFn: getMyStreak });
 
   const updateUser = useAuthStore((s) => s.updateUser);
 
@@ -73,21 +80,34 @@ export function DashboardPage() {
         </motion.div>
       )}
 
-      <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+      <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={ShieldCheck} label={t('dashboard.level')} value={user?.level ?? 1} tint="blue" />
         <StatCard icon={Zap} label={t('dashboard.xp')} value={user?.xp ?? 0} tint="cyan" />
         <StatCard icon={CoinsIcon} label={t('dashboard.coins')} value={user?.coins ?? 0} tint="amber" />
         <StatCard icon={Sparkles} label={t('dashboard.role')} value={user?.role ?? '-'} tint="violet" />
+        <StreakStat currentStreak={streakQuery.data?.currentStreak ?? 0} longestStreak={streakQuery.data?.longestStreak ?? 0} />
       </motion.div>
 
       <motion.div variants={fadeInUp}>
         <LevelProgressPanel data={levelProgressQuery.data} isLoading={levelProgressQuery.isLoading} />
       </motion.div>
 
-      <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <motion.div variants={fadeInUp}>
+        <XpTrendChart data={analyticsQuery.data?.xpLast30Days} isLoading={analyticsQuery.isLoading} />
+      </motion.div>
+
+      <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ActivityHeatmap activeDates={streakQuery.data?.activeDatesLast30} isLoading={streakQuery.isLoading} />
+        <CategoryBreakdown data={analyticsQuery.data?.categoryProgress} isLoading={analyticsQuery.isLoading} />
+      </motion.div>
+
+      <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Panel icon={ListChecks} title={t('dashboard.dailyQuests')}>
           {questsQuery.isLoading ? (
-            <LoadingRow />
+            <div className="space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
           ) : !questsQuery.data || questsQuery.data.length === 0 ? (
             <EmptyRow text={t('dashboard.noQuests')} />
           ) : (
@@ -132,47 +152,11 @@ export function DashboardPage() {
           )}
         </Panel>
 
-        <Panel icon={Swords} title={t('dashboard.recentSubmissions')}>
-          {submissionsQuery.isLoading ? (
-            <LoadingRow />
-          ) : !submissionsQuery.data || submissionsQuery.data.items.length === 0 ? (
-            <EmptyRow text={t('dashboard.noSubmissions')} />
-          ) : (
-            <ul className="space-y-2.5">
-              {submissionsQuery.data.items.map((s) => (
-                <li
-                  key={s.id}
-                  className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200/70 p-4 dark:border-white/[0.06]"
-                >
-                  <span className="truncate text-sm text-slate-900 dark:text-slate-100">{s.challengeTitle}</span>
-                  <VerdictBadge verdict={s.verdict} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel icon={ClipboardList} title={t('dashboard.recentQuizzes')}>
-          {quizzesQuery.isLoading ? (
-            <LoadingRow />
-          ) : !quizzesQuery.data || quizzesQuery.data.items.length === 0 ? (
-            <EmptyRow text={t('dashboard.noQuizzes')} />
-          ) : (
-            <ul className="space-y-2.5">
-              {quizzesQuery.data.items.map((q) => (
-                <li
-                  key={q.id}
-                  className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200/70 p-4 dark:border-white/[0.06]"
-                >
-                  <span className="truncate text-sm text-slate-900 dark:text-slate-100">{q.quizTitle}</span>
-                  <span className="shrink-0 text-xs font-semibold text-blue-600 dark:text-cyan-400">
-                    {q.score}/{q.totalQuestions}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
+        <ActivityFeed
+          submissions={submissionsQuery.data?.items}
+          quizzes={quizzesQuery.data?.items}
+          isLoading={submissionsQuery.isLoading || quizzesQuery.isLoading}
+        />
       </motion.div>
     </motion.div>
   );
@@ -207,7 +191,11 @@ function LevelProgressPanel({ data, isLoading }: { data: LevelProgress | null | 
       </div>
 
       {isLoading || !data ? (
-        <LoadingRow />
+        <div className="space-y-4">
+          <Skeleton className="h-2 w-full" />
+          <Skeleton className="h-2 w-full" />
+          <Skeleton className="h-2 w-full" />
+        </div>
       ) : data.isMaxLevel ? (
         <p className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
           <CheckCircle2 size={15} />
@@ -266,10 +254,6 @@ function Panel({ icon: Icon, title, children }: { icon: typeof Zap; title: strin
       {children}
     </GlassCard>
   );
-}
-
-function LoadingRow() {
-  return <p className="text-sm text-slate-400 dark:text-slate-500">…</p>;
 }
 
 function EmptyRow({ text }: { text: string }) {

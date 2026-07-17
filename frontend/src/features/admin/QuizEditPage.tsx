@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Pencil, Plus, Trash2 } from 'lucide-react';
 import { getCategories } from '../../api/challenges';
 import {
@@ -21,19 +22,21 @@ import { TextField } from '../../components/ui/TextField';
 import { Textarea } from '../../components/ui/Textarea';
 import { Select } from '../../components/ui/Select';
 import { Modal } from '../../components/ui/Modal';
+import { fadeInUp, staggerContainer } from '../../utils/motion';
 
-const emptyQuiz: QuizPayload = { title: '', categoryId: null, xpReward: 45, isPublished: true, requiredLevel: 1, titleEn: '' };
+const emptyQuiz: QuizPayload = { title: '', categoryId: null, xpReward: 45, isPublished: true, requiredLevel: 1, titleEn: '', tags: '' };
 
+// The exactly-one-correct-option rule (enforced server-side) means the form always
+// needs a default. Randomizing which slot starts checked stops admins who forget to
+// double-check it from silently piling every correct answer onto option 1.
 function emptyOptions(): QuestionOptionInputPayload[] {
-  return [
-    { text: '', isCorrect: true, textEn: '' },
-    { text: '', isCorrect: false, textEn: '' },
-    { text: '', isCorrect: false, textEn: '' },
-    { text: '', isCorrect: false, textEn: '' },
-  ];
+  const correctIndex = Math.floor(Math.random() * 4);
+  return Array.from({ length: 4 }, (_, i) => ({ text: '', isCorrect: i === correctIndex, textEn: '' }));
 }
 
-const emptyQuestion: QuestionPayload = { text: '', explanation: '', options: emptyOptions(), textEn: '', explanationEn: '' };
+function emptyQuestion(): QuestionPayload {
+  return { text: '', explanation: '', options: emptyOptions(), textEn: '', explanationEn: '' };
+}
 
 export function QuizEditPage() {
   const { t } = useTranslation();
@@ -61,6 +64,7 @@ export function QuizEditPage() {
       setForm({
         title: q.title, categoryId: q.categoryId, xpReward: q.xpReward,
         isPublished: q.isPublished, requiredLevel: q.requiredLevel, titleEn: q.titleEn ?? '',
+        tags: q.tags ?? '',
       });
     }
   }, [quizQuery.data]);
@@ -104,7 +108,7 @@ export function QuizEditPage() {
 
   const openAddQuestion = () => {
     setEditingQuestionId(null);
-    setQuestionForm(emptyQuestion);
+    setQuestionForm(emptyQuestion());
     setQuestionModalOpen(true);
   };
 
@@ -141,12 +145,15 @@ export function QuizEditPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <Link to="/admin/quizzes" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-cyan-400">
-        <ArrowLeft size={14} />
-        {t('admin.sections.quizzes')}
-      </Link>
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
+      <motion.div variants={fadeInUp}>
+        <Link to="/admin/quizzes" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400">
+          <ArrowLeft size={14} />
+          {t('admin.sections.quizzes')}
+        </Link>
+      </motion.div>
 
+      <motion.div variants={fadeInUp}>
       <GlassCard className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -166,28 +173,31 @@ export function QuizEditPage() {
             <TextField id="xpReward" label="XP Reward" type="number" value={form.xpReward} onChange={(e) => set('xpReward', Number(e.target.value))} />
             <TextField id="requiredLevel" label="Required Level" type="number" min={1} value={form.requiredLevel} onChange={(e) => set('requiredLevel', Number(e.target.value))} />
             <label className="flex items-center gap-2 pt-6 text-sm font-medium text-slate-700 dark:text-slate-300">
-              <input type="checkbox" checked={form.isPublished} onChange={(e) => set('isPublished', e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-indigo-600 dark:border-slate-700" />
+              <input type="checkbox" checked={form.isPublished} onChange={(e) => set('isPublished', e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-blue-600 dark:border-slate-700" />
               Published
             </label>
           </div>
+          <TextField id="tags" label="Tags (comma-separated)" placeholder="linq, collections, beginner" value={form.tags ?? ''} onChange={(e) => set('tags', e.target.value)} />
           <button
             type="submit"
             disabled={saveMutation.isPending}
-            className="rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saveMutation.isPending ? t('admin.saving') : t('admin.save')}
           </button>
         </form>
       </GlassCard>
+      </motion.div>
 
       {quizId !== null && quizQuery.data && (
+        <motion.div variants={fadeInUp}>
         <GlassCard className="p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Questions ({quizQuery.data.questions.length})</h2>
             <button
               type="button"
               onClick={openAddQuestion}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110"
             >
               <Plus size={14} />
               {t('admin.add')}
@@ -200,7 +210,7 @@ export function QuizEditPage() {
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-slate-800 dark:text-slate-100">{q.text}</p>
                   <div className="flex shrink-0 items-center gap-2">
-                    <button type="button" onClick={() => openEditQuestion(q)} className="text-slate-400 transition hover:text-indigo-600 dark:hover:text-cyan-400">
+                    <button type="button" onClick={() => openEditQuestion(q)} className="text-slate-400 transition hover:text-blue-600 dark:hover:text-cyan-400">
                       <Pencil size={14} />
                     </button>
                     <button type="button" onClick={() => deleteQuestionMutation.mutate(q.id)} className="text-slate-400 transition hover:text-red-600 dark:hover:text-red-400">
@@ -220,6 +230,7 @@ export function QuizEditPage() {
             ))}
           </div>
         </GlassCard>
+        </motion.div>
       )}
 
       <Modal isOpen={questionModalOpen} onClose={() => setQuestionModalOpen(false)} title={editingQuestionId === null ? t('admin.add') : t('admin.edit')}>
@@ -241,7 +252,7 @@ export function QuizEditPage() {
                   name="correct-option"
                   checked={option.isCorrect}
                   onChange={() => setCorrectOption(index)}
-                  className="h-4 w-4 text-indigo-600"
+                  className="h-4 w-4 text-blue-600"
                   title="Correct answer"
                 />
                 <TextField id={`opt-${index}`} label={`Option ${index + 1}`} required value={option.text} onChange={(e) => setOption(index, { text: e.target.value })} />
@@ -253,12 +264,12 @@ export function QuizEditPage() {
           <button
             type="submit"
             disabled={addQuestionMutation.isPending || updateQuestionMutation.isPending}
-            className="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('admin.save')}
           </button>
         </form>
       </Modal>
-    </div>
+    </motion.div>
   );
 }

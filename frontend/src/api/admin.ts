@@ -4,10 +4,14 @@ import type { CategoryDto, ChallengeDetailDto, ChallengeListItemDto, DifficultyD
 import type { MarketplaceItemDto } from '../types/marketplace';
 import type {
   AchievementAdminDto,
+  AdminActivityItemDto,
+  AdminDashboardSummaryDto,
+  AdminUserListItemDto,
   AuditLogDto,
   DailyQuestTemplateAdminDto,
   ExcelImportResultDto,
   QuizAdminDetailDto,
+  SeasonalEventDto,
 } from '../types/admin';
 import type { QuizListItemDto } from '../types/quiz';
 
@@ -37,6 +41,7 @@ export interface ChallengePayload {
   outputFormatEn: string | null;
   hintEn: string | null;
   starterCodeEn: string | null;
+  tags: string | null;
 }
 export async function getChallengeAdminById(id: number) {
   const { data } = await apiClient.get<ApiResponse<ChallengeDetailDto>>(`/api/challenges/${id}`);
@@ -89,6 +94,7 @@ export interface QuizPayload {
   isPublished: boolean;
   requiredLevel: number;
   titleEn: string | null;
+  tags: string | null;
 }
 export async function getQuizAdminById(id: number) {
   const { data } = await apiClient.get<ApiResponse<QuizAdminDetailDto>>(`/api/quizzes/${id}/admin`);
@@ -264,6 +270,72 @@ export async function getDeletedDailyQuestTemplates() {
 }
 export async function restoreDailyQuestTemplate(id: number) {
   const { data } = await apiClient.post<ApiResponse<DailyQuestTemplateAdminDto>>(`/api/daily-quest-templates/${id}/restore`);
+  return data.data;
+}
+
+// --- Dashboard summary ---
+export async function getAdminDashboardSummary(): Promise<AdminDashboardSummaryDto> {
+  const { data } = await apiClient.get<ApiResponse<AdminDashboardSummaryDto>>('/api/admin/dashboard-summary');
+  return (
+    data.data ?? {
+      totalUsers: 0,
+      totalChallenges: 0,
+      totalQuizzes: 0,
+      totalSubmissions: 0,
+      submissionsToday: 0,
+      newUsersThisWeek: 0,
+      activeUsersToday: 0,
+    }
+  );
+}
+
+// --- Seasonal events (no soft-delete/restore workflow — Delete just deactivates) ---
+export interface SeasonalEventPayload {
+  name: string;
+  nameEn: string | null;
+  description: string | null;
+  descriptionEn: string | null;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  emoji: string | null;
+}
+export async function getSeasonalEvents() {
+  const { data } = await apiClient.get<ApiResponse<SeasonalEventDto[]>>('/api/seasonal-events');
+  return data.data ?? [];
+}
+export async function createSeasonalEvent(payload: SeasonalEventPayload) {
+  const { data } = await apiClient.post<ApiResponse<SeasonalEventDto>>('/api/seasonal-events', payload);
+  return data.data;
+}
+export async function updateSeasonalEvent(id: number, payload: SeasonalEventPayload) {
+  const { data } = await apiClient.put<ApiResponse<SeasonalEventDto>>(`/api/seasonal-events/${id}`, payload);
+  return data.data;
+}
+export async function deleteSeasonalEvent(id: number) {
+  await apiClient.delete(`/api/seasonal-events/${id}`);
+}
+
+// --- Activity today ---
+export async function getAdminActivityToday() {
+  const { data } = await apiClient.get<ApiResponse<AdminActivityItemDto[]>>('/api/admin/activity-today');
+  return data.data ?? [];
+}
+
+// --- Users ---
+export async function getAdminUsers(page = 1, pageSize = 20, search = '') {
+  const { data } = await apiClient.get<ApiResponse<{ items: AdminUserListItemDto[]; page: number; pageSize: number; totalCount: number; totalPages: number }>>(
+    '/api/admin/users',
+    { params: { page, pageSize, search: search || undefined } },
+  );
+  return data.data ?? { items: [], page, pageSize, totalCount: 0, totalPages: 0 };
+}
+export async function updateUserRole(id: number, role: string) {
+  const { data } = await apiClient.patch<ApiResponse<AdminUserListItemDto>>(`/api/admin/users/${id}/role`, { role });
+  return data.data;
+}
+export async function updateUserActive(id: number, isActive: boolean) {
+  const { data } = await apiClient.patch<ApiResponse<AdminUserListItemDto>>(`/api/admin/users/${id}/active`, { isActive });
   return data.data;
 }
 

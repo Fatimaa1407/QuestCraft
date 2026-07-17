@@ -51,6 +51,7 @@ export interface QuizAdminDetailDto {
   requiredLevel: number;
   questions: QuestionAdminDto[];
   titleEn: string | null;
+  tags: string | null;
 }
 
 export interface AuditLogDto {
@@ -70,4 +71,52 @@ export interface ExcelImportResultDto {
   successRows: number;
   failedRows: number;
   errors: string[];
+}
+
+export interface AdminDashboardSummaryDto {
+  totalUsers: number;
+  totalChallenges: number;
+  totalQuizzes: number;
+  totalSubmissions: number;
+  submissionsToday: number;
+  newUsersThisWeek: number;
+  activeUsersToday: number;
+}
+
+export interface AdminActivityItemDto {
+  kind: 'Submission' | 'Quiz';
+  userId: number;
+  username: string;
+  title: string;
+  verdict: string | null;
+  score: number | null;
+  totalQuestions: number | null;
+  timestamp: string;
+}
+
+export interface SeasonalEventDto {
+  id: number;
+  name: string;
+  nameEn: string | null;
+  description: string | null;
+  descriptionEn: string | null;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  emoji: string | null;
+}
+
+export interface AdminUserListItemDto {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  level: number;
+  xp: number;
+  coins: number;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
 }

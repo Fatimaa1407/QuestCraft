@@ -17,6 +17,7 @@ export interface QuizListItemDto {
   questionCount: number;
   requiredLevel: number;
   isLocked: boolean;
+  tags: string | null;
 }
 
 export interface QuestionOptionDto {
@@ -62,4 +63,7 @@ export interface QuizAttemptResultDto {
   totalXp: number;
   totalCoins: number;
   level: number;
+  previousLevel: number;
+  newChallengesUnlocked: number;
+  newQuizzesUnlocked: number;
 }

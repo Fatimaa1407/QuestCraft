@@ -8,6 +8,7 @@ public class Quiz : BaseEntity
     public int XpReward { get; set; }
     public bool IsPublished { get; set; }
     public int RequiredLevel { get; set; } = 1;
+    public string? Tags { get; set; }
 
     public string? TitleEn { get; set; }
 

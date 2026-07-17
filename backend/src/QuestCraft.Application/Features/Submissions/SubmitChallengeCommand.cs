@@ -10,7 +10,7 @@ using QuestCraft.Domain.Enums;
 
 namespace QuestCraft.Application.Features.Submissions;
 
-public record SubmitChallengeCommand(int ChallengeId, string SourceCode) : ICommand<SubmissionResultDto>;
+public record SubmitChallengeCommand(int ChallengeId, string SourceCode, int? SolveTimeMs = null) : ICommand<SubmissionResultDto>;
 
 public class SubmitChallengeCommandValidator : AbstractValidator<SubmitChallengeCommand>
 {
@@ -30,6 +30,7 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
     private readonly IDailyQuestService _dailyQuestService;
     private readonly IAchievementEvaluator _achievementEvaluator;
     private readonly IContentCompletionService _completionService;
+    private readonly IRealtimeNotifier _realtimeNotifier;
 
     public SubmitChallengeCommandHandler(
         IApplicationDbContext context,
@@ -37,7 +38,8 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
         ICurrentUserService currentUser,
         IDailyQuestService dailyQuestService,
         IAchievementEvaluator achievementEvaluator,
-        IContentCompletionService completionService)
+        IContentCompletionService completionService,
+        IRealtimeNotifier realtimeNotifier)
     {
         _context = context;
         _codeExecutionEngine = codeExecutionEngine;
@@ -45,6 +47,7 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
         _dailyQuestService = dailyQuestService;
         _achievementEvaluator = achievementEvaluator;
         _completionService = completionService;
+        _realtimeNotifier = realtimeNotifier;
     }
 
     public async Task<SubmissionResultDto> Handle(SubmitChallengeCommand request, CancellationToken cancellationToken)
@@ -101,6 +104,7 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             ExecutionTimeMs = execution.ExecutionTimeMs,
             MemoryUsedKb = execution.MemoryUsedKb,
             SubmittedAt = DateTime.UtcNow,
+            SolveTimeMs = request.SolveTimeMs,
         };
 
         submission.Results = execution.TestResults.Select(r => new SubmissionResult
@@ -129,6 +133,7 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
         }
 
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+        var previousLevel = profile?.Level ?? 1;
 
         if (isFirstAcceptedSolve)
         {
@@ -159,7 +164,9 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             var streak = await _context.Streaks.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
             if (streak is not null)
             {
-                StreakCalculator.RecordActivity(streak, today);
+                var hasStreakFreeze = await _context.Purchases
+                    .AnyAsync(p => p.UserId == userId && p.MarketplaceItem.ItemType.Name == "StreakFreeze", cancellationToken);
+                StreakCalculator.RecordActivity(streak, today, hasStreakFreeze);
             }
 
             var activityLog = await _context.ActivityLogs
@@ -191,9 +198,33 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             profile.Level = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
         }
 
+        var newChallengesUnlocked = 0;
+        var newQuizzesUnlocked = 0;
+        if (profile is not null && profile.Level > previousLevel)
+        {
+            var newLevelContent = await _completionService.GetLevelCompletionAsync(userId, profile.Level, cancellationToken);
+            newChallengesUnlocked = newLevelContent.ChallengesTotal;
+            newQuizzesUnlocked = newLevelContent.QuizzesTotal;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = userId,
+                Type = NotificationType.LevelUp,
+                Title = "Yeni səviyyə!",
+                Message = $"Səviyyə {profile.Level}-ə çatdınız!",
+                TitleEn = "New level!",
+                MessageEn = $"You reached Level {profile.Level}!",
+            });
+        }
+
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        if ((profile is not null && profile.Level > previousLevel) || newAchievements.Count > 0)
+        {
+            await _realtimeNotifier.NotifyNewNotification(userId, cancellationToken);
+        }
 
         var testCaseResults = submission.Results.Select(r => r.IsHidden
             ? new SubmissionTestResultDto(true, r.Passed, null, null, null)
@@ -214,7 +245,10 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             newAchievements.Select(a => a.Name).ToList(),
             profile?.Xp ?? 0,
             profile?.Coins ?? 0,
-            profile?.Level ?? 1);
+            profile?.Level ?? 1,
+            previousLevel,
+            newChallengesUnlocked,
+            newQuizzesUnlocked);
     }
 
     private static string GetInput(Challenge challenge, int testCaseId) =>

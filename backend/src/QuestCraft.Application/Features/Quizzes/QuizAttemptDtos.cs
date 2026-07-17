@@ -13,6 +13,9 @@ public record QuizAttemptResultDto(
     List<string> NewAchievements,
     int TotalXp,
     int TotalCoins,
-    int Level);
+    int Level,
+    int PreviousLevel,
+    int NewChallengesUnlocked,
+    int NewQuizzesUnlocked);
 
 public record QuizAttemptListItemDto(int Id, int QuizId, string QuizTitle, int Score, int TotalQuestions, int XpEarned, DateTime CompletedAt);

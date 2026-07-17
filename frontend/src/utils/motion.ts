@@ -2,15 +2,19 @@ import type { Variants, Transition } from 'framer-motion';
 
 export const spring: Transition = { type: 'spring', stiffness: 340, damping: 28 };
 
+// Softer and slower than `spring` on purpose — used only for card entrances, so
+// hover/tap feedback (which still uses `spring`) stays snappy and responsive.
+export const entranceSpring: Transition = { type: 'spring', stiffness: 120, damping: 20, mass: 0.9 };
+
 export const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: spring },
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: entranceSpring },
 };
 
 export const staggerContainer: Variants = {
   hidden: {},
   show: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.02 },
+    transition: { staggerChildren: 0.12, delayChildren: 0.08 },
   },
 };
 

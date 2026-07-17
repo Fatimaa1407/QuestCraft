@@ -12,7 +12,11 @@ export function GlassCard({ className = '', hoverLift = true, glow = false, chil
   return (
     <motion.div
       className={`glass-card group/card relative ${glow ? 'glow-card' : ''} ${className}`}
-      whileHover={hoverLift ? { y: -4, boxShadow: '0 24px 48px -20px rgba(0,0,0,0.35)' } : undefined}
+      whileHover={
+        hoverLift
+          ? { y: -5, boxShadow: '0 28px 52px -20px rgba(0,0,0,0.35), 0 10px 28px -14px rgba(6,182,212,0.3)' }
+          : undefined
+      }
       transition={spring}
       {...props}
     >

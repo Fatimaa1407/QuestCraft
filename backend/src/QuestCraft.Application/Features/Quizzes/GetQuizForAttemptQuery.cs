@@ -51,10 +51,16 @@ public class GetQuizForAttemptQueryHandler : IRequestHandler<GetQuizForAttemptQu
         }
 
         var isEnglish = _currentUser.IsEnglish;
+        // Options are graded by Id, not position (see SubmitQuizAttemptCommandHandler), so
+        // shuffling the display order here is safe — it just stops the correct answer from
+        // always landing in the same slot for questions where admins left it on option 1.
         var questions = quiz.Questions.Select(q => new QuestionDto(
             q.Id,
             LocalizationHelper.Pick(q.Text, q.TextEn, isEnglish),
-            q.Options.Select(o => new QuestionOptionDto(o.Id, LocalizationHelper.Pick(o.Text, o.TextEn, isEnglish))).ToList()))
+            q.Options
+                .OrderBy(_ => Random.Shared.Next())
+                .Select(o => new QuestionOptionDto(o.Id, LocalizationHelper.Pick(o.Text, o.TextEn, isEnglish)))
+                .ToList()))
             .ToList();
 
         var isAlreadyCompleted = _currentUser.UserId is not null &&

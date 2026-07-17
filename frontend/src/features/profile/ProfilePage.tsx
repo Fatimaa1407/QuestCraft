@@ -2,13 +2,20 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight } from 'lucide-react';
+import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { getMyProfile, updateMyProfile } from '../../api/profile';
 import { getMyPurchases } from '../../api/marketplace';
+import { getDashboardAnalytics, getMyRank } from '../../api/gamification';
+import { getMySubmissions } from '../../api/submissions';
+import { getMyQuizAttempts } from '../../api/quizzes';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { StatCard } from '../../components/ui/StatCard';
 import { Textarea } from '../../components/ui/Textarea';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { CategoryBreakdown } from '../dashboard/CategoryBreakdown';
+import { ActivityFeed } from '../dashboard/ActivityFeed';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import { motion } from 'framer-motion';
 
@@ -27,6 +34,16 @@ export function ProfilePage() {
 
   const profileQuery = useQuery({ queryKey: ['profile', 'me'], queryFn: getMyProfile });
   const purchasesQuery = useQuery({ queryKey: ['marketplace', 'my-purchases'], queryFn: getMyPurchases });
+  const rankQuery = useQuery({ queryKey: ['gamification', 'my-rank'], queryFn: () => getMyRank('AllTime') });
+  const analyticsQuery = useQuery({ queryKey: ['dashboard-analytics'], queryFn: getDashboardAnalytics });
+  const historySubmissionsQuery = useQuery({
+    queryKey: ['submissions', 'my', 1, 15],
+    queryFn: () => getMySubmissions(1, 15),
+  });
+  const historyQuizzesQuery = useQuery({
+    queryKey: ['quizzes', 'attempts', 'my', 1, 15],
+    queryFn: () => getMyQuizAttempts(1, 15),
+  });
 
   useEffect(() => {
     if (profileQuery.data && !isDirty) {
@@ -66,7 +83,7 @@ export function ProfilePage() {
             </h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@{user?.username}</p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-cyan-400">
+              <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-cyan-400">
                 {user?.role}
               </span>
               <span className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
@@ -78,10 +95,36 @@ export function ProfilePage() {
         </GlassCard>
       </motion.div>
 
-      <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard icon={ShieldCheck} label={t('dashboard.level')} value={user?.level ?? 1} tint="blue" />
         <StatCard icon={Zap} label={t('dashboard.xp')} value={user?.xp ?? 0} tint="cyan" />
         <StatCard icon={CoinsIcon} label={t('dashboard.coins')} value={user?.coins ?? 0} tint="amber" />
+        {rankQuery.isLoading ? (
+          <GlassCard className="p-6">
+            <Skeleton className="mb-4 h-11 w-11 rounded-xl" />
+            <Skeleton className="h-3.5 w-16" />
+            <Skeleton className="mt-2 h-7 w-20" />
+          </GlassCard>
+        ) : (
+          <StatCard
+            icon={Trophy}
+            label={t('profile.rank')}
+            value={`#${rankQuery.data?.rank ?? '-'} / ${rankQuery.data?.totalUsers ?? '-'}`}
+            tint="violet"
+          />
+        )}
+      </motion.div>
+
+      <motion.div variants={fadeInUp}>
+        <CategoryBreakdown data={analyticsQuery.data?.categoryProgress} isLoading={analyticsQuery.isLoading} />
+      </motion.div>
+
+      <motion.div variants={fadeInUp}>
+        <ActivityFeed
+          submissions={historySubmissionsQuery.data?.items}
+          quizzes={historyQuizzesQuery.data?.items}
+          isLoading={historySubmissionsQuery.isLoading || historyQuizzesQuery.isLoading}
+        />
       </motion.div>
 
       <motion.div variants={fadeInUp}>
@@ -90,14 +133,36 @@ export function ProfilePage() {
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('profile.equippedTitle')}</h2>
             <Link
               to="/shop"
-              className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:underline dark:text-cyan-400"
+              className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-cyan-400"
             >
               {t('profile.changeInShop')}
               <ArrowRight size={14} />
             </Link>
           </div>
-          {equippedItems.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{t('profile.noEquipped')}</p>
+          {purchasesQuery.isLoading ? (
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
+                >
+                  <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <Skeleton className="h-3.5 w-2/3" />
+                    <Skeleton className="h-3 w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : equippedItems.length === 0 ? (
+            <EmptyState
+              bare
+              icon={Sparkles}
+              tint="blue"
+              title={t('profile.noEquipped')}
+              action={{ label: t('profile.browseShop'), to: '/shop' }}
+              className="mt-2"
+            />
           ) : (
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {equippedItems.map((item) => {
@@ -107,7 +172,7 @@ export function ProfilePage() {
                     key={item.id}
                     className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 text-white">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
                       <Icon size={16} />
                     </span>
                     <div className="min-w-0">
@@ -142,7 +207,7 @@ export function ProfilePage() {
               <button
                 type="submit"
                 disabled={!isDirty || saveMutation.isPending}
-                className="rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saveMutation.isPending ? t('profile.saving') : t('profile.save')}
               </button>

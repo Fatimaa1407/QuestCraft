@@ -13,15 +13,15 @@
       "title": "Xoş gəlmisiniz",
       "subtitle": "Hesabınıza daxil olun və öyrənməyə davam edin",
       "registeredSuccess": "Qeydiyyat uğurludur. İndi hesabınıza daxil ola bilərsiniz.",
-      "emailLabel": "Email",
-      "emailPlaceholder": "sizin@email.com",
+      "emailLabel": "Email və ya istifadəçi adı",
+      "emailPlaceholder": "sizin@email.com və ya istifadəçi adı",
       "passwordLabel": "Şifrə",
       "passwordPlaceholder": "••••••••",
       "submit": "Daxil ol",
       "submitting": "Gözləyin...",
       "noAccount": "Hesabınız yoxdur?",
       "registerLink": "Qeydiyyatdan keçin",
-      "errorFallback": "Giriş uğursuz oldu."
+      "errorFallback": "Serverlə əlaqə qurula bilmədi. İnternet bağlantınızı yoxlayıb yenidən cəhd edin."
     },
     "register": {
       "title": "Hesab yaradın",
@@ -46,7 +46,7 @@
       "submitting": "Gözləyin...",
       "haveAccount": "Artıq hesabınız var?",
       "loginLink": "Daxil olun",
-      "errorFallback": "Qeydiyyat uğursuz oldu.",
+      "errorFallback": "Serverlə əlaqə qurula bilmədi. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.",
       "passwordMismatch": "Şifrələr uyğun gəlmir."
     }
   },
@@ -55,6 +55,7 @@
     "subtitle": "Biliyini yoxla, XP qazan.",
     "searchPlaceholder": "Axtar...",
     "empty": "Heç bir quiz tapılmadı.",
+    "clearSearch": "Axtarışı təmizlə",
     "notFound": "Quiz tapılmadı.",
     "uncategorized": "Kateqoriyasız",
     "questionCount": "{{count}} sual",
@@ -100,6 +101,7 @@
     "subtitle": "Ən yaxşı oyunçularla müqayisə et.",
     "empty": "Hələ heç bir nəticə yoxdur.",
     "you": "Sən",
+    "outOfTotal": "{{total}} istifadəçi arasında",
     "period": {
       "Daily": "Bu gün",
       "Weekly": "Bu həftə",
@@ -118,12 +120,14 @@
     "equippedTitle": "Taxılmış Əşyalar",
     "changeInShop": "Mağazada dəyiş",
     "noEquipped": "Hələ heç bir əşya taxılmayıb.",
+    "browseShop": "Mağazaya bax",
     "bioTitle": "Haqqımda",
     "bioLabel": "Bio",
     "bioPlaceholder": "Özün haqqında qısa bir şey yaz...",
     "save": "Yadda saxla",
     "saving": "Yadda saxlanılır...",
-    "saved": "Yadda saxlanıldı ✓"
+    "saved": "Yadda saxlanıldı ✓",
+    "rank": "Reytinq"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -134,7 +138,9 @@
     "shop": "Mağaza",
     "profile": "Profil",
     "admin": "Admin",
-    "logout": "Çıxış"
+    "logout": "Çıxış",
+    "more": "Daha çox",
+    "mobileNavLabel": "Əsas naviqasiya"
   },
   "challenges": {
     "title": "Coding Challenge-lər",
@@ -143,6 +149,7 @@
     "allCategories": "Bütün kateqoriyalar",
     "allDifficulties": "Bütün çətinliklər",
     "empty": "Heç bir challenge tapılmadı.",
+    "clearFilters": "Filterləri təmizlə",
     "notFound": "Challenge tapılmadı.",
     "backToList": "Siyahıya qayıt",
     "constraints": "Məhdudiyyətlər",
@@ -173,6 +180,9 @@
     },
     "practiceMode": "Practice Mode",
     "practiceModeHint": "Bu challenge-i artıq tamamlamısan. Yenidən etsən əlavə XP/Coin qazanmayacaqsan.",
+    "completed": "Challenge tamamlandı!",
+    "perfectScore": "Mükəmməl nəticə!",
+    "continue": "Davam et",
     "status": {
       "Solved": "Həll edilib",
       "Attempted": "Cəhd edilib",
@@ -210,7 +220,22 @@
     "noSubmissions": "Hələ heç bir göndəriş yoxdur.",
     "recentQuizzes": "Son Quiz Nəticələri",
     "noQuizzes": "Hələ heç bir quiz cəhdi yoxdur.",
-    "viewAll": "Hamısına bax"
+    "viewAll": "Hamısına bax",
+    "xpTrendTitle": "Son 30 Gün XP Trendi",
+    "xpTooltip": "{{xp}} XP",
+    "noXpData": "Hələ XP məlumatı yoxdur.",
+    "categoryBreakdownTitle": "Kateqoriya üzrə İrəliləyiş",
+    "categoryTooltip": "{{completed}}/{{total}} tamamlandı",
+    "noCategoryData": "Hələ kateqoriya məlumatı yoxdur.",
+    "activityHeatmapTitle": "Aktivlik Xəritəsi",
+    "activityHeatmapActive": "aktiv gün",
+    "activityHeatmapLess": "az",
+    "activityHeatmapMore": "çox",
+    "streak": "Seriya",
+    "streakDays": "{{count}} gün",
+    "longestStreak": "Ən uzun seriya: {{count}} gün",
+    "activityFeedTitle": "Son Fəaliyyət",
+    "noActivity": "Hələ heç bir fəaliyyət yoxdur."
   },
   "admin": {
     "title": "Admin Panel",
@@ -227,7 +252,16 @@
     "confirmDelete": "Silmək istədiyinizə əminsiniz?",
     "backToPanel": "Admin Panelə qayıt",
     "add": "Əlavə et",
+    "dashboard": {
+      "totalUsers": "İstifadəçilər",
+      "contentItems": "Məzmun vahidləri",
+      "submissionsToday": "Bugünkü göndərişlər",
+      "activeUsersToday": "Bugün aktiv",
+      "newUsersThisWeek": "Bu həftə yeni"
+    },
     "sections": {
+      "users": "İstifadəçilər",
+      "usersDesc": "Bütün istifadəçiləri görüntülə və idarə et",
       "challenges": "Challenge-lər",
       "challengesDesc": "Kod tapşırıqlarını yarat və idarə et",
       "quizzes": "Quiz-lər",
@@ -245,7 +279,11 @@
       "excel": "Excel Alətləri",
       "excelDesc": "Toplu idxal/ixrac",
       "auditLog": "Audit Jurnalı",
-      "auditLogDesc": "Admin əməliyyatları tarixçəsi"
+      "auditLogDesc": "Admin əməliyyatları tarixçəsi",
+      "activityToday": "Bugünkü Fəaliyyət",
+      "activityTodayDesc": "Bugün göndərilən tapşırıq və quizlər",
+      "seasonalEvents": "Mövsümi Hadisələr",
+      "seasonalEventsDesc": "Bayram/mövsüm temalı elanlar"
     },
     "categories": {
       "title": "Kateqoriyalar",
@@ -296,6 +334,62 @@
       "xpReward": "XP mükafatı",
       "coinReward": "Coin mükafatı",
       "active": "Aktiv"
+    },
+    "users": {
+      "title": "İstifadəçilər",
+      "searchPlaceholder": "İstifadəçi axtar (ad və ya email)...",
+      "columnUser": "İstifadəçi",
+      "columnRole": "Rol",
+      "columnLevel": "Səviyyə",
+      "columnStatus": "Status",
+      "columnLastLogin": "Son giriş",
+      "columnJoined": "Qoşulma tarixi",
+      "you": "siz",
+      "roleAdmin": "Admin",
+      "roleStudent": "Tələbə",
+      "active": "Aktiv",
+      "inactive": "Deaktiv",
+      "activate": "Aktivləşdir",
+      "deactivate": "Deaktiv et",
+      "never": "Heç vaxt"
+    },
+    "seasonalEvents": {
+      "title": "Mövsümi Hadisələr",
+      "add": "Yeni hadisə",
+      "name": "Ad",
+      "nameEn": "Ad (EN)",
+      "description": "Təsvir",
+      "descriptionEn": "Təsvir (EN)",
+      "emoji": "Emoji",
+      "startDate": "Başlanğıc tarixi (YYYY-AA-GG)",
+      "endDate": "Bitmə tarixi (YYYY-AA-GG)",
+      "active": "Aktiv"
+    },
+    "activityToday": {
+      "title": "Bugünkü Fəaliyyət",
+      "subtitle": "Bugün bütün istifadəçilər tərəfindən göndərilən tapşırıq və quizlər.",
+      "columnUser": "İstifadəçi",
+      "columnItem": "Element",
+      "columnResult": "Nəticə",
+      "columnTime": "Vaxt",
+      "empty": "Bu gün hələ heç bir fəaliyyət olmayıb."
+    },
+    "excel": {
+      "importChallenges": "İdxal — Challenge-lər",
+      "importTestCases": "İdxal — Test halları",
+      "importQuestions": "İdxal — Quiz sualları",
+      "exportTitle": "İxrac",
+      "chooseFile": "Fayl seç",
+      "noFileChosen": "Fayl seçilməyib",
+      "challengeId": "Challenge ID",
+      "quizId": "Quiz ID",
+      "exportKinds": {
+        "users": "İstifadəçilər",
+        "challenges": "Challenge-lər",
+        "quiz-results": "Quiz nəticələri",
+        "leaderboard": "Liderlik lövhəsi",
+        "marketplace": "Mağaza"
+      }
     }
   },
   "notifications": {
@@ -318,6 +412,162 @@
     "toggleLanguage": "Dil dəyiş",
     "showPassword": "Şifrəni göstər",
     "hidePassword": "Şifrəni gizlət",
-    "comingSoon": "Bu bölmə tezliklə hazır olacaq."
+    "comingSoon": "Bu bölmə tezliklə hazır olacaq.",
+    "close": "Bağla"
+  },
+  "levelUp": {
+    "congratulations": "Təbriklər!",
+    "unlocked": "Səviyyə {{level}} Açıldı",
+    "xpEarned": "+{{xp}} XP",
+    "coinsEarned": "+{{coins}} Coin",
+    "challengesUnlocked": "{{count}} Yeni Çağırış Açıldı",
+    "quizzesUnlocked": "{{count}} Yeni Test Açıldı",
+    "continue": "Davam et"
+  },
+  "landing": {
+    "nav": {
+      "features": "Xüsusiyyətlər",
+      "how": "Necə işləyir",
+      "audience": "Kimin üçün",
+      "testimonials": "Rəylər",
+      "faq": "SSS",
+      "login": "Daxil ol",
+      "cta": "Pulsuz Başla",
+      "skipLink": "Əsas məzmuna keç",
+      "ariaLabel": "Əsas naviqasiya",
+      "menuOpen": "Menyunu aç"
+    },
+    "hero": {
+      "eyebrow": "C# · XP · LİDERLİK LÖVHƏSİ",
+      "titleLine1": "Kodu öyrən.",
+      "titleLine2": "Xal qazan.",
+      "titleGrad": "Səviyyə aş.",
+      "lead": "C#-ı kitab oxuyaraq deyil, kod yazaraq öyrən. Hər tapşırıq saniyələr içində qiymətləndirilir, sənə XP və coin qazandırır, səviyyəni artırır və liderlik lövhəsində yerini müəyyən edir.",
+      "ctaPrimary": "Pulsuz Başla",
+      "ctaSecondary": "Necə işlədiyinə bax",
+      "stat1Label": "Öyrənmə səviyyəsi",
+      "stat2Label": "Kodlaşdırma çağırışı",
+      "stat3Label": "Bilik testi",
+      "stat4Label": "Kateqoriya",
+      "editorFile": "Fibonacci.cs",
+      "verdictPending": "Hazır deyil",
+      "verdictChecking": "Yoxlanılır...",
+      "verdictAccepted": "Qəbul edildi",
+      "rewardXp": "+40 XP",
+      "rewardCoin": "+10 coin",
+      "levelCap": "Səviyyəyə {{xp}} XP qalıb"
+    },
+    "features": {
+      "eyebrow": "MƏHSUL",
+      "title": "Öyrənmək üçün lazım olan hər şey, bir yerdə.",
+      "subtitle": "Nəzəriyyəni təcrübəyə çevirən altı əsas hissə — hər biri real qiymətləndirmə və mükafat sistemi üzərində qurulub.",
+      "challengesTitle": "Kodlaşdırma Çağırışları",
+      "challengesDesc": "Massivdən rekursiyaya, LINQ-dan asinxron proqramlaşdırmaya qədər — hər tapşırıq real test ssenariləri ilə yoxlanılır və səviyyənə uyğun açılır.",
+      "challengesSnippet": "12/12 test keçdi · 84ms · Qəbul edildi",
+      "quizzesTitle": "Sürətli Testlər",
+      "quizzesDesc": "İzahlı çoxseçimli suallarla öyrəndiyini bir neçə dəqiqəyə sınaqdan keçir.",
+      "xpTitle": "XP və Səviyyə",
+      "xpDesc": "Hər həll etdiyin tapşırıq XP və coin qazandırır; yüksələn səviyyə yeni tapşırıqların qapısını açır.",
+      "leaderboardTitle": "Liderlik Lövhəsi",
+      "leaderboardDesc": "Gündəlik, həftəlik, aylıq və ümumi reytinqlərdə dostlarınla üz-üzə yarış.",
+      "marketplaceTitle": "Marketplace",
+      "marketplaceDesc": "Qazandığın coinləri xərclə: profil çərçivəsi, mövzu və titul al, bir kliklə tax.",
+      "achievementsTitle": "Nailiyyətlər",
+      "achievementsDesc": "Gizli və aşkar nailiyyətləri aç — hər qələbə bildiriş kimi profilinə düşür."
+    },
+    "how": {
+      "eyebrow": "MEXANİKA",
+      "title": "Bir çağırışın həll dövrü.",
+      "subtitle": "Seçimdən mükafata qədər dörd addım — hamısı saniyələr içində baş verir.",
+      "stepLabel": "ADDIM",
+      "step1Title": "Çağırışı seç",
+      "step1Desc": "Kateqoriya və çətinlik süzgəci ilə səviyyənə uyğun tapşırıq tap.",
+      "step2Title": "Kodu yaz",
+      "step2Desc": "Daxili redaktorda C# həllini yaz, nümunə giriş-çıxış nümunələrinə bax.",
+      "step3Title": "Ani nəticə al",
+      "step3Desc": "Avtomatik yoxlayıcı kodunu test ssenariləri ilə saniyələr içində qiymətləndirir.",
+      "step4Title": "Mükafatını yığ",
+      "step4Desc": "XP və coin qazan, səviyyə aş, liderlik lövhəsində yüksəl."
+    },
+    "audience": {
+      "eyebrow": "KİMİN ÜÇÜN",
+      "title": "Tələbə də, müəllim də öz yerini tapır.",
+      "tabStudent": "Tələbələr üçün",
+      "tabTeacher": "Müəllim/Admin üçün",
+      "studentHeading": "Nəzəriyyədən təcrübəyə, addım-addım",
+      "studentBullet1": "Səviyyəyə görə kilidlənən tapşırıqlar sıfırdan başlamağa imkan verir.",
+      "studentBullet2": "Hər cəhddə ani, dəqiq geribildirim — gözləmə yoxdur.",
+      "studentBullet3": "Gündəlik tapşırıq seriyası öyrənməni vərdişə çevirir.",
+      "studentStat1Label": "Cari səviyyə",
+      "studentStat2Label": "Həll edilmiş çağırış",
+      "studentStat3Label": "Gündəlik seriya",
+      "studentStat3Value": "9 gün",
+      "studentStat4Label": "Liderlik yeri",
+      "teacherHeading": "Tam idarəetmə, admin paneldən",
+      "teacherBullet1": "Çağırış, test, kateqoriya və çətinlik səviyyələrini tam idarə et.",
+      "teacherBullet2": "Excel ilə tapşırıq və sualları toplu şəkildə yüklə.",
+      "teacherBullet3": "Audit jurnalı ilə bütün admin əməliyyatlarını izlə.",
+      "teacherStat1Label": "İdarə olunan bölmə",
+      "teacherStat2Label": "Toplu idxal formatı",
+      "teacherStat3Label": "Audit qeydi",
+      "teacherStat3Value": "canlı",
+      "teacherStat4Label": "Rol nəzarəti"
+    },
+    "testimonials": {
+      "eyebrow": "RƏYLƏR",
+      "title": "İstifadəçilər nə deyir.",
+      "review1Quote": "Liderlik lövhəsində dostumu keçmək üçün gecə saat 2-də rekursiya çalışması həll etdiyimi xatırlayıram.",
+      "review1Meta": "Səviyyə 14 · 61 çağırış həll edib",
+      "review1Name": "Kamran",
+      "review1Role": "C# tələbəsi",
+      "review2Quote": "Gündəlik tapşırıq seriyası məni hər gün açmağa məcbur edir — indi 9 günlük seriyam var.",
+      "review2Meta": "Səviyyə 5 · 9 günlük seriya",
+      "review2Name": "Aysel",
+      "review2Role": "Başlanğıc səviyyə",
+      "review3Quote": "Marketplace-dən aldığım profil çərçivəsi kiçik şey kimi görünsə də, qazandığın XP-ni sərf etməyin öz həzzi var.",
+      "review3Meta": "Səviyyə 9 · 3 kosmetik əşya",
+      "review3Name": "Ali",
+      "review3Role": "Orta səviyyə",
+      "review4Quote": "Səhvən sildiyim tapşırığı bir kliklə geri qaytara bilmək mənə tam rahatlıq verir.",
+      "review4Meta": "120+ çağırış idarə edir",
+      "review4Name": "Revan",
+      "review4Role": "Müəllim"
+    },
+    "faq": {
+      "eyebrow": "SUALLAR",
+      "title": "Tez-tez verilən suallar.",
+      "q1": "QuestCraft pulsuzdur?",
+      "a1": "Bəli — platformaya qeydiyyat və bütün əsas funksiyalar tamamilə pulsuzdur.",
+      "q2": "Hansı proqramlaşdırma dilini öyrədir?",
+      "a2": "Platforma tam olaraq C# və .NET ekosisteminə fokuslanıb.",
+      "q3": "Əvvəlcədən təcrübəm olmalıdır?",
+      "a3": "Xeyr. Səviyyəyə görə kilidlənən tapşırıq sistemi sıfırdan başlamağa imkan verir.",
+      "q4": "XP və coin nə fərqlə işləyir?",
+      "a4": "XP səviyyəni artırır və yeni tapşırıqların kilidini açır; coin isə Marketplace-də kosmetik əşyalar almaq üçündür.",
+      "q5": "Liderlik lövhəsi necə hesablanır?",
+      "a5": "Gündəlik, həftəlik, aylıq və hər-zaman dövrləri üzrə ayrıca hesablanır və istənilən vaxt dəyişdirilə bilər."
+    },
+    "cta": {
+      "title": "Növbəti nailiyyətin bir kliklə uzaqdadır.",
+      "subtitle": "Qeydiyyatdan keç, ilk çağırışını seç, XP toplamağa başla.",
+      "button": "Pulsuz Qeydiyyat",
+      "note": "Kredit kartı tələb olunmur."
+    },
+    "footer": {
+      "tagline": "C#-ı öyrənməyin oyunlaşdırılmış yolu — real tapşırıqlar, ani nəticə, davamlı irəliləyiş.",
+      "platformHeading": "Platforma",
+      "platformChallenges": "Çağırışlar",
+      "platformQuizzes": "Testlər",
+      "platformLeaderboard": "Liderlik Lövhəsi",
+      "platformMarketplace": "Marketplace",
+      "resourcesHeading": "Resurslar",
+      "resourcesHow": "Necə işləyir",
+      "resourcesFaq": "SSS",
+      "newsletterHeading": "Bülleten",
+      "newsletterText": "Yeni çağırışlardan xəbərdar ol.",
+      "newsletterPlaceholder": "email@nümunə.az",
+      "newsletterButton": "Abunə ol",
+      "copyright": "© {{year}} QuestCraft. Bütün hüquqlar qorunur."
+    }
   }
 }

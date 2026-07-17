@@ -63,7 +63,7 @@ public class GetChallengesQueryHandler : IRequestHandler<GetChallengesQuery, Pag
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            query = query.Where(c => c.Title.Contains(request.Search));
+            query = query.Where(c => c.Title.Contains(request.Search) || (c.Tags != null && c.Tags.Contains(request.Search)));
         }
 
         var projected = query
@@ -73,7 +73,7 @@ public class GetChallengesQueryHandler : IRequestHandler<GetChallengesQuery, Pag
                 c.Id,
                 isEnglish && c.TitleEn != null && c.TitleEn != "" ? c.TitleEn : c.Title,
                 c.Category.Name, c.Difficulty.Name, c.XpReward, c.CoinReward, c.IsPublished,
-                c.RequiredLevel, !isAdmin && c.RequiredLevel > userLevel));
+                c.RequiredLevel, !isAdmin && c.RequiredLevel > userLevel, c.Tags));
 
         return await PagedResult<ChallengeListItemDto>.CreateAsync(projected, request.Page, request.PageSize, cancellationToken);
     }

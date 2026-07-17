@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 
 const COLORS = ['#3B82F6', '#06B6D4', '#F59E0B', '#10B981', '#F472B6'];
 
-export function Confetti() {
+export function Confetti({ count = 70, style }: { count?: number; style?: React.CSSProperties }) {
   const pieces = useMemo(
     () =>
-      Array.from({ length: 70 }, (_, i) => ({
+      Array.from({ length: count }, (_, i) => ({
         id: i,
         left: Math.random() * 100,
         delay: Math.random() * 0.4,
@@ -14,11 +14,11 @@ export function Confetti() {
         size: 6 + Math.random() * 6,
         rotate: Math.random() * 360,
       })),
-    [],
+    [count],
   );
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden" style={style}>
       {pieces.map((p) => (
         <span
           key={p.id}

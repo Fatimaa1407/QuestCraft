@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Confetti } from '../../components/ui/Confetti';
 import { FloatingXp } from '../../components/ui/FloatingXp';
 import { QuizCompleteModal } from '../../components/ui/QuizCompleteModal';
+import { LevelUpModal } from '../../components/ui/LevelUpModal';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound, playFanfareSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
@@ -22,6 +23,7 @@ export function QuizAttemptPage() {
   const { id } = useParams<{ id: string }>();
   const quizId = Number(id);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const quizQuery = useQuery({
@@ -36,6 +38,7 @@ export function QuizAttemptPage() {
   const [revealedIds, setRevealedIds] = useState<Set<number>>(new Set());
   const [showModal, setShowModal] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
+  const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const submitMutation = useMutation({
@@ -122,7 +125,28 @@ export function QuizAttemptPage() {
             xp={result.xpEarned}
             score={result.score}
             totalQuestions={result.totalQuestions}
-            onContinue={() => setShowModal(false)}
+            onContinue={() => {
+              setShowModal(false);
+              if (result.level > result.previousLevel) {
+                setShowLevelUpModal(true);
+              }
+            }}
+          />
+        )}
+
+        {showLevelUpModal && (
+          <LevelUpModal
+            isOpen
+            previousLevel={result.previousLevel}
+            newLevel={result.level}
+            xpEarned={result.xpEarned}
+            coinsEarned={0}
+            newChallengesUnlocked={result.newChallengesUnlocked}
+            newQuizzesUnlocked={result.newQuizzesUnlocked}
+            onContinue={() => {
+              setShowLevelUpModal(false);
+              navigate('/challenges');
+            }}
           />
         )}
 

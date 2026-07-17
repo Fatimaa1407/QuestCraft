@@ -8,4 +8,5 @@ public enum NotificationType
     MarketplacePurchase,
     SystemNotification,
     LevelUp,
+    WeeklyRecap,
 }

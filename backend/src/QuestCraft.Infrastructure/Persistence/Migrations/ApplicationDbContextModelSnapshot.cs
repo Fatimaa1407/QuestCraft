@@ -241,6 +241,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<string>("StarterCodeEn")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Tags")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("TimeLimitMs")
                         .HasColumnType("int");
 
@@ -399,6 +402,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int>("MemoryUsedKb")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SolveTimeMs")
                         .HasColumnType("int");
 
                     b.Property<string>("SourceCode")
@@ -889,6 +895,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<int>("RequiredLevel")
                         .HasColumnType("int");
 
+                    b.Property<string>("Tags")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1106,6 +1115,53 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.SeasonalEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionEn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Emoji")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameEn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SeasonalEvents");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Streak", b =>

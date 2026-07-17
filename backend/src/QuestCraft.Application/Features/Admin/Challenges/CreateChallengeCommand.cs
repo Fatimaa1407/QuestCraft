@@ -31,7 +31,8 @@ public record CreateChallengeCommand(
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
     string? HintEn = null,
-    string? StarterCodeEn = null) : ICommand<ChallengeDetailDto>;
+    string? StarterCodeEn = null,
+    string? Tags = null) : ICommand<ChallengeDetailDto>;
 
 public class CreateChallengeCommandValidator : AbstractValidator<CreateChallengeCommand>
 {
@@ -68,6 +69,16 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
         var difficulty = await _context.ChallengeDifficulties.FirstOrDefaultAsync(d => d.Id == request.DifficultyId, cancellationToken)
             ?? throw new NotFoundException(nameof(ChallengeDifficulty), request.DifficultyId);
 
+        var normalizedTitle = request.Title.Trim().ToLower();
+        var duplicateLevel = await _context.Challenges
+            .Where(c => c.Title.ToLower() == normalizedTitle && c.RequiredLevel != request.RequiredLevel)
+            .Select(c => (int?)c.RequiredLevel)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (duplicateLevel is not null)
+        {
+            throw new ConflictException($"\"{request.Title}\" başlıqlı çağırış artıq Level {duplicateLevel}-də mövcuddur. Hər çağırış yalnız bir səviyyədə istifadə oluna bilər.");
+        }
+
         var challenge = new Challenge
         {
             Title = request.Title,
@@ -94,6 +105,7 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             OutputFormatEn = request.OutputFormatEn,
             HintEn = request.HintEn,
             StarterCodeEn = request.StarterCodeEn,
+            Tags = request.Tags,
         };
 
         _context.Challenges.Add(challenge);
@@ -106,6 +118,6 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             challenge.StarterCode, challenge.Constraints, challenge.InputFormat, challenge.OutputFormat,
             challenge.SampleInput, challenge.SampleOutput, challenge.Hint,
             !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished, challenge.RequiredLevel,
-            [], [], false);
+            [], [], false, Tags: challenge.Tags);
     }
 }

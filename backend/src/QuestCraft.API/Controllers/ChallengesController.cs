@@ -59,7 +59,7 @@ public class ChallengesController : ControllerBase
             request.StarterCode, request.Constraints, request.InputFormat, request.OutputFormat,
             request.SampleInput, request.SampleOutput, request.Hint, request.IsPublished, request.RequiredLevel,
             request.TitleEn, request.DescriptionEn, request.ConstraintsEn, request.InputFormatEn,
-            request.OutputFormatEn, request.HintEn, request.StarterCodeEn);
+            request.OutputFormatEn, request.HintEn, request.StarterCodeEn, request.Tags);
 
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(ApiResponse<ChallengeDetailDto>.Ok(result, "Challenge yeniləndi."));
@@ -148,7 +148,8 @@ public record UpdateChallengeRequest(
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
     string? HintEn = null,
-    string? StarterCodeEn = null);
+    string? StarterCodeEn = null,
+    string? Tags = null);
 
 public record AddTestCaseRequest(string Input, string ExpectedOutput, int OrderIndex, bool IsHidden, int Weight = 1);
 

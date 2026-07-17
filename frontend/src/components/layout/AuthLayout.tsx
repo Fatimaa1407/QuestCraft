@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { Code2, Sparkles, Swords, Trophy } from 'lucide-react';
 import { CodeBackdrop } from '../ui/CodeBackdrop';
 import { ParticleField } from '../ui/ParticleField';
 import { ThemeSwitcher } from '../ui/ThemeSwitcher';
 import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 import { EditorMock, LeaderboardMock, StatsMock } from '../../features/auth/BrandingMocks';
+import { fadeInUp } from '../../utils/motion';
 
 // Clean 50/50 split: hero content + mockups live only in the left half, the form card stays in
 // the right half. Flat deep-navy canvas (not a saturated gradient) with indigo/cyan glow accents
@@ -61,9 +63,14 @@ export function AuthLayout({ children }: { children: ReactNode }) {
 
         {/* Right: form, vertically centered */}
         <div className="relative flex flex-1 items-center justify-center px-6 py-12 lg:px-12">
-          <div className="w-full max-w-[21rem] rounded-2xl border border-slate-200 bg-white p-7 shadow-2xl shadow-black/40 dark:border-slate-700/80 dark:bg-slate-800/95 dark:shadow-black/60 dark:ring-1 dark:ring-white/5">
+          <motion.div
+            variants={fadeInUp}
+            initial="hidden"
+            animate="show"
+            className="w-full max-w-[21rem] rounded-2xl border border-slate-200 bg-white p-7 shadow-2xl shadow-black/40 dark:border-slate-700/80 dark:bg-slate-800/95 dark:shadow-black/60 dark:ring-1 dark:ring-white/5"
+          >
             {children}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

@@ -43,6 +43,27 @@ public class AchievementEvaluator : IAchievementEvaluator
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
         var streak = await _context.Streaks.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
 
+        // A challenge counts as a "no-hint solve" if it was ever Accepted and no hint was unlocked for
+        // it by this user (ChallengeHint.UnlockedAt has no time ordering requirement — unlocking a hint
+        // after already solving it without one still disqualifies it, which matches player expectations).
+        var noHintSolveCount = candidates.Any(a => a.ConditionType == AchievementConditionType.NoHintSolve)
+            ? await _context.ChallengeSubmissions
+                .Where(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted)
+                .Select(s => s.ChallengeId)
+                .Distinct()
+                .CountAsync(challengeId => !_context.ChallengeHints.Any(h => h.UserId == userId && h.ChallengeId == challengeId), cancellationToken)
+            : 0;
+
+        // "Fast solve" = accepted with a client-reported solve time under a minute. The timer is
+        // client-controlled (like any quiz timer elsewhere in the app), so this is a soft signal used
+        // only for this achievement, never for XP/coin rewards.
+        const int SpeedSolveThresholdMs = 60_000;
+        var speedSolveCount = candidates.Any(a => a.ConditionType == AchievementConditionType.SpeedSolve)
+            ? await _context.ChallengeSubmissions
+                .CountAsync(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted
+                    && s.SolveTimeMs != null && s.SolveTimeMs <= SpeedSolveThresholdMs, cancellationToken)
+            : 0;
+
         var unlocked = new List<Achievement>();
 
         foreach (var achievement in candidates)
@@ -54,9 +75,8 @@ public class AchievementEvaluator : IAchievementEvaluator
                 AchievementConditionType.XpTotal => profile?.Xp >= achievement.ConditionValue,
                 AchievementConditionType.StreakDays => streak?.LongestStreak >= achievement.ConditionValue,
                 AchievementConditionType.QuizzesCompleted => stats?.TotalQuizzesCompleted >= achievement.ConditionValue,
-                // NoHintSolve / SpeedSolve need per-submission context (hint usage, solve time) that
-                // isn't tracked yet — wired up once the Marketplace hint flow exists.
-                AchievementConditionType.NoHintSolve or AchievementConditionType.SpeedSolve => false,
+                AchievementConditionType.NoHintSolve => noHintSolveCount >= achievement.ConditionValue,
+                AchievementConditionType.SpeedSolve => speedSolveCount >= achievement.ConditionValue,
                 _ => false,
             };
 

@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
+import { LandingPage } from './features/landing/LandingPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { ChallengesListPage } from './features/challenges/ChallengesListPage';
 import { ChallengeDetailPage } from './features/challenges/ChallengeDetailPage';
@@ -27,6 +28,9 @@ import { QuizzesAdminPage } from './features/admin/QuizzesAdminPage';
 import { QuizEditPage } from './features/admin/QuizEditPage';
 import { ExcelToolsPage } from './features/admin/ExcelToolsPage';
 import { AuditLogPage } from './features/admin/AuditLogPage';
+import { UsersAdminPage } from './features/admin/UsersAdminPage';
+import { ActivityTodayAdminPage } from './features/admin/ActivityTodayAdminPage';
+import { SeasonalEventsAdminPage } from './features/admin/SeasonalEventsAdminPage';
 
 function App() {
   return (
@@ -34,6 +38,7 @@ function App() {
       <BrowserRouter>
         <AuthInitializer>
           <Routes>
+            <Route path="/welcome" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
@@ -62,6 +67,9 @@ function App() {
                   <Route path="/admin/daily-quests" element={<DailyQuestsAdminPage />} />
                   <Route path="/admin/excel" element={<ExcelToolsPage />} />
                   <Route path="/admin/audit-log" element={<AuditLogPage />} />
+                  <Route path="/admin/users" element={<UsersAdminPage />} />
+                  <Route path="/admin/activity-today" element={<ActivityTodayAdminPage />} />
+                  <Route path="/admin/seasonal-events" element={<SeasonalEventsAdminPage />} />
                 </Route>
               </Route>
             </Route>

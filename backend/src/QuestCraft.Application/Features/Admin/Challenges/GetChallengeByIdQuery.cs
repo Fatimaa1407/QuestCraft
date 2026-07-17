@@ -109,6 +109,7 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
             isAdmin ? challenge.InputFormatEn : null,
             isAdmin ? challenge.OutputFormatEn : null,
             isAdmin ? challenge.HintEn : null,
-            isAdmin ? challenge.StarterCodeEn : null);
+            isAdmin ? challenge.StarterCodeEn : null,
+            challenge.Tags);
     }
 }

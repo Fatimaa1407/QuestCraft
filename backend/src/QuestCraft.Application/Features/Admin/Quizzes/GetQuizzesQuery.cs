@@ -50,7 +50,7 @@ public class GetQuizzesQueryHandler : IRequestHandler<GetQuizzesQuery, PagedResu
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            query = query.Where(q => q.Title.Contains(request.Search));
+            query = query.Where(q => q.Title.Contains(request.Search) || (q.Tags != null && q.Tags.Contains(request.Search)));
         }
 
         var projected = query
@@ -60,7 +60,7 @@ public class GetQuizzesQueryHandler : IRequestHandler<GetQuizzesQuery, PagedResu
                 q.Id,
                 isEnglish && q.TitleEn != null && q.TitleEn != "" ? q.TitleEn : q.Title,
                 q.Category != null ? q.Category.Name : null, q.XpReward, q.IsPublished, q.Questions.Count,
-                q.RequiredLevel, !isAdmin && q.RequiredLevel > userLevel));
+                q.RequiredLevel, !isAdmin && q.RequiredLevel > userLevel, q.Tags));
 
         return await PagedResult<QuizListItemDto>.CreateAsync(projected, request.Page, request.PageSize, cancellationToken);
     }

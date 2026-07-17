@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Trophy, Award, Lock, Star, Coins } from 'lucide-react';
 import { getAchievements } from '../../api/gamification';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 export function AchievementsPage() {
@@ -47,9 +49,13 @@ export function AchievementsPage() {
       </motion.div>
 
       {achievementsQuery.isLoading ? (
-        <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <AchievementCardSkeleton key={i} />
+          ))}
+        </div>
       ) : achievements.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-500">{t('achievements.empty')}</p>
+        <EmptyState icon={Trophy} tint="violet" title={t('achievements.empty')} />
       ) : (
         <motion.div variants={staggerContainer} className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {achievements.map((achievement) => (
@@ -106,5 +112,22 @@ export function AchievementsPage() {
         </motion.div>
       )}
     </motion.div>
+  );
+}
+
+// Mirrors the real achievement card's layout (icon square, name, description, XP/coin footer) so
+// the page doesn't visually "jump" once real data replaces the skeleton.
+function AchievementCardSkeleton() {
+  return (
+    <GlassCard hoverLift={false} className="flex h-full flex-col p-6">
+      <Skeleton className="h-14 w-14 rounded-2xl" />
+      <Skeleton className="mt-4 h-5 w-2/3" />
+      <Skeleton className="mt-2 h-3 w-full" />
+      <Skeleton className="mt-1.5 h-3 w-4/5" />
+      <div className="mt-5 flex items-center gap-3 border-t border-slate-200/70 pt-4 dark:border-white/[0.06]">
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-3 w-10" />
+      </div>
+    </GlassCard>
   );
 }

@@ -47,6 +47,8 @@ public class GetQuizAttemptByIdQueryHandler : IRequestHandler<GetQuizAttemptById
 
         return new QuizAttemptResultDto(
             attempt.Id, attempt.Score, attempt.TotalQuestions, attempt.XpEarned, questionResults, [],
-            profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 1);
+            profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 1,
+            // Historical view of a past attempt — never re-trigger the level-up celebration.
+            profile?.Level ?? 1, 0, 0);
     }
 }

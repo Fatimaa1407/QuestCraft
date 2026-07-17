@@ -28,19 +28,22 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
     private readonly IDailyQuestService _dailyQuestService;
     private readonly IAchievementEvaluator _achievementEvaluator;
     private readonly IContentCompletionService _completionService;
+    private readonly IRealtimeNotifier _realtimeNotifier;
 
     public SubmitQuizAttemptCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUser,
         IDailyQuestService dailyQuestService,
         IAchievementEvaluator achievementEvaluator,
-        IContentCompletionService completionService)
+        IContentCompletionService completionService,
+        IRealtimeNotifier realtimeNotifier)
     {
         _context = context;
         _currentUser = currentUser;
         _dailyQuestService = dailyQuestService;
         _achievementEvaluator = achievementEvaluator;
         _completionService = completionService;
+        _realtimeNotifier = realtimeNotifier;
     }
 
     public async Task<QuizAttemptResultDto> Handle(SubmitQuizAttemptCommand request, CancellationToken cancellationToken)
@@ -127,6 +130,7 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
         }
 
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+        var previousLevel = profile?.Level ?? 1;
 
         if (xpEarned > 0)
         {
@@ -142,7 +146,9 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
         var streak = await _context.Streaks.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
         if (streak is not null)
         {
-            StreakCalculator.RecordActivity(streak, today);
+            var hasStreakFreeze = await _context.Purchases
+                .AnyAsync(p => p.UserId == userId && p.MarketplaceItem.ItemType.Name == "StreakFreeze", cancellationToken);
+            StreakCalculator.RecordActivity(streak, today, hasStreakFreeze);
         }
 
         var activityLog = await _context.ActivityLogs.FirstOrDefaultAsync(a => a.UserId == userId && a.ActivityDate == today, cancellationToken);
@@ -171,12 +177,37 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
             profile.Level = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
         }
 
+        var newChallengesUnlocked = 0;
+        var newQuizzesUnlocked = 0;
+        if (profile is not null && profile.Level > previousLevel)
+        {
+            var newLevelContent = await _completionService.GetLevelCompletionAsync(userId, profile.Level, cancellationToken);
+            newChallengesUnlocked = newLevelContent.ChallengesTotal;
+            newQuizzesUnlocked = newLevelContent.QuizzesTotal;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = userId,
+                Type = NotificationType.LevelUp,
+                Title = "Yeni səviyyə!",
+                Message = $"Səviyyə {profile.Level}-ə çatdınız!",
+                TitleEn = "New level!",
+                MessageEn = $"You reached Level {profile.Level}!",
+            });
+        }
+
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        if ((profile is not null && profile.Level > previousLevel) || newAchievements.Count > 0)
+        {
+            await _realtimeNotifier.NotifyNewNotification(userId, cancellationToken);
+        }
+
         return new QuizAttemptResultDto(
             attempt.Id, score, quiz.Questions.Count, xpEarned, questionResults, newAchievements.Select(a => a.Name).ToList(),
-            profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 1);
+            profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 1,
+            previousLevel, newChallengesUnlocked, newQuizzesUnlocked);
     }
 }

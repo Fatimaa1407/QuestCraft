@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Medal, Crown, Zap } from 'lucide-react';
-import { getLeaderboard } from '../../api/gamification';
+import { Medal, Crown, Zap, Trophy } from 'lucide-react';
+import { getLeaderboard, getMyRank } from '../../api/gamification';
 import type { LeaderboardEntry, LeaderboardPeriod } from '../../types/gamification';
 import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 const periods: LeaderboardPeriod[] = ['Daily', 'Weekly', 'Monthly', 'AllTime'];
@@ -51,9 +53,16 @@ export function LeaderboardPage() {
     queryFn: () => getLeaderboard(period, 20),
   });
 
+  const myRankQuery = useQuery({
+    queryKey: ['gamification', 'my-rank', period],
+    queryFn: () => getMyRank(period),
+  });
+
   const entries = leaderboardQuery.data ?? [];
   const top3 = entries.slice(0, 3);
   const rest = entries.slice(3);
+  const isMeInList = entries.some((e) => e.userId === user?.id);
+  const myRank = myRankQuery.data;
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
@@ -79,9 +88,26 @@ export function LeaderboardPage() {
       </motion.div>
 
       {leaderboardQuery.isLoading ? (
-        <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 items-end gap-6 sm:grid-cols-3">
+            {[1, 0, 2].map((order) => (
+              <PodiumSkeleton key={order} big={order === 0} />
+            ))}
+          </div>
+          <GlassCard hoverLift={false} className="divide-y divide-slate-200/70 p-4 dark:divide-white/[0.06]">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 px-3 py-3">
+                <Skeleton className="h-4 w-6 rounded" />
+                <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
+                <Skeleton className="h-4 flex-1" />
+                <Skeleton className="h-4 w-10" />
+                <Skeleton className="h-4 w-12" />
+              </div>
+            ))}
+          </GlassCard>
+        </div>
       ) : entries.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-500">{t('leaderboard.empty')}</p>
+        <EmptyState icon={Trophy} tint="amber" title={t('leaderboard.empty')} />
       ) : (
         <>
           {top3.length > 0 && (
@@ -98,10 +124,33 @@ export function LeaderboardPage() {
 
           {rest.length > 0 && (
             <motion.div variants={fadeInUp}>
-              <GlassCard hoverLift={false} className="divide-y divide-slate-200/70 p-2 dark:divide-white/[0.06]">
+              <GlassCard hoverLift={false} className="divide-y divide-slate-200/70 p-4 dark:divide-white/[0.06]">
                 {rest.map((entry, i) => (
                   <LeaderboardRow key={entry.userId} entry={entry} isMe={entry.userId === user?.id} index={i} />
                 ))}
+              </GlassCard>
+            </motion.div>
+          )}
+
+          {!isMeInList && user && myRank && (
+            <motion.div variants={fadeInUp}>
+              <p className="mb-2 text-center text-xs text-slate-400 dark:text-slate-500">···</p>
+              <GlassCard hoverLift={false} className="p-4">
+                <LeaderboardRow
+                  entry={{
+                    rank: myRank.rank,
+                    userId: user.id,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl,
+                    xp: myRank.xp,
+                    level: myRank.level,
+                  }}
+                  isMe
+                  index={0}
+                />
+                <p className="mt-1 text-center text-xs text-slate-400 dark:text-slate-500">
+                  {t('leaderboard.outOfTotal', { total: myRank.totalUsers })}
+                </p>
               </GlassCard>
             </motion.div>
           )}
@@ -155,6 +204,20 @@ function PodiumCard({ entry, isMe, big, order }: { entry: LeaderboardEntry; isMe
         </p>
       </GlassCard>
     </motion.div>
+  );
+}
+
+// Mirrors the podium card's layout (rank label, avatar circle, name, XP) so the page doesn't
+// visually "jump" once real data replaces the skeleton.
+function PodiumSkeleton({ big }: { big: boolean }) {
+  return (
+    <GlassCard hoverLift={false} className={`flex flex-col items-center p-6 ${big ? 'sm:pb-10 sm:pt-9' : ''}`}>
+      <Skeleton className="h-3 w-8" />
+      <Skeleton className={`mt-3 rounded-full ${big ? 'h-24 w-24' : 'h-20 w-20'}`} />
+      <Skeleton className="mt-4 h-4 w-20" />
+      <Skeleton className="mt-2 h-3 w-10" />
+      <Skeleton className="mt-2 h-5 w-16" />
+    </GlassCard>
   );
 }
 

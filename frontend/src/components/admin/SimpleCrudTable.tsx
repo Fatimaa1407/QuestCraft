@@ -1,12 +1,16 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Inbox, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { GlassCard } from '../ui/GlassCard';
 import { Modal } from '../ui/Modal';
 import { TextField } from '../ui/TextField';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
+import { Skeleton } from '../ui/Skeleton';
+import { EmptyState } from '../ui/EmptyState';
+import { fadeInUp } from '../../utils/motion';
 
 // Deliberately loosely-typed: this table drives 5 structurally different admin
 // entities (Category/Difficulty/MarketplaceItem/Achievement/DailyQuestTemplate),
@@ -123,6 +127,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
+    <motion.div variants={fadeInUp} initial="hidden" animate="show">
     <GlassCard className="p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>
@@ -133,7 +138,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
               onClick={() => setShowDeleted((v) => !v)}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 showDeleted
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'
               }`}
             >
@@ -144,7 +149,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
             <button
               type="button"
               onClick={openCreate}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110"
             >
               <Plus size={14} />
               {addLabel}
@@ -153,9 +158,9 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
         </div>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
+      <div className="mt-4 max-h-[26rem] overflow-auto rounded-lg">
         <table className="w-full text-left text-sm">
-          <thead>
+          <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm dark:bg-slate-900/90">
             <tr className="border-b border-slate-200/70 text-xs uppercase tracking-wide text-slate-400 dark:border-white/[0.06] dark:text-slate-500">
               {columns.map((col) => (
                 <th key={col.key} className="px-3 py-2 font-medium">
@@ -166,15 +171,38 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
             </tr>
           </thead>
           <tbody>
-            {items.length === 0 ? (
+            {listQuery.isLoading ? (
+              Array.from({ length: 5 }).map((_, rowIndex) => (
+                <tr key={`skeleton-${rowIndex}`} className="border-b border-slate-100 last:border-0 dark:border-white/[0.04]">
+                  {columns.map((col) => (
+                    <td key={col.key} className="px-3 py-2.5">
+                      <Skeleton className="h-4 w-full max-w-[140px]" />
+                    </td>
+                  ))}
+                  <td className="px-3 py-2.5">
+                    <Skeleton className="h-4 w-16" />
+                  </td>
+                </tr>
+              ))
+            ) : items.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className="px-3 py-8 text-center text-slate-500 dark:text-slate-400">
-                  {t('admin.empty')}
+                <td colSpan={columns.length + 1} className="px-3 py-6">
+                  <EmptyState
+                    bare
+                    icon={Inbox}
+                    title={t('admin.empty')}
+                    action={showDeleted ? undefined : { label: addLabel, onClick: openCreate }}
+                  />
                 </td>
               </tr>
             ) : (
-              items.map((item) => (
-                <tr key={item.id} className="border-b border-slate-100 last:border-0 dark:border-white/[0.04]">
+              items.map((item, idx) => (
+                <tr
+                  key={item.id}
+                  className={`border-b border-slate-100 last:border-0 transition-colors dark:border-white/[0.04] ${
+                    idx % 2 === 1 ? 'bg-slate-50/60 dark:bg-white/[0.02]' : ''
+                  } hover:bg-blue-50/60 dark:hover:bg-white/[0.06]`}
+                >
                   {columns.map((col) => (
                     <td key={col.key} className="px-3 py-2.5 text-slate-700 dark:text-slate-200">
                       {col.render ? col.render(item) : String(item[col.key] ?? '')}
@@ -185,7 +213,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
                       <button
                         type="button"
                         onClick={() => restoreMutation.mutate(item.id)}
-                        className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-cyan-400"
+                        className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-cyan-400"
                       >
                         <RotateCcw size={13} />
                         {t('admin.restore')}
@@ -195,7 +223,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
                         <button
                           type="button"
                           onClick={() => openEdit(item)}
-                          className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-cyan-400"
+                          className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-cyan-400"
                         >
                           <Pencil size={13} />
                           {t('admin.edit')}
@@ -250,7 +278,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
                       type="checkbox"
                       checked={Boolean(value)}
                       onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.checked }))}
-                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700"
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700"
                     />
                     {field.label}
                   </label>
@@ -284,12 +312,13 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? t('admin.saving') : t('admin.save')}
           </button>
         </form>
       </Modal>
     </GlassCard>
+    </motion.div>
   );
 }

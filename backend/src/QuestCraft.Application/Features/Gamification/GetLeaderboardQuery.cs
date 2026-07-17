@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Enums;
 
@@ -16,13 +17,30 @@ public record GetLeaderboardQuery(LeaderboardPeriod Period, int Top) : IQuery<Li
 public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, List<LeaderboardEntryDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IMemoryCache _cache;
 
-    public GetLeaderboardQueryHandler(IApplicationDbContext context)
+    public GetLeaderboardQueryHandler(IApplicationDbContext context, IMemoryCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public async Task<List<LeaderboardEntryDto>> Handle(GetLeaderboardQuery request, CancellationToken cancellationToken)
+    {
+        var cacheKey = $"leaderboard:{request.Period}:{request.Top}";
+        if (_cache.TryGetValue(cacheKey, out List<LeaderboardEntryDto>? cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        var result = await LoadAsync(request, cancellationToken);
+        _cache.Set(cacheKey, result, TimeSpan.FromSeconds(30));
+        return result;
+    }
+
+    // XP changes every time someone submits — a 30s cache keeps the board from hammering the DB on
+    // every page view while staying close enough to real-time that nobody notices the staleness.
+    private async Task<List<LeaderboardEntryDto>> LoadAsync(GetLeaderboardQuery request, CancellationToken cancellationToken)
     {
         if (request.Period == LeaderboardPeriod.AllTime)
         {

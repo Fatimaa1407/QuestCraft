@@ -47,6 +47,7 @@ public interface IApplicationDbContext
     DbSet<SystemSetting> SystemSettings { get; }
     DbSet<ExcelImportLog> ExcelImportLogs { get; }
     DbSet<RateLimitLog> RateLimitLogs { get; }
+    DbSet<SeasonalEvent> SeasonalEvents { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

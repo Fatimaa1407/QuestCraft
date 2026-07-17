@@ -15,15 +15,18 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUser;
     private readonly IAchievementEvaluator _achievementEvaluator;
+    private readonly IRealtimeNotifier _realtimeNotifier;
 
     public ClaimDailyQuestRewardCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUser,
-        IAchievementEvaluator achievementEvaluator)
+        IAchievementEvaluator achievementEvaluator,
+        IRealtimeNotifier realtimeNotifier)
     {
         _context = context;
         _currentUser = currentUser;
         _achievementEvaluator = achievementEvaluator;
+        _realtimeNotifier = realtimeNotifier;
     }
 
     public async Task<ClaimDailyQuestResultDto> Handle(ClaimDailyQuestRewardCommand request, CancellationToken cancellationToken)
@@ -78,6 +81,8 @@ public class ClaimDailyQuestRewardCommandHandler : IRequestHandler<ClaimDailyQue
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        await _realtimeNotifier.NotifyNewNotification(userId, cancellationToken);
 
         var questDto = new DailyQuestDto(
             quest.Id,
