@@ -99,7 +99,7 @@ public static class ApplicationDbContextSeeder
             return;
         }
 
-        string[] types = ["Hint", "Avatar", "ProfileFrame", "Theme", "Badge", "Title", "StreakFreeze"];
+        string[] types = ["Hint", "Avatar", "ProfileFrame", "ProfileBanner", "Theme", "Badge", "Title", "StreakFreeze"];
         context.MarketplaceItemTypes.AddRange(types.Select(name => new MarketplaceItemType { Name = name }));
 
         // Committed immediately so SeedMarketplaceItemsAsync can look these up by real Id right after.
@@ -118,6 +118,15 @@ public static class ApplicationDbContextSeeder
         var themeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Theme").Select(t => t.Id).FirstAsync();
         var badgeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Badge").Select(t => t.Id).FirstAsync();
         var streakFreezeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "StreakFreeze").Select(t => t.Id).FirstAsync();
+        var avatarTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Avatar").Select(t => t.Id).FirstAsync();
+        var bannerTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "ProfileBanner").Select(t => t.Id).FirstAsync();
+
+        const string robotAvatarSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjM2I4MmY2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMDZiNmQ0Ii8+CiAgPC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iNjQiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSI2NCIgeT0iODIiIGZvbnQtc2l6ZT0iNTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfpJY8L3RleHQ+Cjwvc3ZnPg==";
+        const string astroAvatarSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjOGI1Y2Y2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZWM0ODk5Ii8+CiAgPC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iNjQiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSI2NCIgeT0iODIiIGZvbnQtc2l6ZT0iNTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfmoA8L3RleHQ+Cjwvc3ZnPg==";
+        const string fireAvatarSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZjk3MzE2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZWY0NDQ0Ii8+CiAgPC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iNjQiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSI2NCIgeT0iODIiIGZvbnQtc2l6ZT0iNTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCflKU8L3RleHQ+Cjwvc3ZnPg==";
+        const string nightBannerSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgODAwIDIwMCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMGYxNzJhIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiMzMTJlODEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxZTFiNGIiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNnKSIvPgo8L3N2Zz4=";
+        const string sunriseBannerSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgODAwIDIwMCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZjk3MzE2Ii8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNmNDNmNWUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlYzQ4OTkiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNnKSIvPgo8L3N2Zz4=";
+        const string forestBannerSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgODAwIDIwMCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMTQ1MzJkIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiMxNmEzNGEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyMmM1NWUiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNnKSIvPgo8L3N2Zz4=";
 
         context.MarketplaceItems.AddRange(
             new MarketplaceItem { Name = "Qızıl Çərçivə", ItemTypeId = frameTypeId, Price = 100 },
@@ -132,7 +141,15 @@ public static class ApplicationDbContextSeeder
                 DescriptionEn = "A one-time, permanent safeguard that protects your streak if you miss a single day.",
                 ItemTypeId = streakFreezeTypeId,
                 Price = 120,
-            }
+            },
+            new MarketplaceItem { Name = "Robot Avatarı", NameEn = "Robot Avatar", Description = "Futuristik robot avatarı.", DescriptionEn = "A futuristic robot avatar.", ItemTypeId = avatarTypeId, Price = 60, ImageUrl = robotAvatarSvg },
+            new MarketplaceItem { Name = "Astronavt Avatarı", NameEn = "Astronaut Avatar", Description = "Kosmosu fəth edən astronavt avatarı.", DescriptionEn = "A space-conquering astronaut avatar.", ItemTypeId = avatarTypeId, Price = 90, ImageUrl = astroAvatarSvg },
+            new MarketplaceItem { Name = "Alov Avatarı", NameEn = "Flame Avatar", Description = "Alovlu, ehtiraslı bir avatar.", DescriptionEn = "A fiery, passionate avatar.", ItemTypeId = avatarTypeId, Price = 90, ImageUrl = fireAvatarSvg },
+            new MarketplaceItem { Name = "Gecə Səması Banneri", NameEn = "Night Sky Banner", Description = "Profil başlığını ulduzlu gecə rənginə boyayır.", DescriptionEn = "Paints your profile header in starry-night colors.", ItemTypeId = bannerTypeId, Price = 70, ImageUrl = nightBannerSvg },
+            new MarketplaceItem { Name = "Gündoğuşu Banneri", NameEn = "Sunrise Banner", Description = "İlıq narıncı-çəhrayı gündoğuşu rəngləri.", DescriptionEn = "Warm orange-pink sunrise colors.", ItemTypeId = bannerTypeId, Price = 70, ImageUrl = sunriseBannerSvg },
+            new MarketplaceItem { Name = "Meşə Banneri", NameEn = "Forest Banner", Description = "Sərin, canlı meşə yaşılı tonları.", DescriptionEn = "Cool, vivid forest-green tones.", ItemTypeId = bannerTypeId, Price = 70, ImageUrl = forestBannerSvg },
+            new MarketplaceItem { Name = "Bənövşəyi Tema", NameEn = "Violet Theme", Description = "Dashboard aksent rənglərini bənövşəyi tonlara dəyişir.", DescriptionEn = "Changes the dashboard accent colors to violet tones.", ItemTypeId = themeTypeId, Price = 80 },
+            new MarketplaceItem { Name = "Narıncı Tema", NameEn = "Sunset Theme", Description = "Dashboard aksent rənglərini isti narıncı tonlara dəyişir.", DescriptionEn = "Changes the dashboard accent colors to warm orange tones.", ItemTypeId = themeTypeId, Price = 80 }
         );
     }
 

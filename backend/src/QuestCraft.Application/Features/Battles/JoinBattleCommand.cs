@@ -33,6 +33,8 @@ public class JoinBattleCommandHandler : IRequestHandler<JoinBattleCommand, Battl
             .Include(b => b.Challenge).ThenInclude(c => c.TestCases)
             .Include(b => b.Challenge).ThenInclude(c => c.HiddenTestCases)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
             .FirstOrDefaultAsync(b => b.Id == request.BattleId, cancellationToken)
             ?? throw new NotFoundException(nameof(Battle), request.BattleId);
 

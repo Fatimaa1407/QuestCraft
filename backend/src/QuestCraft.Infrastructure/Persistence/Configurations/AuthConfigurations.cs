@@ -72,6 +72,21 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .WithMany()
             .HasForeignKey(p => p.EquippedThemeId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.EquippedAvatar)
+            .WithMany()
+            .HasForeignKey(p => p.EquippedAvatarId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.EquippedBanner)
+            .WithMany()
+            .HasForeignKey(p => p.EquippedBannerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.EquippedBadge)
+            .WithMany()
+            .HasForeignKey(p => p.EquippedBadgeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

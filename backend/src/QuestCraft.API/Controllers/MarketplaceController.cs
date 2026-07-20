@@ -75,6 +75,14 @@ public class MarketplaceController : ControllerBase
         return Ok(ApiResponse<object?>.Ok(null, "Taxıldı."));
     }
 
+    [HttpPost("items/{id:int}/unequip")]
+    [Authorize]
+    public async Task<IActionResult> Unequip(int id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new UnequipItemCommand(id), cancellationToken);
+        return Ok(ApiResponse<object?>.Ok(null, "Çıxarıldı."));
+    }
+
     [HttpGet("my-purchases")]
     [Authorize]
     public async Task<ActionResult<ApiResponse<List<MyPurchaseDto>>>> GetMyPurchases(CancellationToken cancellationToken)

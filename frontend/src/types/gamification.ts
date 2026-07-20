@@ -49,6 +49,8 @@ export interface LeaderboardEntry {
   avatarUrl: string | null;
   xp: number;
   level: number;
+  frameImageUrl: string | null;
+  titleText: string | null;
 }
 
 export interface XpDayPoint {

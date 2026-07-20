@@ -57,6 +57,8 @@ public class CreateRoomBattleCommandHandler : IRequestHandler<CreateRoomBattleCo
         var saved = await _context.Battles
             .Include(b => b.Challenge)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
             .FirstAsync(b => b.Id == battle.Id, cancellationToken);
 
         return BattleMapper.ToDto(saved);

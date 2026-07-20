@@ -29,6 +29,8 @@ public class CancelBattleCommandHandler : IRequestHandler<CancelBattleCommand, U
         var battle = await _context.Battles
             .Include(b => b.Challenge)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
             .FirstOrDefaultAsync(b => b.Id == request.BattleId, cancellationToken)
             ?? throw new NotFoundException(nameof(Battle), request.BattleId);
 

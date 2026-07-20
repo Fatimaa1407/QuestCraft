@@ -24,7 +24,11 @@ public class GetMyPurchasesQueryHandler : IRequestHandler<GetMyPurchasesQuery, L
         var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
 
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
-        var equippedIds = new HashSet<int?> { profile?.EquippedFrameId, profile?.EquippedTitleId, profile?.EquippedThemeId };
+        var equippedIds = new HashSet<int?>
+        {
+            profile?.EquippedFrameId, profile?.EquippedTitleId, profile?.EquippedThemeId,
+            profile?.EquippedAvatarId, profile?.EquippedBannerId, profile?.EquippedBadgeId,
+        };
 
         var purchases = await _context.Purchases
             .Include(p => p.MarketplaceItem).ThenInclude(i => i.ItemType)
@@ -34,9 +38,10 @@ public class GetMyPurchasesQueryHandler : IRequestHandler<GetMyPurchasesQuery, L
 
         var isEnglish = _currentUser.IsEnglish;
         return purchases.Select(p => new MyPurchaseDto(
-            p.Id,
+            p.Id, p.MarketplaceItemId,
             LocalizationHelper.Pick(p.MarketplaceItem.Name, p.MarketplaceItem.NameEn, isEnglish),
-            p.MarketplaceItem.ItemType.Name, p.PricePaid, p.PurchasedAt, equippedIds.Contains(p.MarketplaceItemId)))
+            p.MarketplaceItem.ItemTypeId, p.MarketplaceItem.ItemType.Name, p.MarketplaceItem.ImageUrl,
+            p.PricePaid, p.PurchasedAt, equippedIds.Contains(p.MarketplaceItemId)))
             .ToList();
     }
 }

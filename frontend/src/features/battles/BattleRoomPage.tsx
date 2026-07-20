@@ -13,23 +13,11 @@ import { useThemeStore } from '../../app/themeStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Confetti } from '../../components/ui/Confetti';
+import { FramedAvatar as Avatar } from '../../components/ui/FramedAvatar';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playErrorSound, playFanfareSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 import type { BattleParticipantDto } from '../../types/battle';
-
-function Avatar({ username, avatarUrl, size = 36 }: { username: string; avatarUrl: string | null; size?: number }) {
-  return avatarUrl ? (
-    <img src={avatarUrl} alt="" className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
-  ) : (
-    <span
-      className="flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 font-semibold text-white"
-      style={{ width: size, height: size, fontSize: size * 0.4 }}
-    >
-      {username.charAt(0).toUpperCase()}
-    </span>
-  );
-}
 
 export function BattleRoomPage() {
   const { t } = useTranslation();
@@ -220,7 +208,7 @@ export function BattleRoomPage() {
               <div className="space-y-2">
                 {battle.participants.map((p) => (
                   <div key={p.userId} className="flex items-center gap-3 rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
-                    <Avatar username={p.username} avatarUrl={p.avatarUrl} size={32} />
+                    <Avatar username={p.username} avatarUrl={p.avatarUrl} frameImageUrl={p.frameImageUrl} size={32} />
                     <span className="text-sm font-medium text-slate-800 dark:text-slate-100">
                       {p.username}
                       {p.userId === battle.hostUserId && (
@@ -332,7 +320,7 @@ export function BattleRoomPage() {
               {battle.participants.map((p) => (
                 <div key={p.userId} className="rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
                   <div className="flex items-center gap-2">
-                    <Avatar username={p.username} avatarUrl={p.avatarUrl} size={24} />
+                    <Avatar username={p.username} avatarUrl={p.avatarUrl} frameImageUrl={p.frameImageUrl} size={24} />
                     <span className="truncate text-xs font-medium text-slate-800 dark:text-slate-100">{p.username}</span>
                     {p.rank === 1 && <Crown size={13} className="ml-auto text-amber-500" />}
                   </div>
@@ -358,7 +346,7 @@ function RankRow({ participant }: { participant: BattleParticipantDto }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
       <span className="w-5 text-center text-sm font-bold text-slate-400">{participant.rank ?? '-'}</span>
-      <Avatar username={participant.username} avatarUrl={participant.avatarUrl} size={28} />
+      <Avatar username={participant.username} avatarUrl={participant.avatarUrl} frameImageUrl={participant.frameImageUrl} size={28} />
       <span className="flex-1 truncate text-sm font-medium text-slate-800 dark:text-slate-100">{participant.username}</span>
       <span className="text-xs text-slate-500 dark:text-slate-400">
         {participant.hasFinished

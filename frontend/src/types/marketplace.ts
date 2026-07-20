@@ -24,11 +24,25 @@ export interface PurchaseResultDto {
 
 export interface MyPurchaseDto {
   id: number;
+  marketplaceItemId: number;
   itemName: string;
+  itemTypeId: number;
   itemType: string;
+  imageUrl: string | null;
   pricePaid: number;
   purchasedAt: string;
   isEquipped: boolean;
 }
 
-export const EQUIPABLE_ITEM_TYPES = ['ProfileFrame', 'Title', 'Theme'];
+export interface EquippedCosmeticsDto {
+  avatarUrl: string | null;
+  frameImageUrl: string | null;
+  bannerImageUrl: string | null;
+  titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
+  themeItemId: number | null;
+  themeName: string | null;
+}
+
+export const EQUIPABLE_ITEM_TYPES = ['Avatar', 'ProfileFrame', 'ProfileBanner', 'Title', 'Badge', 'Theme'];

@@ -10,6 +10,7 @@ export interface BattleParticipantDto {
   rank: number | null;
   passedTestCases: number;
   totalTestCases: number;
+  frameImageUrl: string | null;
 }
 
 export interface BattleDto {

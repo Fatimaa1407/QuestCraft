@@ -9,6 +9,7 @@ import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { FramedAvatar } from '../../components/ui/FramedAvatar';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 const periods: LeaderboardPeriod[] = ['Daily', 'Weekly', 'Monthly', 'AllTime'];
@@ -144,6 +145,8 @@ export function LeaderboardPage() {
                     avatarUrl: user.avatarUrl,
                     xp: myRank.xp,
                     level: myRank.level,
+                    frameImageUrl: null,
+                    titleText: null,
                   }}
                   isMe
                   index={0}
@@ -180,14 +183,8 @@ function PodiumCard({ entry, isMe, big, order }: { entry: LeaderboardEntry; isMe
       >
         <span className={`text-xs font-bold uppercase tracking-widest ${style.label}`}>#{entry.rank}</span>
 
-        <div
-          className={`relative mt-3 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 font-bold text-white ${style.ring} ${style.avatarSize}`}
-        >
-          {entry.avatarUrl ? (
-            <img src={entry.avatarUrl} alt="" className="h-full w-full rounded-full object-cover" />
-          ) : (
-            entry.username.charAt(0).toUpperCase()
-          )}
+        <div className={`relative mt-3 flex items-center justify-center rounded-full font-bold text-white ${style.ring}`}>
+          <FramedAvatar username={entry.username} avatarUrl={entry.avatarUrl} frameImageUrl={entry.frameImageUrl} size={entry.rank === 1 ? 96 : 80} />
           <span className={`absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full shadow-lg ${style.badge}`}>
             <Icon size={16} />
           </span>
@@ -197,6 +194,7 @@ function PodiumCard({ entry, isMe, big, order }: { entry: LeaderboardEntry; isMe
           {entry.username}
           {isMe && <span className="ml-1 text-xs font-normal text-blue-600 dark:text-cyan-400">({t('leaderboard.you')})</span>}
         </p>
+        {entry.titleText && <p className="text-[11px] font-medium text-blue-600 dark:text-cyan-400">{entry.titleText}</p>}
         <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Lvl {entry.level}</p>
         <p className="mt-2 flex items-center gap-1 text-lg font-bold text-blue-600 dark:text-cyan-400">
           <Zap size={16} />
@@ -233,16 +231,13 @@ function LeaderboardRow({ entry, isMe, index }: { entry: LeaderboardEntry; isMe:
       <span className="w-6 shrink-0 text-center text-sm font-semibold text-slate-400 dark:text-slate-500">
         {entry.rank}
       </span>
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-sm font-semibold text-white">
-        {entry.avatarUrl ? (
-          <img src={entry.avatarUrl} alt="" className="h-full w-full rounded-full object-cover" />
-        ) : (
-          entry.username.charAt(0).toUpperCase()
-        )}
-      </div>
-      <span className="flex-1 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
-        {entry.username}
-        {isMe && <span className="ml-1 text-xs font-normal text-blue-600 dark:text-cyan-400">({t('leaderboard.you')})</span>}
+      <FramedAvatar username={entry.username} avatarUrl={entry.avatarUrl} frameImageUrl={entry.frameImageUrl} size={36} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
+          {entry.username}
+          {isMe && <span className="text-xs font-normal text-blue-600 dark:text-cyan-400">({t('leaderboard.you')})</span>}
+        </span>
+        {entry.titleText && <span className="block truncate text-[11px] text-blue-600 dark:text-cyan-400">{entry.titleText}</span>}
       </span>
       <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">Lvl {entry.level}</span>
       <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blue-600 dark:text-cyan-400">

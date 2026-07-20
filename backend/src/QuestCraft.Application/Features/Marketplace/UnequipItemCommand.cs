@@ -6,28 +6,22 @@ using QuestCraft.Domain.Entities;
 
 namespace QuestCraft.Application.Features.Marketplace;
 
-public record EquipItemCommand(int ItemId) : ICommand<Unit>;
+public record UnequipItemCommand(int ItemId) : ICommand<Unit>;
 
-public class EquipItemCommandHandler : IRequestHandler<EquipItemCommand, Unit>
+public class UnequipItemCommandHandler : IRequestHandler<UnequipItemCommand, Unit>
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUser;
 
-    public EquipItemCommandHandler(IApplicationDbContext context, ICurrentUserService currentUser)
+    public UnequipItemCommandHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
         _currentUser = currentUser;
     }
 
-    public async Task<Unit> Handle(EquipItemCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(UnequipItemCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
-
-        var owned = await _context.Purchases.AnyAsync(p => p.UserId == userId && p.MarketplaceItemId == request.ItemId, cancellationToken);
-        if (!owned)
-        {
-            throw new BadRequestException("Bu məhsulu almamısınız.");
-        }
 
         var item = await _context.MarketplaceItems.Include(i => i.ItemType)
             .FirstOrDefaultAsync(i => i.Id == request.ItemId, cancellationToken)
@@ -38,26 +32,26 @@ public class EquipItemCommandHandler : IRequestHandler<EquipItemCommand, Unit>
 
         switch (item.ItemType.Name)
         {
-            case "ProfileFrame":
-                profile.EquippedFrameId = item.Id;
+            case "ProfileFrame" when profile.EquippedFrameId == item.Id:
+                profile.EquippedFrameId = null;
                 break;
-            case "Title":
-                profile.EquippedTitleId = item.Id;
+            case "Title" when profile.EquippedTitleId == item.Id:
+                profile.EquippedTitleId = null;
                 break;
-            case "Theme":
-                profile.EquippedThemeId = item.Id;
+            case "Theme" when profile.EquippedThemeId == item.Id:
+                profile.EquippedThemeId = null;
                 break;
-            case "Avatar":
-                profile.EquippedAvatarId = item.Id;
+            case "Avatar" when profile.EquippedAvatarId == item.Id:
+                profile.EquippedAvatarId = null;
                 break;
-            case "ProfileBanner":
-                profile.EquippedBannerId = item.Id;
+            case "ProfileBanner" when profile.EquippedBannerId == item.Id:
+                profile.EquippedBannerId = null;
                 break;
-            case "Badge":
-                profile.EquippedBadgeId = item.Id;
+            case "Badge" when profile.EquippedBadgeId == item.Id:
+                profile.EquippedBadgeId = null;
                 break;
             default:
-                throw new BadRequestException("Bu tip məhsul taxıla bilməz.");
+                throw new BadRequestException("Bu məhsul taxılı deyil.");
         }
 
         await _context.SaveChangesAsync(cancellationToken);

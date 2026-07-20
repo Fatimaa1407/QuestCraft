@@ -31,4 +31,11 @@ public class ProfileController : ControllerBase
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(ApiResponse<MyProfileDto>.Ok(result, "Profil yeniləndi."));
     }
+
+    [HttpGet("me/equipped")]
+    public async Task<ActionResult<ApiResponse<EquippedCosmeticsDto>>> GetMyEquipped(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetMyEquippedCosmeticsQuery(), cancellationToken);
+        return Ok(ApiResponse<EquippedCosmeticsDto>.Ok(result));
+    }
 }

@@ -21,4 +21,13 @@ public class UserProfile : BaseEntity
 
     public int? EquippedThemeId { get; set; }
     public MarketplaceItem? EquippedTheme { get; set; }
+
+    public int? EquippedAvatarId { get; set; }
+    public MarketplaceItem? EquippedAvatar { get; set; }
+
+    public int? EquippedBannerId { get; set; }
+    public MarketplaceItem? EquippedBanner { get; set; }
+
+    public int? EquippedBadgeId { get; set; }
+    public MarketplaceItem? EquippedBadge { get; set; }
 }

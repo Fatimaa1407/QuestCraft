@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Lightbulb, UserCircle, Frame, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake } from 'lucide-react';
-import { getMarketplaceItems, getItemTypes, purchaseItem, equipItem } from '../../api/marketplace';
+import { Lightbulb, UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake, X } from 'lucide-react';
+import { getMarketplaceItems, getItemTypes, purchaseItem, equipItem, unequipItem, getMyPurchases } from '../../api/marketplace';
 import { EQUIPABLE_ITEM_TYPES } from '../../types/marketplace';
 import { getRarity, RARITY_STYLES } from '../../utils/rarity';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
@@ -19,6 +19,7 @@ const typeIcons: Record<string, typeof Lightbulb> = {
   Hint: Lightbulb,
   Avatar: UserCircle,
   ProfileFrame: Frame,
+  ProfileBanner: Image,
   Theme: Palette,
   Badge: Award,
   Title: Type,
@@ -30,6 +31,7 @@ const typeEmoji: Record<string, string> = {
   Badge: '🏅',
   Hint: '💡',
   ProfileFrame: '🖼️',
+  ProfileBanner: '🏳️',
   Theme: '🎨',
   Title: '👑',
   StreakFreeze: '❄️',
@@ -51,6 +53,14 @@ export function ShopPage() {
     queryKey: ['marketplace', 'items', typeId],
     queryFn: () => getMarketplaceItems(typeId),
   });
+  const purchasesQuery = useQuery({ queryKey: ['marketplace', 'my-purchases'], queryFn: getMyPurchases });
+  const equippedItemIds = new Set((purchasesQuery.data ?? []).filter((p) => p.isEquipped).map((p) => p.marketplaceItemId));
+
+  const invalidateEquipState = () => {
+    queryClient.invalidateQueries({ queryKey: ['marketplace', 'items'] });
+    queryClient.invalidateQueries({ queryKey: ['marketplace', 'my-purchases'] });
+    queryClient.invalidateQueries({ queryKey: ['profile', 'equipped'] });
+  };
 
   const showFeedback = (type: 'success' | 'error', text: string) => {
     setFeedback({ type, text });
@@ -62,7 +72,7 @@ export function ShopPage() {
     onSuccess: (result, itemId) => {
       if (!result) return;
       updateUser({ coins: result.remainingCoins });
-      queryClient.invalidateQueries({ queryKey: ['marketplace', 'items'] });
+      invalidateEquipState();
       playSuccessSound();
       setJustPurchasedId(itemId);
       setTimeout(() => setJustPurchasedId(null), 1300);
@@ -77,8 +87,22 @@ export function ShopPage() {
   const equipMutation = useMutation({
     mutationFn: equipItem,
     onSuccess: () => {
+      invalidateEquipState();
       playSuccessSound();
       showFeedback('success', t('shop.equipSuccess'));
+    },
+    onError: (err) => {
+      playErrorSound();
+      showFeedback('error', getApiErrorMessage(err, t('shop.actionError')));
+    },
+  });
+
+  const unequipMutation = useMutation({
+    mutationFn: unequipItem,
+    onSuccess: () => {
+      invalidateEquipState();
+      playSuccessSound();
+      showFeedback('success', t('shop.unequipSuccess'));
     },
     onError: (err) => {
       playErrorSound();
@@ -173,6 +197,7 @@ export function ShopPage() {
           {items.map((item) => {
             const Icon = typeIcons[item.itemType] ?? ShoppingBag;
             const isEquipable = EQUIPABLE_ITEM_TYPES.includes(item.itemType);
+            const isEquipped = equippedItemIds.has(item.id);
             const canAfford = (user?.coins ?? 0) >= item.price;
             const rarity = getRarity(item.price);
             const rarityStyle = RARITY_STYLES[rarity];
@@ -194,9 +219,15 @@ export function ShopPage() {
                   )}
 
                   {item.isOwned && (
-                    <div className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <div
+                      className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold ${
+                        isEquipped
+                          ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/10 text-blue-600 dark:text-cyan-400'
+                          : 'bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
                       <Check size={13} />
-                      {t('shop.owned')}
+                      {isEquipped ? t('shop.equipped') : t('shop.owned')}
                     </div>
                   )}
 
@@ -231,21 +262,33 @@ export function ShopPage() {
 
                       {item.isOwned ? (
                         isEquipable ? (
-                          <motion.button
-                            {...buttonTap}
-                            onClick={() => equipMutation.mutate(item.id)}
-                            disabled={equipMutation.isPending}
-                            className="rounded-full border border-blue-400 px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/10 disabled:opacity-50 dark:text-cyan-400"
-                          >
-                            {t('shop.equip')}
-                          </motion.button>
+                          isEquipped ? (
+                            <motion.button
+                              {...buttonTap}
+                              onClick={() => unequipMutation.mutate(item.id)}
+                              disabled={unequipMutation.isPending}
+                              className="flex items-center gap-1 rounded-full border border-slate-300 px-3.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-500/10 disabled:opacity-50 dark:border-white/20 dark:text-slate-300"
+                            >
+                              <X size={11} />
+                              {t('shop.unequip')}
+                            </motion.button>
+                          ) : (
+                            <motion.button
+                              {...buttonTap}
+                              onClick={() => equipMutation.mutate(item.id)}
+                              disabled={equipMutation.isPending}
+                              className="rounded-full border border-blue-400 px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/10 disabled:opacity-50 dark:text-cyan-400"
+                            >
+                              {t('shop.equip')}
+                            </motion.button>
+                          )
                         ) : null
                       ) : canAfford ? (
                         <motion.button
                           {...buttonTap}
                           onClick={() => purchaseMutation.mutate(item.id)}
                           disabled={purchaseMutation.isPending}
-                          className="rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm shadow-blue-500/30"
+                          className="rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm shadow-blue-500/30"
                         >
                           {t('shop.buy')}
                         </motion.button>

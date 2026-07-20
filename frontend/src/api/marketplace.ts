@@ -1,6 +1,6 @@
 import { apiClient } from './client';
 import type { ApiResponse } from '../types/api';
-import type { ItemTypeDto, MarketplaceItemDto, MyPurchaseDto, PurchaseResultDto } from '../types/marketplace';
+import type { EquippedCosmeticsDto, ItemTypeDto, MarketplaceItemDto, MyPurchaseDto, PurchaseResultDto } from '../types/marketplace';
 
 export async function getMarketplaceItems(typeId?: number): Promise<MarketplaceItemDto[]> {
   const { data } = await apiClient.get<ApiResponse<MarketplaceItemDto[]>>('/api/marketplace/items', {
@@ -23,7 +23,16 @@ export async function equipItem(id: number): Promise<void> {
   await apiClient.post(`/api/marketplace/items/${id}/equip`);
 }
 
+export async function unequipItem(id: number): Promise<void> {
+  await apiClient.post(`/api/marketplace/items/${id}/unequip`);
+}
+
 export async function getMyPurchases(): Promise<MyPurchaseDto[]> {
   const { data } = await apiClient.get<ApiResponse<MyPurchaseDto[]>>('/api/marketplace/my-purchases');
   return data.data ?? [];
+}
+
+export async function getMyEquippedCosmetics(): Promise<EquippedCosmeticsDto | null> {
+  const { data } = await apiClient.get<ApiResponse<EquippedCosmeticsDto>>('/api/profile/me/equipped');
+  return data.data;
 }

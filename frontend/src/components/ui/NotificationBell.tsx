@@ -5,9 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck, CalendarDays, UserPlus, UserCheck } from 'lucide-react';
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/notifications';
+import { getMyEquippedCosmetics } from '../../api/marketplace';
+import { useAuthStore } from '../../app/authStore';
 import type { AppNotification, NotificationType } from '../../types/notification';
 import { Z_INDEX } from '../../styles/zIndex';
 import { useRelativeTime } from '../../utils/useRelativeTime';
+import { FramedAvatar } from './FramedAvatar';
 
 const MAX_NOTIFICATIONS = 30;
 
@@ -63,6 +66,12 @@ export function NotificationBell() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const formatRelative = useRelativeTime();
+  const user = useAuthStore((s) => s.user);
+  const { data: equipped } = useQuery({
+    queryKey: ['profile', 'equipped'],
+    queryFn: getMyEquippedCosmetics,
+    enabled: !!user,
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState<PanelPosition | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -174,6 +183,12 @@ export function NotificationBell() {
             >
               <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 dark:border-white/[0.06]">
                 <span className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  <FramedAvatar
+                    username={user?.firstName ?? user?.username ?? '?'}
+                    avatarUrl={equipped?.avatarUrl ?? user?.avatarUrl}
+                    frameImageUrl={equipped?.frameImageUrl}
+                    size={22}
+                  />
                   {t('notifications.title')}
                   {unreadCount > 0 && (
                     <span className="text-xs font-normal text-slate-500 dark:text-slate-400">{t('notifications.unreadBadge', { count: unreadCount })}</span>

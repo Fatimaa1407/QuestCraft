@@ -24,11 +24,12 @@ public static class BattleMapper
             .Select(p => new BattleParticipantDto(
                 p.UserId,
                 p.User.Username,
-                p.User.Profile != null ? p.User.Profile.AvatarUrl : null,
+                p.User.Profile != null ? (p.User.Profile.EquippedAvatar != null ? p.User.Profile.EquippedAvatar.ImageUrl : p.User.Profile.AvatarUrl) : null,
                 p.HasFinished,
                 p.FinishedAt,
                 p.Rank,
                 p.PassedTestCases,
-                p.TotalTestCases))
+                p.TotalTestCases,
+                p.User.Profile != null && p.User.Profile.EquippedFrame != null ? p.User.Profile.EquippedFrame.ImageUrl : null))
             .ToList());
 }

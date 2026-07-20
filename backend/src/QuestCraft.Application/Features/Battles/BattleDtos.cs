@@ -2,7 +2,7 @@ namespace QuestCraft.Application.Features.Battles;
 
 public record BattleParticipantDto(
     int UserId, string Username, string? AvatarUrl, bool HasFinished, DateTime? FinishedAt,
-    int? Rank, int PassedTestCases, int TotalTestCases);
+    int? Rank, int PassedTestCases, int TotalTestCases, string? FrameImageUrl);
 
 public record BattleDto(
     int Id, string Mode, string Status, int ChallengeId, string ChallengeTitle, int TimeLimitMs,

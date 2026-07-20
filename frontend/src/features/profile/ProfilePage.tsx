@@ -2,10 +2,10 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy } from 'lucide-react';
+import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { getMyProfile, updateMyProfile } from '../../api/profile';
-import { getMyPurchases } from '../../api/marketplace';
+import { getMyPurchases, getMyEquippedCosmetics, equipItem, unequipItem } from '../../api/marketplace';
 import { getDashboardAnalytics, getMyRank } from '../../api/gamification';
 import { getMySubmissions } from '../../api/submissions';
 import { getMyQuizAttempts } from '../../api/quizzes';
@@ -14,15 +14,19 @@ import { StatCard } from '../../components/ui/StatCard';
 import { Textarea } from '../../components/ui/Textarea';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { FramedAvatar } from '../../components/ui/FramedAvatar';
 import { CategoryBreakdown } from '../dashboard/CategoryBreakdown';
 import { ActivityFeed } from '../dashboard/ActivityFeed';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import { motion } from 'framer-motion';
 
 const equippedTypeIcons: Record<string, typeof Frame> = {
+  Avatar: UserCircle,
   ProfileFrame: Frame,
+  ProfileBanner: Image,
   Theme: Palette,
   Title: Type,
+  Badge: Award,
 };
 
 export function ProfilePage() {
@@ -33,6 +37,7 @@ export function ProfilePage() {
   const [isDirty, setIsDirty] = useState(false);
 
   const profileQuery = useQuery({ queryKey: ['profile', 'me'], queryFn: getMyProfile });
+  const equippedQuery = useQuery({ queryKey: ['profile', 'equipped'], queryFn: getMyEquippedCosmetics });
   const purchasesQuery = useQuery({ queryKey: ['marketplace', 'my-purchases'], queryFn: getMyPurchases });
   const rankQuery = useQuery({ queryKey: ['gamification', 'my-rank'], queryFn: () => getMyRank('AllTime') });
   const analyticsQuery = useQuery({ queryKey: ['dashboard-analytics'], queryFn: getDashboardAnalytics });
@@ -64,32 +69,60 @@ export function ProfilePage() {
     saveMutation.mutate();
   };
 
+  const invalidateEquipState = () => {
+    queryClient.invalidateQueries({ queryKey: ['marketplace', 'items'] });
+    queryClient.invalidateQueries({ queryKey: ['marketplace', 'my-purchases'] });
+    queryClient.invalidateQueries({ queryKey: ['profile', 'equipped'] });
+  };
+  const equipMutation = useMutation({ mutationFn: equipItem, onSuccess: invalidateEquipState });
+  const unequipMutation = useMutation({ mutationFn: unequipItem, onSuccess: invalidateEquipState });
+
   const equippedItems = (purchasesQuery.data ?? []).filter((p) => p.isEquipped);
+  const equipped = equippedQuery.data;
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
       <motion.div variants={fadeInUp}>
-        <GlassCard className="flex flex-col items-center gap-4 p-8 text-center sm:flex-row sm:text-left">
-          {user?.avatarUrl ? (
-            <img src={user.avatarUrl} alt="" className="h-20 w-20 rounded-full object-cover" />
-          ) : (
-            <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-2xl font-semibold text-white">
-              {(user?.firstName ?? user?.username ?? '?').charAt(0).toUpperCase()}
-            </span>
-          )}
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {user?.firstName} {user?.lastName}
-            </h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@{user?.username}</p>
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-cyan-400">
-                {user?.role}
-              </span>
-              <span className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <Mail size={13} />
-                {user?.email}
-              </span>
+        <GlassCard className="overflow-hidden p-0">
+          <div
+            className="h-24 w-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 sm:h-28"
+            style={equipped?.bannerImageUrl ? { backgroundImage: `url(${equipped.bannerImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+          />
+          <div className="flex flex-col items-center gap-4 px-8 pb-8 pt-0 text-center sm:flex-row sm:text-left">
+            <FramedAvatar
+              username={user?.firstName ?? user?.username ?? '?'}
+              avatarUrl={equipped?.avatarUrl ?? user?.avatarUrl}
+              frameImageUrl={equipped?.frameImageUrl}
+              size={80}
+              className="-mt-10 shrink-0 rounded-full ring-4 ring-white dark:ring-slate-900"
+            />
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                {user?.firstName} {user?.lastName}
+              </h1>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@{user?.username}</p>
+              {equipped?.titleText && (
+                <p className="mt-0.5 text-xs font-semibold text-blue-600 dark:text-cyan-400">{equipped.titleText}</p>
+              )}
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-cyan-400">
+                  {user?.role}
+                </span>
+                {equipped?.badgeName && (
+                  <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                    {equipped.badgeImageUrl ? (
+                      <img src={equipped.badgeImageUrl} alt="" className="h-3.5 w-3.5 rounded-full" />
+                    ) : (
+                      <Award size={13} />
+                    )}
+                    {equipped.badgeName}
+                  </span>
+                )}
+                <span className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <Mail size={13} />
+                  {user?.email}
+                </span>
+              </div>
             </div>
           </div>
         </GlassCard>
@@ -172,13 +205,22 @@ export function ProfilePage() {
                     key={item.id}
                     className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-                      <Icon size={16} />
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                      {item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : <Icon size={16} />}
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{item.itemName}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{item.itemType}</p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => unequipMutation.mutate(item.marketplaceItemId)}
+                      disabled={unequipMutation.isPending}
+                      className="flex shrink-0 items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:bg-slate-500/10 disabled:opacity-50 dark:border-white/20 dark:text-slate-300"
+                    >
+                      <X size={10} />
+                      {t('shop.unequip')}
+                    </button>
                   </div>
                 );
               })}
@@ -186,6 +228,46 @@ export function ProfilePage() {
           )}
         </GlassCard>
       </motion.div>
+
+      {(purchasesQuery.data ?? []).some((p) => !p.isEquipped) && (
+        <motion.div variants={fadeInUp}>
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('profile.inventoryTitle')}</h2>
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {(purchasesQuery.data ?? [])
+                .filter((p) => !p.isEquipped)
+                .map((item) => {
+                  const Icon = equippedTypeIcons[item.itemType] ?? Frame;
+                  const isEquipableType = Object.prototype.hasOwnProperty.call(equippedTypeIcons, item.itemType);
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                        {item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : <Icon size={16} />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{item.itemName}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{item.itemType}</p>
+                      </div>
+                      {isEquipableType && (
+                        <button
+                          type="button"
+                          onClick={() => equipMutation.mutate(item.marketplaceItemId)}
+                          disabled={equipMutation.isPending}
+                          className="shrink-0 rounded-full border border-blue-400 px-2.5 py-1 text-[11px] font-medium text-blue-600 transition-colors hover:bg-blue-500/10 disabled:opacity-50 dark:text-cyan-400"
+                        >
+                          {t('shop.equip')}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
 
       <motion.div variants={fadeInUp}>
         <GlassCard className="p-6">

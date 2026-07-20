@@ -70,7 +70,7 @@ export function Sidebar() {
                 {isActive && (
                   <motion.span
                     layoutId="sidebar-active-indicator"
-                    className="absolute -left-2.5 h-5 w-1 rounded-full bg-gradient-to-b from-blue-500 to-cyan-500"
+                    className="absolute -left-2.5 h-5 w-1 rounded-full bg-gradient-to-b from-app-accent to-app-accent-2"
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
                 )}
