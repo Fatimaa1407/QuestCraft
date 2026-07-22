@@ -42,7 +42,7 @@ export function Sidebar() {
         <NavLink
           to="/"
           title={t('app.name')}
-          className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25"
+          className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-app-accent to-app-accent-2 text-white shadow-lg shadow-app-accent/25"
         >
           <Code2 size={24} strokeWidth={2.25} />
         </NavLink>
@@ -60,7 +60,7 @@ export function Sidebar() {
             className={({ isActive }: { isActive: boolean }) =>
               `relative flex h-12 w-12 items-center justify-center rounded-2xl transition-colors ${
                 isActive
-                  ? 'bg-blue-500/15 text-blue-600 shadow-[0_0_16px_rgba(59,130,246,0.35)] dark:bg-blue-500/20 dark:text-cyan-400 dark:shadow-[0_0_16px_rgba(6,182,212,0.35)]'
+                  ? 'bg-app-accent/15 text-app-accent shadow-[0_0_16px_color-mix(in_srgb,var(--color-app-accent)_35%,transparent)] dark:bg-app-accent/20 dark:text-app-accent-2 dark:shadow-[0_0_16px_color-mix(in_srgb,var(--color-app-accent-2)_35%,transparent)]'
                   : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-white/5 dark:hover:text-slate-200'
               }`
             }

@@ -9,7 +9,7 @@ namespace QuestCraft.Application.Features.Gamification;
 
 public record LeaderboardEntryDto(
     int Rank, int UserId, string Username, string? AvatarUrl, int Xp, int Level,
-    string? FrameImageUrl, string? TitleText);
+    string? FrameImageUrl, string? TitleText, string? BadgeImageUrl, string? BadgeName);
 
 public record GetLeaderboardQuery(LeaderboardPeriod Period, int Top) : IQuery<List<LeaderboardEntryDto>>;
 
@@ -63,12 +63,16 @@ public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, L
                     FrameImageUrl = p.EquippedFrame != null ? p.EquippedFrame.ImageUrl : null,
                     TitleName = p.EquippedTitle != null ? p.EquippedTitle.Name : null,
                     TitleNameEn = p.EquippedTitle != null ? p.EquippedTitle.NameEn : null,
+                    BadgeImageUrl = p.EquippedBadge != null ? p.EquippedBadge.ImageUrl : null,
+                    BadgeName = p.EquippedBadge != null ? p.EquippedBadge.Name : null,
+                    BadgeNameEn = p.EquippedBadge != null ? p.EquippedBadge.NameEn : null,
                 })
                 .ToListAsync(cancellationToken);
 
             return allTime.Select((p, i) => new LeaderboardEntryDto(
                 i + 1, p.UserId, p.Username, p.EquippedAvatarUrl ?? p.AvatarUrl, p.Xp, p.Level,
-                p.FrameImageUrl, LocalizationHelper.PickNullable(p.TitleName, p.TitleNameEn, isEnglish)))
+                p.FrameImageUrl, LocalizationHelper.PickNullable(p.TitleName, p.TitleNameEn, isEnglish),
+                p.BadgeImageUrl, LocalizationHelper.PickNullable(p.BadgeName, p.BadgeNameEn, isEnglish)))
                 .ToList();
         }
 
@@ -95,6 +99,7 @@ public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, L
             .Include(p => p.EquippedAvatar)
             .Include(p => p.EquippedFrame)
             .Include(p => p.EquippedTitle)
+            .Include(p => p.EquippedBadge)
             .Where(p => userIds.Contains(p.UserId))
             .ToDictionaryAsync(p => p.UserId, cancellationToken);
 
@@ -106,7 +111,9 @@ public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, L
                 return new LeaderboardEntryDto(
                     i + 1, g.UserId, profile.User.Username, profile.EquippedAvatar?.ImageUrl ?? profile.AvatarUrl, g.Xp, profile.Level,
                     profile.EquippedFrame?.ImageUrl,
-                    profile.EquippedTitle is null ? null : LocalizationHelper.Pick(profile.EquippedTitle.Name, profile.EquippedTitle.NameEn, isEnglish));
+                    profile.EquippedTitle is null ? null : LocalizationHelper.Pick(profile.EquippedTitle.Name, profile.EquippedTitle.NameEn, isEnglish),
+                    profile.EquippedBadge?.ImageUrl,
+                    profile.EquippedBadge is null ? null : LocalizationHelper.Pick(profile.EquippedBadge.Name, profile.EquippedBadge.NameEn, isEnglish));
             })
             .ToList();
     }

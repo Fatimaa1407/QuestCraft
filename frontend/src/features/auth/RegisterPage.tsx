@@ -10,6 +10,11 @@ import { PasswordField } from '../../components/ui/PasswordField';
 import { PasswordStrengthChecklist } from '../../components/ui/PasswordStrengthChecklist';
 import { Button } from '../../components/ui/Button';
 
+// Mirrors the backend's RegisterCommandValidator regex — HTML5 `type="email"` alone accepts things
+// like "ali@gmailcom" (no TLD) or "ali..test@gmail.com" (consecutive dots), so this closes that gap
+// on the client too: no leading/trailing/consecutive dots, no spaces, a real domain.tld shape.
+const EMAIL_PATTERN = /^(?!.*\.\.)(?!\.)[^@\s]+(?<!\.)@(?!\.)[^@\s]+\.[a-zA-Z]{2,}$/;
+
 export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -26,6 +31,11 @@ export function RegisterPage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+
+    if (!EMAIL_PATTERN.test(email)) {
+      setError(t('auth.register.emailInvalid'));
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError(t('auth.register.passwordMismatch'));
@@ -93,6 +103,8 @@ export function RegisterPage() {
           placeholder={t('auth.register.emailPlaceholder')}
           icon={<Mail size={16} />}
           required
+          pattern={EMAIL_PATTERN.source}
+          title={t('auth.register.emailInvalid')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />

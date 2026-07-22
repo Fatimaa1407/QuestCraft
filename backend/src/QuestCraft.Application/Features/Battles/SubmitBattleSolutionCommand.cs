@@ -48,6 +48,8 @@ public class SubmitBattleSolutionCommandHandler : IRequestHandler<SubmitBattleSo
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedTitle)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedBadge)
             .FirstOrDefaultAsync(b => b.Id == request.BattleId, cancellationToken)
             ?? throw new NotFoundException(nameof(Battle), request.BattleId);
 
@@ -115,7 +117,7 @@ public class SubmitBattleSolutionCommandHandler : IRequestHandler<SubmitBattleSo
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        var dto = BattleMapper.ToDto(battle);
+        var dto = BattleMapper.ToDto(battle, _currentUser.IsEnglish);
         await _battleHubNotifier.NotifyBattleUpdated(battle.Id, dto, cancellationToken);
 
         return new BattleSubmissionResultDto(allPassed, passedCount, testCaseInputs.Count, execution.CompileErrorMessage, dto);

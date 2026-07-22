@@ -11,6 +11,9 @@ export interface BattleParticipantDto {
   passedTestCases: number;
   totalTestCases: number;
   frameImageUrl: string | null;
+  titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
 }
 
 export interface BattleDto {

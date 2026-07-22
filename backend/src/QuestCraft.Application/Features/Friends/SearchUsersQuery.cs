@@ -34,7 +34,13 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, List<Us
             .Where(p => p.UserId != userId && p.User.Username.Contains(term))
             .OrderBy(p => p.User.Username)
             .Take(20)
-            .Select(p => new { p.UserId, p.User.Username, p.AvatarUrl, p.Level })
+            .Select(p => new
+            {
+                p.UserId, p.User.Username,
+                AvatarUrl = p.EquippedAvatar != null ? p.EquippedAvatar.ImageUrl : p.AvatarUrl,
+                p.Level,
+                FrameImageUrl = p.EquippedFrame != null ? p.EquippedFrame.ImageUrl : null,
+            })
             .ToListAsync(cancellationToken);
 
         var candidateIds = candidates.Select(c => c.UserId).ToList();
@@ -53,7 +59,7 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, List<Us
                 { Status: FriendRequestStatus.Pending } => "PendingReceived",
                 _ => "None",
             };
-            return new UserSearchResultDto(c.UserId, c.Username, c.AvatarUrl, c.Level, status);
+            return new UserSearchResultDto(c.UserId, c.Username, c.AvatarUrl, c.Level, status, c.FrameImageUrl);
         }).ToList();
     }
 }

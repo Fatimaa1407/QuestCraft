@@ -51,6 +51,8 @@ export interface LeaderboardEntry {
   level: number;
   frameImageUrl: string | null;
   titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
 }
 
 export interface XpDayPoint {

@@ -17,7 +17,10 @@ export interface MarketplaceItemDto {
 
 export interface PurchaseResultDto {
   purchaseId: number;
+  marketplaceItemId: number;
   itemName: string;
+  itemType: string;
+  imageUrl: string | null;
   pricePaid: number;
   remainingCoins: number;
 }

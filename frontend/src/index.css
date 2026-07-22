@@ -61,9 +61,15 @@ body {
   backdrop-filter: blur(20px);
 }
 
-/* Subtle animated gradient ring, shown only on hover via opacity (see GlassCard `glow` prop). */
+/* Subtle animated gradient ring, shown only on hover via opacity (see GlassCard `glow` prop).
+   Driven by the accent CSS vars so an equipped Theme re-colors it along with everything else. */
 .glow-card-border {
-  background: linear-gradient(120deg, rgba(59, 130, 246, 0.55), rgba(6, 182, 212, 0.55), rgba(59, 130, 246, 0.55));
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--color-app-accent) 55%, transparent),
+    color-mix(in srgb, var(--color-app-accent-2) 55%, transparent),
+    color-mix(in srgb, var(--color-app-accent) 55%, transparent)
+  );
   background-size: 200% 200%;
   animation: glow-shift 3s ease infinite;
   padding: 1px;
@@ -308,6 +314,23 @@ body {
 
 .animate-card-pulse {
   animation: card-pulse 0.5s ease-out;
+}
+
+/* Slow-spinning accent-colored ring behind an equipped profile frame — "animated border" cosmetic. */
+@keyframes frame-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-frame-spin {
+  animation: frame-spin 5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-frame-spin {
+    animation: none;
+  }
 }
 
 @keyframes toast-pop {

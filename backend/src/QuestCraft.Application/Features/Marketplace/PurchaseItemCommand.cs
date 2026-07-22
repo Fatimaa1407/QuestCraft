@@ -30,7 +30,8 @@ public class PurchaseItemCommandHandler : IRequestHandler<PurchaseItemCommand, P
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken)
             ?? throw new NotFoundException(nameof(UserProfile), userId);
 
-        var item = await _context.MarketplaceItems.FirstOrDefaultAsync(i => i.Id == request.ItemId && i.IsActive, cancellationToken)
+        var item = await _context.MarketplaceItems.Include(i => i.ItemType)
+            .FirstOrDefaultAsync(i => i.Id == request.ItemId && i.IsActive, cancellationToken)
             ?? throw new NotFoundException(nameof(MarketplaceItem), request.ItemId);
 
         var alreadyOwned = await _context.Purchases.AnyAsync(p => p.UserId == userId && p.MarketplaceItemId == item.Id, cancellationToken);
@@ -72,6 +73,8 @@ public class PurchaseItemCommandHandler : IRequestHandler<PurchaseItemCommand, P
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new PurchaseResultDto(purchase.Id, LocalizationHelper.Pick(item.Name, item.NameEn, _currentUser.IsEnglish), item.Price, profile.Coins);
+        return new PurchaseResultDto(
+            purchase.Id, item.Id, LocalizationHelper.Pick(item.Name, item.NameEn, _currentUser.IsEnglish),
+            item.ItemType.Name, item.ImageUrl, item.Price, profile.Coins);
     }
 }

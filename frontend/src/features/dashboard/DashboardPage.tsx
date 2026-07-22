@@ -126,7 +126,7 @@ export function DashboardPage() {
                         {...buttonTap}
                         onClick={() => claimMutation.mutate(quest.id)}
                         disabled={claimMutation.isPending}
-                        className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 text-xs font-medium text-white shadow-sm shadow-blue-500/30 disabled:opacity-50"
+                        className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-3 py-1 text-xs font-medium text-white shadow-sm shadow-app-accent/30 disabled:opacity-50"
                       >
                         <Gift size={13} />
                         {t('dashboard.claim')}
@@ -140,7 +140,7 @@ export function DashboardPage() {
                   </div>
                   <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/[0.06]">
                     <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500"
+                      className="h-full rounded-full bg-gradient-to-r from-app-accent to-app-accent-2"
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min(100, (quest.currentProgress / Math.max(1, quest.targetValue)) * 100)}%` }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -182,7 +182,7 @@ function LevelProgressPanel({ data, isLoading }: { data: LevelProgress | null | 
   return (
     <GlassCard hoverLift={false} className="p-6">
       <div className="mb-5 flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-cyan-400">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-app-accent/10 text-app-accent dark:text-app-accent-2">
           <TrendingUp size={16} />
         </div>
         <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -210,7 +210,7 @@ function LevelProgressPanel({ data, isLoading }: { data: LevelProgress | null | 
                 {data.challengesCompleted}/{data.challengesTotal}
               </span>
             </div>
-            <ProgressBar completed={data.challengesCompleted} total={data.challengesTotal} colorClass="bg-gradient-to-r from-blue-500 to-cyan-500" />
+            <ProgressBar completed={data.challengesCompleted} total={data.challengesTotal} colorClass="bg-gradient-to-r from-app-accent to-app-accent-2" />
           </div>
 
           <div>
@@ -246,7 +246,7 @@ function Panel({ icon: Icon, title, children }: { icon: typeof Zap; title: strin
   return (
     <GlassCard hoverLift={false} className="p-6">
       <div className="mb-5 flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-cyan-400">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-app-accent/10 text-app-accent dark:text-app-accent-2">
           <Icon size={16} />
         </div>
         <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h2>

@@ -11,7 +11,9 @@ public record MarketplaceItemDto(
     bool IsActive,
     bool IsOwned);
 
-public record PurchaseResultDto(int PurchaseId, string ItemName, int PricePaid, int RemainingCoins);
+public record PurchaseResultDto(
+    int PurchaseId, int MarketplaceItemId, string ItemName, string ItemType, string? ImageUrl,
+    int PricePaid, int RemainingCoins);
 
 public record MyPurchaseDto(
     int Id, int MarketplaceItemId, string ItemName, int ItemTypeId, string ItemType, string? ImageUrl,

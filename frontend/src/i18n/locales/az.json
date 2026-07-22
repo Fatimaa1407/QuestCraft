@@ -47,7 +47,8 @@
       "haveAccount": "Artıq hesabınız var?",
       "loginLink": "Daxil olun",
       "errorFallback": "Serverlə əlaqə qurula bilmədi. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.",
-      "passwordMismatch": "Şifrələr uyğun gəlmir."
+      "passwordMismatch": "Şifrələr uyğun gəlmir.",
+      "emailInvalid": "Email formatı düzgün deyil (məs: sizin@email.com)."
     }
   },
   "quiz": {
@@ -97,7 +98,14 @@
     "coinsLabel": "Coin-lər",
     "purchased": "Alındı!",
     "locked": "Kilidli",
-    "needMoreCoins": "Daha {{count}} coin lazımdır."
+    "needMoreCoins": "Daha {{count}} coin lazımdır.",
+    "newItemTitle": "Yeni əşya!",
+    "equipNow": "İndi Tax",
+    "equipping": "Taxılır...",
+    "maybeLater": "Sonra",
+    "close": "Bağla",
+    "toastEquipped": "Taxıldı",
+    "toastUnequipped": "Çıxarıldı"
   },
   "leaderboard": {
     "title": "Liderlik Lövhəsi",

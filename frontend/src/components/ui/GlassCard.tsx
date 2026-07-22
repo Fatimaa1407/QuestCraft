@@ -14,7 +14,11 @@ export function GlassCard({ className = '', hoverLift = true, glow = false, chil
       className={`glass-card group/card relative ${glow ? 'glow-card' : ''} ${className}`}
       whileHover={
         hoverLift
-          ? { y: -5, boxShadow: '0 28px 52px -20px rgba(0,0,0,0.35), 0 10px 28px -14px rgba(6,182,212,0.3)' }
+          ? {
+              y: -5,
+              boxShadow:
+                '0 28px 52px -20px rgba(0,0,0,0.35), 0 10px 28px -14px color-mix(in srgb, var(--color-app-accent-2) 30%, transparent)',
+            }
           : undefined
       }
       transition={spring}

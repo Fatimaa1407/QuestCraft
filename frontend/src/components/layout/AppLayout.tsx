@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { NotificationBell } from '../ui/NotificationBell';
 import { AmbientGlow } from '../ui/AmbientGlow';
 import { SeasonalEventBanner } from '../ui/SeasonalEventBanner';
 import { FramedAvatar } from '../ui/FramedAvatar';
+import { ToastStack } from '../ui/ToastStack';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
 import { pageTransition } from '../../utils/motion';
@@ -39,6 +40,22 @@ export function AppLayout() {
     applyAccentPalette(equipped?.themeName ?? null);
   }, [equipped?.themeName]);
 
+  // Brief pop animation on the navbar avatar whenever any equipped cosmetic changes, so the
+  // "coins produced a visual upgrade" moment is felt in the one spot visible on every page.
+  const [cosmeticFlash, setCosmeticFlash] = useState(false);
+  const prevCosmeticsKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (!equipped) return;
+    const key = `${equipped.avatarUrl ?? ''}|${equipped.frameImageUrl ?? ''}|${equipped.titleText ?? ''}|${equipped.badgeImageUrl ?? ''}`;
+    const changed = prevCosmeticsKey.current !== null && prevCosmeticsKey.current !== key;
+    prevCosmeticsKey.current = key;
+    if (changed) {
+      setCosmeticFlash(true);
+      const timer = window.setTimeout(() => setCosmeticFlash(false), 700);
+      return () => window.clearTimeout(timer);
+    }
+  }, [equipped]);
+
   return (
     <div className="relative flex min-h-svh bg-app-bg text-slate-900 dark:bg-gradient-to-br dark:from-[#0b1220] dark:via-[#0d1526] dark:to-[#0a0f1c] dark:text-slate-50">
       <AmbientGlow />
@@ -57,16 +74,20 @@ export function AppLayout() {
                 avatarUrl={equipped?.avatarUrl ?? user?.avatarUrl}
                 frameImageUrl={equipped?.frameImageUrl}
                 size={24}
+                className={cosmeticFlash ? 'animate-pop-in' : ''}
               />
               <span className="flex flex-col leading-tight">
-                <span className="text-slate-700 dark:text-slate-100">{user?.username}</span>
+                <span className="flex items-center gap-1 text-slate-700 dark:text-slate-100">
+                  {user?.username}
+                  {equipped?.badgeImageUrl && <img src={equipped.badgeImageUrl} alt="" title={equipped.badgeName ?? undefined} className="h-3.5 w-3.5 rounded-full" />}
+                </span>
                 {equipped?.titleText && (
-                  <span className="text-[10px] font-medium text-blue-600 dark:text-cyan-400">{equipped.titleText}</span>
+                  <span className="text-[10px] font-medium text-app-accent dark:text-app-accent-2">{equipped.titleText}</span>
                 )}
               </span>
               <span className="text-slate-400 dark:text-slate-600">·</span>
               <span className="text-slate-500 dark:text-slate-400">Lvl {animatedLevel}</span>
-              <span className="hidden text-blue-600 sm:inline dark:text-cyan-400">{animatedXp} XP</span>
+              <span className="hidden text-app-accent sm:inline dark:text-app-accent-2">{animatedXp} XP</span>
               <span className="hidden text-amber-500 sm:inline">{animatedCoins} 🪙</span>
             </div>
 
@@ -88,6 +109,7 @@ export function AppLayout() {
       </div>
 
       <MobileNav />
+      <ToastStack />
     </div>
   );
 }

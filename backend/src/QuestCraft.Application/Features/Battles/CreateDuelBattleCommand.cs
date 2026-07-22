@@ -87,8 +87,10 @@ public class CreateDuelBattleCommandHandler : IRequestHandler<CreateDuelBattleCo
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedTitle)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedBadge)
             .FirstAsync(b => b.Id == battle.Id, cancellationToken);
 
-        return BattleMapper.ToDto(saved);
+        return BattleMapper.ToDto(saved, _currentUser.IsEnglish);
     }
 }

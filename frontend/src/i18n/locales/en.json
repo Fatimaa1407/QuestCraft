@@ -47,7 +47,8 @@
       "haveAccount": "Already have an account?",
       "loginLink": "Sign in",
       "errorFallback": "Couldn't reach the server. Check your connection and try again.",
-      "passwordMismatch": "Passwords do not match."
+      "passwordMismatch": "Passwords do not match.",
+      "emailInvalid": "Email format is invalid (e.g. you@email.com)."
     }
   },
   "quiz": {
@@ -97,7 +98,14 @@
     "coinsLabel": "Coins",
     "purchased": "Purchased!",
     "locked": "Locked",
-    "needMoreCoins": "You need {{count}} more coins."
+    "needMoreCoins": "You need {{count}} more coins.",
+    "newItemTitle": "New item!",
+    "equipNow": "Equip Now",
+    "equipping": "Equipping...",
+    "maybeLater": "Maybe Later",
+    "close": "Close",
+    "toastEquipped": "Equipped",
+    "toastUnequipped": "Unequipped"
   },
   "leaderboard": {
     "title": "Leaderboard",

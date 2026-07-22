@@ -27,7 +27,12 @@ public class GetIncomingFriendRequestsQueryHandler : IRequestHandler<GetIncoming
             .Include(f => f.Requester).ThenInclude(r => r.Profile)
             .Where(f => f.AddresseeId == userId && f.Status == FriendRequestStatus.Pending)
             .OrderByDescending(f => f.CreatedAt)
-            .Select(f => new FriendRequestDto(f.Id, f.RequesterId, f.Requester.Username, f.Requester.Profile != null ? f.Requester.Profile.AvatarUrl : null, f.Requester.Profile != null ? f.Requester.Profile.Level : 1, f.CreatedAt))
+            .Select(f => new FriendRequestDto(
+                f.Id, f.RequesterId, f.Requester.Username,
+                f.Requester.Profile != null ? (f.Requester.Profile.EquippedAvatar != null ? f.Requester.Profile.EquippedAvatar.ImageUrl : f.Requester.Profile.AvatarUrl) : null,
+                f.Requester.Profile != null ? f.Requester.Profile.Level : 1,
+                f.CreatedAt,
+                f.Requester.Profile != null && f.Requester.Profile.EquippedFrame != null ? f.Requester.Profile.EquippedFrame.ImageUrl : null))
             .ToListAsync(cancellationToken);
     }
 }

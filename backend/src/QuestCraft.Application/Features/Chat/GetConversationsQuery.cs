@@ -36,7 +36,12 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
         var friends = await _context.UserProfiles
             .Include(p => p.User)
             .Where(p => friendIds.Contains(p.UserId))
-            .Select(p => new { p.UserId, p.User.Username, p.AvatarUrl })
+            .Select(p => new
+            {
+                p.UserId, p.User.Username,
+                AvatarUrl = p.EquippedAvatar != null ? p.EquippedAvatar.ImageUrl : p.AvatarUrl,
+                FrameImageUrl = p.EquippedFrame != null ? p.EquippedFrame.ImageUrl : null,
+            })
             .ToListAsync(cancellationToken);
 
         var messages = await _context.ChatMessages
@@ -51,7 +56,7 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             var last = withFriend.OrderByDescending(m => m.CreatedAt).FirstOrDefault();
             var unread = withFriend.Count(m => m.SenderId == f.UserId && !m.IsRead);
 
-            return new ConversationDto(f.UserId, f.Username, f.AvatarUrl, last?.Content, last?.CreatedAt, unread);
+            return new ConversationDto(f.UserId, f.Username, f.AvatarUrl, last?.Content, last?.CreatedAt, unread, f.FrameImageUrl);
         })
         .OrderByDescending(c => c.LastMessageAt ?? DateTime.MinValue)
         .ToList();

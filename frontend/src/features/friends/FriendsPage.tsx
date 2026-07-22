@@ -9,20 +9,8 @@ import type { FriendDto } from '../../types/friends';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { FramedAvatar as Avatar } from '../../components/ui/FramedAvatar';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
-
-function Avatar({ username, avatarUrl, size = 44 }: { username: string; avatarUrl: string | null; size?: number }) {
-  return avatarUrl ? (
-    <img src={avatarUrl} alt="" className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
-  ) : (
-    <span
-      className="flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 font-semibold text-white"
-      style={{ width: size, height: size, fontSize: size * 0.4 }}
-    >
-      {username.charAt(0).toUpperCase()}
-    </span>
-  );
-}
 
 export function FriendsPage() {
   const { t } = useTranslation();
@@ -86,7 +74,7 @@ export function FriendsPage() {
               <ul className="space-y-2.5">
                 {results.map((r) => (
                   <li key={r.userId} className="flex items-center gap-3 rounded-2xl border border-slate-200/70 p-3 dark:border-white/[0.06]">
-                    <Avatar username={r.username} avatarUrl={r.avatarUrl} size={36} />
+                    <Avatar username={r.username} avatarUrl={r.avatarUrl} frameImageUrl={r.frameImageUrl} size={36} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{r.username}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">Lvl {r.level}</p>
@@ -140,7 +128,7 @@ export function FriendsPage() {
               <ul className="space-y-2.5">
                 {requests.map((req) => (
                   <li key={req.id} className="flex items-center gap-3 rounded-2xl border border-blue-400/30 bg-blue-500/[0.04] p-3">
-                    <Avatar username={req.requesterUsername} avatarUrl={req.requesterAvatarUrl} size={36} />
+                    <Avatar username={req.requesterUsername} avatarUrl={req.requesterAvatarUrl} frameImageUrl={req.requesterFrameImageUrl} size={36} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{req.requesterUsername}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">Lvl {req.requesterLevel}</p>
@@ -207,7 +195,7 @@ function FriendCard({ friend, onRemove }: { friend: FriendDto; onRemove: () => v
   return (
     <motion.div variants={fadeInUp}>
       <GlassCard hoverLift={false} className="flex items-center gap-3 p-4">
-        <Avatar username={friend.username} avatarUrl={friend.avatarUrl} />
+        <Avatar username={friend.username} avatarUrl={friend.avatarUrl} frameImageUrl={friend.frameImageUrl} size={44} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{friend.username}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400">

@@ -162,3 +162,7 @@ app.MapHub<NotificationsHub>("/hubs/notifications");
 app.MapHub<QuestCraft.API.Hubs.BattleHub>("/hubs/battle");
 
 app.Run();
+
+// Top-level statements generate an internal Program class by default — this makes it public so
+// QuestCraft.IntegrationTests can target it via WebApplicationFactory<Program>.
+public partial class Program { }

@@ -32,7 +32,9 @@ public class GetFriendsQueryHandler : IRequestHandler<GetFriendsQuery, List<Frie
             .Include(p => p.User)
             .Where(p => friendIds.Contains(p.UserId))
             .OrderBy(p => p.User.Username)
-            .Select(p => new FriendDto(p.UserId, p.User.Username, p.AvatarUrl, p.Level, p.Xp))
+            .Select(p => new FriendDto(
+                p.UserId, p.User.Username, p.EquippedAvatar != null ? p.EquippedAvatar.ImageUrl : p.AvatarUrl, p.Level, p.Xp,
+                p.EquippedFrame != null ? p.EquippedFrame.ImageUrl : null))
             .ToListAsync(cancellationToken);
     }
 }

@@ -9,4 +9,6 @@ export const Z_INDEX = {
   dropdown: 9999,
   // Full-screen dialogs (e.g. QuizCompleteModal) must win over any open dropdown/menu.
   modal: 10000,
+  // Toast stack sits above modals so an equip confirmation is never hidden behind one.
+  toast: 10010,
 } as const;

@@ -31,6 +31,8 @@ public class CancelBattleCommandHandler : IRequestHandler<CancelBattleCommand, U
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedTitle)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedBadge)
             .FirstOrDefaultAsync(b => b.Id == request.BattleId, cancellationToken)
             ?? throw new NotFoundException(nameof(Battle), request.BattleId);
 
@@ -48,7 +50,7 @@ public class CancelBattleCommandHandler : IRequestHandler<CancelBattleCommand, U
         battle.EndedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync(cancellationToken);
 
-        await _battleHubNotifier.NotifyBattleUpdated(battle.Id, BattleMapper.ToDto(battle), cancellationToken);
+        await _battleHubNotifier.NotifyBattleUpdated(battle.Id, BattleMapper.ToDto(battle, _currentUser.IsEnglish), cancellationToken);
 
         return Unit.Value;
     }

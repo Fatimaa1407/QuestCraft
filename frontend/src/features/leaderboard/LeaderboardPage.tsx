@@ -79,8 +79,8 @@ export function LeaderboardPage() {
             onClick={() => setPeriod(p)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               period === p
-                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm shadow-blue-500/30'
-                : 'border border-slate-200/70 text-slate-600 hover:border-blue-400 dark:border-white/[0.08] dark:text-slate-300'
+                ? 'bg-gradient-to-r from-app-accent to-app-accent-2 text-white shadow-sm shadow-app-accent/30'
+                : 'border border-slate-200/70 text-slate-600 hover:border-app-accent dark:border-white/[0.08] dark:text-slate-300'
             }`}
           >
             {t(`leaderboard.period.${p}`)}
@@ -147,6 +147,8 @@ export function LeaderboardPage() {
                     level: myRank.level,
                     frameImageUrl: null,
                     titleText: null,
+                    badgeImageUrl: null,
+                    badgeName: null,
                   }}
                   isMe
                   index={0}
@@ -179,7 +181,7 @@ function PodiumCard({ entry, isMe, big, order }: { entry: LeaderboardEntry; isMe
         hoverLift={false}
         className={`relative flex flex-col items-center overflow-hidden p-6 text-center ${style.wash} ${
           big ? 'sm:pb-10 sm:pt-9' : ''
-        } ${isMe ? 'ring-2 ring-blue-400' : ''}`}
+        } ${isMe ? 'ring-2 ring-app-accent' : ''}`}
       >
         <span className={`text-xs font-bold uppercase tracking-widest ${style.label}`}>#{entry.rank}</span>
 
@@ -190,13 +192,14 @@ function PodiumCard({ entry, isMe, big, order }: { entry: LeaderboardEntry; isMe
           </span>
         </div>
 
-        <p className="mt-4 truncate text-base font-semibold text-slate-900 dark:text-slate-100">
+        <p className="mt-4 flex items-center justify-center gap-1 truncate text-base font-semibold text-slate-900 dark:text-slate-100">
+          {entry.badgeImageUrl && <img src={entry.badgeImageUrl} alt="" title={entry.badgeName ?? undefined} className="h-4 w-4 shrink-0 rounded-full" />}
           {entry.username}
-          {isMe && <span className="ml-1 text-xs font-normal text-blue-600 dark:text-cyan-400">({t('leaderboard.you')})</span>}
+          {isMe && <span className="ml-1 text-xs font-normal text-app-accent dark:text-app-accent-2">({t('leaderboard.you')})</span>}
         </p>
-        {entry.titleText && <p className="text-[11px] font-medium text-blue-600 dark:text-cyan-400">{entry.titleText}</p>}
+        {entry.titleText && <p className="text-[11px] font-medium text-app-accent dark:text-app-accent-2">{entry.titleText}</p>}
         <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Lvl {entry.level}</p>
-        <p className="mt-2 flex items-center gap-1 text-lg font-bold text-blue-600 dark:text-cyan-400">
+        <p className="mt-2 flex items-center gap-1 text-lg font-bold text-app-accent dark:text-app-accent-2">
           <Zap size={16} />
           {entry.xp} XP
         </p>
@@ -226,7 +229,7 @@ function LeaderboardRow({ entry, isMe, index }: { entry: LeaderboardEntry; isMe:
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      className={`flex items-center gap-4 rounded-xl px-3 py-3 ${isMe ? 'bg-blue-500/10' : ''}`}
+      className={`flex items-center gap-4 rounded-xl px-3 py-3 ${isMe ? 'bg-app-accent/10' : ''}`}
     >
       <span className="w-6 shrink-0 text-center text-sm font-semibold text-slate-400 dark:text-slate-500">
         {entry.rank}
@@ -234,13 +237,14 @@ function LeaderboardRow({ entry, isMe, index }: { entry: LeaderboardEntry; isMe:
       <FramedAvatar username={entry.username} avatarUrl={entry.avatarUrl} frameImageUrl={entry.frameImageUrl} size={36} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
+          {entry.badgeImageUrl && <img src={entry.badgeImageUrl} alt="" title={entry.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
           {entry.username}
-          {isMe && <span className="text-xs font-normal text-blue-600 dark:text-cyan-400">({t('leaderboard.you')})</span>}
+          {isMe && <span className="text-xs font-normal text-app-accent dark:text-app-accent-2">({t('leaderboard.you')})</span>}
         </span>
-        {entry.titleText && <span className="block truncate text-[11px] text-blue-600 dark:text-cyan-400">{entry.titleText}</span>}
+        {entry.titleText && <span className="block truncate text-[11px] text-app-accent dark:text-app-accent-2">{entry.titleText}</span>}
       </span>
       <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">Lvl {entry.level}</span>
-      <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blue-600 dark:text-cyan-400">
+      <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-app-accent dark:text-app-accent-2">
         <Zap size={13} />
         {entry.xp}
       </span>

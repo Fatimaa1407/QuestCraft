@@ -9,21 +9,9 @@ import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { FramedAvatar as Avatar } from '../../components/ui/FramedAvatar';
 import { useRelativeTime } from '../../utils/useRelativeTime';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
-
-function Avatar({ username, avatarUrl, size = 40 }: { username: string; avatarUrl: string | null; size?: number }) {
-  return avatarUrl ? (
-    <img src={avatarUrl} alt="" className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
-  ) : (
-    <span
-      className="flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 font-semibold text-white"
-      style={{ width: size, height: size, fontSize: size * 0.4 }}
-    >
-      {username.charAt(0).toUpperCase()}
-    </span>
-  );
-}
 
 export function ChatPage() {
   const { t } = useTranslation();
@@ -112,7 +100,7 @@ export function ChatPage() {
                     activeUserId === conv.friendUserId ? 'bg-blue-500/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'
                   }`}
                 >
-                  <Avatar username={conv.friendUsername} avatarUrl={conv.friendAvatarUrl} />
+                  <Avatar username={conv.friendUsername} avatarUrl={conv.friendAvatarUrl} frameImageUrl={conv.friendFrameImageUrl} size={40} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{conv.friendUsername}</p>
@@ -140,7 +128,7 @@ export function ChatPage() {
                 <button type="button" onClick={() => navigate('/chat')} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 sm:hidden">
                   <ArrowLeft size={18} />
                 </button>
-                {activeFriend && <Avatar username={activeFriend.friendUsername} avatarUrl={activeFriend.friendAvatarUrl} size={32} />}
+                {activeFriend && <Avatar username={activeFriend.friendUsername} avatarUrl={activeFriend.friendAvatarUrl} frameImageUrl={activeFriend.friendFrameImageUrl} size={32} />}
                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{activeFriend?.friendUsername ?? '...'}</p>
               </div>
 

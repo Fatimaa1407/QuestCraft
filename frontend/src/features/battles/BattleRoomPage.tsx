@@ -114,7 +114,7 @@ export function BattleRoomPage() {
       {iWon && <Confetti />}
 
       <motion.div variants={fadeInUp} className="flex items-center justify-between gap-3">
-        <Link to="/battles" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400">
+        <Link to="/battles" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-app-accent dark:text-slate-400 dark:hover:text-app-accent-2">
           <ArrowLeft size={15} />
           {t('battles.backToLobby')}
         </Link>
@@ -209,11 +209,15 @@ export function BattleRoomPage() {
                 {battle.participants.map((p) => (
                   <div key={p.userId} className="flex items-center gap-3 rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
                     <Avatar username={p.username} avatarUrl={p.avatarUrl} frameImageUrl={p.frameImageUrl} size={32} />
-                    <span className="text-sm font-medium text-slate-800 dark:text-slate-100">
-                      {p.username}
-                      {p.userId === battle.hostUserId && (
-                        <span className="ml-1.5 text-xs font-normal text-blue-500 dark:text-cyan-400">({t('battles.host')})</span>
-                      )}
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                        {p.badgeImageUrl && <img src={p.badgeImageUrl} alt="" title={p.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
+                        {p.username}
+                        {p.userId === battle.hostUserId && (
+                          <span className="text-xs font-normal text-app-accent dark:text-app-accent-2">({t('battles.host')})</span>
+                        )}
+                      </span>
+                      {p.titleText && <span className="block truncate text-[10px] text-app-accent dark:text-app-accent-2">{p.titleText}</span>}
                     </span>
                   </div>
                 ))}
@@ -270,7 +274,7 @@ export function BattleRoomPage() {
                   {...buttonTap}
                   disabled={submitMutation.isPending}
                   onClick={() => submitMutation.mutate()}
-                  className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-app-accent/25 disabled:opacity-50"
                 >
                   <Play size={15} />
                   {submitMutation.isPending ? t('battles.submitting') : t('battles.submit')}
@@ -301,7 +305,7 @@ export function BattleRoomPage() {
               )}
               <Link
                 to="/battles"
-                className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-2.5 text-sm font-medium text-white"
+                className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2.5 text-sm font-medium text-white"
               >
                 {t('battles.backToLobby')}
               </Link>
@@ -321,12 +325,13 @@ export function BattleRoomPage() {
                 <div key={p.userId} className="rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
                   <div className="flex items-center gap-2">
                     <Avatar username={p.username} avatarUrl={p.avatarUrl} frameImageUrl={p.frameImageUrl} size={24} />
+                    {p.badgeImageUrl && <img src={p.badgeImageUrl} alt="" title={p.badgeName ?? undefined} className="h-3 w-3 shrink-0 rounded-full" />}
                     <span className="truncate text-xs font-medium text-slate-800 dark:text-slate-100">{p.username}</span>
                     {p.rank === 1 && <Crown size={13} className="ml-auto text-amber-500" />}
                   </div>
                   <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/[0.06]">
                     <motion.div
-                      className={`h-full rounded-full ${p.hasFinished ? 'bg-emerald-500' : 'bg-gradient-to-r from-blue-500 to-cyan-500'}`}
+                      className={`h-full rounded-full ${p.hasFinished ? 'bg-emerald-500' : 'bg-gradient-to-r from-app-accent to-app-accent-2'}`}
                       animate={{ width: p.totalTestCases > 0 ? `${(p.passedTestCases / p.totalTestCases) * 100}%` : '0%' }}
                       transition={{ duration: 0.4 }}
                     />
@@ -347,6 +352,7 @@ function RankRow({ participant }: { participant: BattleParticipantDto }) {
     <div className="flex items-center gap-3 rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
       <span className="w-5 text-center text-sm font-bold text-slate-400">{participant.rank ?? '-'}</span>
       <Avatar username={participant.username} avatarUrl={participant.avatarUrl} frameImageUrl={participant.frameImageUrl} size={28} />
+      {participant.badgeImageUrl && <img src={participant.badgeImageUrl} alt="" title={participant.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
       <span className="flex-1 truncate text-sm font-medium text-slate-800 dark:text-slate-100">{participant.username}</span>
       <span className="text-xs text-slate-500 dark:text-slate-400">
         {participant.hasFinished

@@ -21,7 +21,11 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email boş ola bilməz.")
-            .EmailAddress().WithMessage("Email formatı düzgün deyil.")
+            // FluentValidation's default EmailAddress() only checks for a single "@" with no
+            // whitespace — it accepts things like "ali@gmailcom" (no TLD) or "ali..test@gmail.com"
+            // (consecutive dots). This regex requires a real local-part@domain.tld shape: no
+            // leading/trailing/consecutive dots, no spaces, and a domain with a letter-only TLD.
+            .Matches(@"^(?!.*\.\.)(?!\.)[^@\s]+(?<!\.)@(?!\.)[^@\s]+\.[a-zA-Z]{2,}$").WithMessage("Email formatı düzgün deyil.")
             .MaximumLength(256).WithMessage("Email 256 simvoldan uzun ola bilməz.");
 
         RuleFor(x => x.Password)

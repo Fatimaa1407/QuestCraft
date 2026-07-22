@@ -11,10 +11,12 @@ public record GetBattleQuery(int BattleId) : IQuery<BattleDto>;
 public class GetBattleQueryHandler : IRequestHandler<GetBattleQuery, BattleDto>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetBattleQueryHandler(IApplicationDbContext context)
+    public GetBattleQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<BattleDto> Handle(GetBattleQuery request, CancellationToken cancellationToken)
@@ -24,10 +26,12 @@ public class GetBattleQueryHandler : IRequestHandler<GetBattleQuery, BattleDto>
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedTitle)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedBadge)
             .FirstOrDefaultAsync(b => b.Id == request.BattleId, cancellationToken)
             ?? throw new NotFoundException(nameof(Battle), request.BattleId);
 
-        return BattleMapper.ToDto(battle);
+        return BattleMapper.ToDto(battle, _currentUser.IsEnglish);
     }
 }
 
@@ -36,10 +40,12 @@ public record GetBattleByCodeQuery(string Code) : IQuery<BattleDto>;
 public class GetBattleByCodeQueryHandler : IRequestHandler<GetBattleByCodeQuery, BattleDto>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetBattleByCodeQueryHandler(IApplicationDbContext context)
+    public GetBattleByCodeQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<BattleDto> Handle(GetBattleByCodeQuery request, CancellationToken cancellationToken)
@@ -50,9 +56,11 @@ public class GetBattleByCodeQueryHandler : IRequestHandler<GetBattleByCodeQuery,
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedAvatar)
             .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedFrame)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedTitle)
+            .Include(b => b.Participants).ThenInclude(p => p.User).ThenInclude(u => u.Profile).ThenInclude(pr => pr.EquippedBadge)
             .FirstOrDefaultAsync(b => b.JoinCode == code, cancellationToken)
             ?? throw new NotFoundException(nameof(Battle), request.Code);
 
-        return BattleMapper.ToDto(battle);
+        return BattleMapper.ToDto(battle, _currentUser.IsEnglish);
     }
 }

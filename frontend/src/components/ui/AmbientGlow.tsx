@@ -36,25 +36,25 @@ export function AmbientGlow() {
           delays so they're already out of phase on mount) so the lighting reads as alive
           without ever looking like a moving decoration. Inert under prefers-reduced-motion. */}
       <div
-        className="animate-glow-drift absolute -top-20 left-1/4 h-[32rem] w-[32rem] rounded-full bg-blue-500/[0.18] blur-3xl dark:bg-blue-500/[0.28]"
+        className="animate-glow-drift absolute -top-20 left-1/4 h-[32rem] w-[32rem] rounded-full bg-app-accent/[0.18] blur-3xl dark:bg-app-accent/[0.28]"
         style={{ '--drift-x': '5%', '--drift-y': '-4%', '--drift-duration': '34s', animationDelay: '-6s' } as CSSProperties}
       />
       <div
-        className="animate-glow-drift absolute top-1/3 -right-24 h-[26rem] w-[26rem] rounded-full bg-cyan-500/[0.15] blur-3xl dark:bg-cyan-500/[0.24]"
+        className="animate-glow-drift absolute top-1/3 -right-24 h-[26rem] w-[26rem] rounded-full bg-app-accent-2/[0.15] blur-3xl dark:bg-app-accent-2/[0.24]"
         style={{ '--drift-x': '-4%', '--drift-y': '5%', '--drift-duration': '40s', animationDelay: '-18s' } as CSSProperties}
       />
       <div
-        className="animate-glow-drift absolute bottom-0 left-1/2 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-blue-400/[0.08] blur-3xl dark:bg-cyan-500/[0.12]"
+        className="animate-glow-drift absolute bottom-0 left-1/2 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-app-accent/[0.08] blur-3xl dark:bg-app-accent-2/[0.12]"
         style={{ '--drift-x': '3%', '--drift-y': '-5%', '--drift-duration': '28s', animationDelay: '-12s' } as CSSProperties}
       />
 
       {/* Two extra, larger, even softer blobs purely for depth — same technique, slower still. */}
       <div
-        className="animate-glow-drift absolute top-2/3 left-[8%] h-[30rem] w-[30rem] rounded-full bg-blue-400/[0.06] blur-3xl dark:bg-blue-400/[0.10]"
+        className="animate-glow-drift absolute top-2/3 left-[8%] h-[30rem] w-[30rem] rounded-full bg-app-accent/[0.06] blur-3xl dark:bg-app-accent/[0.10]"
         style={{ '--drift-x': '-6%', '--drift-y': '-3%', '--drift-duration': '52s', animationDelay: '-24s' } as CSSProperties}
       />
       <div
-        className="animate-glow-drift absolute -top-10 right-[12%] h-[22rem] w-[22rem] rounded-full bg-cyan-400/[0.07] blur-3xl dark:bg-cyan-400/[0.11]"
+        className="animate-glow-drift absolute -top-10 right-[12%] h-[22rem] w-[22rem] rounded-full bg-app-accent-2/[0.07] blur-3xl dark:bg-app-accent-2/[0.11]"
         style={{ '--drift-x': '4%', '--drift-y': '6%', '--drift-duration': '60s', animationDelay: '-38s' } as CSSProperties}
       />
 

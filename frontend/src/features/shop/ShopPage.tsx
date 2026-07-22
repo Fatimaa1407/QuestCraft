@@ -5,12 +5,15 @@ import { motion } from 'framer-motion';
 import { Lightbulb, UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake, X } from 'lucide-react';
 import { getMarketplaceItems, getItemTypes, purchaseItem, equipItem, unequipItem, getMyPurchases } from '../../api/marketplace';
 import { EQUIPABLE_ITEM_TYPES } from '../../types/marketplace';
+import type { PurchaseResultDto } from '../../types/marketplace';
 import { getRarity, RARITY_STYLES } from '../../utils/rarity';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
 import { useAuthStore } from '../../app/authStore';
+import { showToast } from '../../app/toastStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { PurchaseSuccessModal } from '../../components/ui/PurchaseSuccessModal';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
@@ -44,7 +47,8 @@ export function ShopPage() {
   const updateUser = useAuthStore((s) => s.updateUser);
   const [typeId, setTypeId] = useState<number | undefined>(undefined);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [justPurchasedId, setJustPurchasedId] = useState<number | null>(null);
+  const [celebratingId, setCelebratingId] = useState<number | null>(null);
+  const [purchaseModalItem, setPurchaseModalItem] = useState<PurchaseResultDto | null>(null);
 
   const animatedCoins = useAnimatedNumber(user?.coins ?? 0);
 
@@ -74,9 +78,10 @@ export function ShopPage() {
       updateUser({ coins: result.remainingCoins });
       invalidateEquipState();
       playSuccessSound();
-      setJustPurchasedId(itemId);
-      setTimeout(() => setJustPurchasedId(null), 1300);
+      setCelebratingId(itemId);
+      setTimeout(() => setCelebratingId(null), 1300);
       showFeedback('success', t('shop.purchaseSuccess', { name: result.itemName }));
+      setPurchaseModalItem(result);
     },
     onError: (err) => {
       playErrorSound();
@@ -86,10 +91,14 @@ export function ShopPage() {
 
   const equipMutation = useMutation({
     mutationFn: equipItem,
-    onSuccess: () => {
+    onSuccess: (_data, itemId) => {
       invalidateEquipState();
       playSuccessSound();
-      showFeedback('success', t('shop.equipSuccess'));
+      setCelebratingId(itemId);
+      setTimeout(() => setCelebratingId(null), 1300);
+      const item = items.find((i) => i.id === itemId);
+      showToast({ title: t('shop.toastEquipped'), message: item?.name, imageUrl: item?.imageUrl, emoji: '✨' });
+      setPurchaseModalItem((current) => (current?.marketplaceItemId === itemId ? null : current));
     },
     onError: (err) => {
       playErrorSound();
@@ -99,10 +108,11 @@ export function ShopPage() {
 
   const unequipMutation = useMutation({
     mutationFn: unequipItem,
-    onSuccess: () => {
+    onSuccess: (_data, itemId) => {
       invalidateEquipState();
       playSuccessSound();
-      showFeedback('success', t('shop.unequipSuccess'));
+      const item = items.find((i) => i.id === itemId);
+      showToast({ title: t('shop.toastUnequipped'), message: item?.name, emoji: '👋' });
     },
     onError: (err) => {
       playErrorSound();
@@ -151,8 +161,8 @@ export function ShopPage() {
           onClick={() => setTypeId(undefined)}
           className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
             typeId === undefined
-              ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm shadow-blue-500/30'
-              : 'border border-slate-200/70 text-slate-600 hover:border-blue-400 dark:border-white/[0.08] dark:text-slate-300'
+              ? 'bg-gradient-to-r from-app-accent to-app-accent-2 text-white shadow-sm shadow-app-accent/30'
+              : 'border border-slate-200/70 text-slate-600 hover:border-app-accent dark:border-white/[0.08] dark:text-slate-300'
           }`}
         >
           🛍️ {t('shop.all')}
@@ -201,7 +211,7 @@ export function ShopPage() {
             const canAfford = (user?.coins ?? 0) >= item.price;
             const rarity = getRarity(item.price);
             const rarityStyle = RARITY_STYLES[rarity];
-            const isCelebrating = justPurchasedId === item.id;
+            const isCelebrating = celebratingId === item.id;
 
             return (
               <motion.div key={item.id} variants={fadeInUp}>
@@ -288,7 +298,7 @@ export function ShopPage() {
                           {...buttonTap}
                           onClick={() => purchaseMutation.mutate(item.id)}
                           disabled={purchaseMutation.isPending}
-                          className="rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm shadow-blue-500/30"
+                          className="rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm shadow-app-accent/30"
                         >
                           {t('shop.buy')}
                         </motion.button>
@@ -312,6 +322,18 @@ export function ShopPage() {
           })}
         </motion.div>
       )}
+
+      <PurchaseSuccessModal
+        isOpen={!!purchaseModalItem}
+        itemName={purchaseModalItem?.itemName ?? ''}
+        itemType={purchaseModalItem?.itemType ?? ''}
+        imageUrl={purchaseModalItem?.imageUrl ?? null}
+        pricePaid={purchaseModalItem?.pricePaid ?? 0}
+        isEquipable={!!purchaseModalItem && EQUIPABLE_ITEM_TYPES.includes(purchaseModalItem.itemType)}
+        isEquipping={equipMutation.isPending}
+        onEquipNow={() => purchaseModalItem && equipMutation.mutate(purchaseModalItem.marketplaceItemId)}
+        onClose={() => setPurchaseModalItem(null)}
+      />
     </motion.div>
   );
 }

@@ -4,6 +4,7 @@ export interface FriendDto {
   avatarUrl: string | null;
   level: number;
   xp: number;
+  frameImageUrl: string | null;
 }
 
 export interface FriendRequestDto {
@@ -13,6 +14,7 @@ export interface FriendRequestDto {
   requesterAvatarUrl: string | null;
   requesterLevel: number;
   createdAt: string;
+  requesterFrameImageUrl: string | null;
 }
 
 export type FriendStatus = 'None' | 'PendingSent' | 'PendingReceived' | 'Friends' | 'Self';
@@ -23,4 +25,5 @@ export interface UserSearchResultDto {
   avatarUrl: string | null;
   level: number;
   friendStatus: FriendStatus;
+  frameImageUrl: string | null;
 }

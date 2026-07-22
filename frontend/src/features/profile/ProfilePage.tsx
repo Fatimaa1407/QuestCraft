@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
+import { showToast } from '../../app/toastStore';
 import { getMyProfile, updateMyProfile } from '../../api/profile';
 import { getMyPurchases, getMyEquippedCosmetics, equipItem, unequipItem } from '../../api/marketplace';
 import { getDashboardAnalytics, getMyRank } from '../../api/gamification';
@@ -35,6 +36,7 @@ export function ProfilePage() {
   const queryClient = useQueryClient();
   const [bio, setBio] = useState('');
   const [isDirty, setIsDirty] = useState(false);
+  const [justEquippedFlash, setJustEquippedFlash] = useState(false);
 
   const profileQuery = useQuery({ queryKey: ['profile', 'me'], queryFn: getMyProfile });
   const equippedQuery = useQuery({ queryKey: ['profile', 'equipped'], queryFn: getMyEquippedCosmetics });
@@ -74,8 +76,24 @@ export function ProfilePage() {
     queryClient.invalidateQueries({ queryKey: ['marketplace', 'my-purchases'] });
     queryClient.invalidateQueries({ queryKey: ['profile', 'equipped'] });
   };
-  const equipMutation = useMutation({ mutationFn: equipItem, onSuccess: invalidateEquipState });
-  const unequipMutation = useMutation({ mutationFn: unequipItem, onSuccess: invalidateEquipState });
+  const equipMutation = useMutation({
+    mutationFn: equipItem,
+    onSuccess: (_data, itemId) => {
+      invalidateEquipState();
+      const item = (purchasesQuery.data ?? []).find((p) => p.marketplaceItemId === itemId);
+      showToast({ title: t('shop.toastEquipped'), message: item?.itemName, imageUrl: item?.imageUrl, emoji: '✨' });
+      setJustEquippedFlash(true);
+      setTimeout(() => setJustEquippedFlash(false), 700);
+    },
+  });
+  const unequipMutation = useMutation({
+    mutationFn: unequipItem,
+    onSuccess: (_data, itemId) => {
+      invalidateEquipState();
+      const item = (purchasesQuery.data ?? []).find((p) => p.marketplaceItemId === itemId);
+      showToast({ title: t('shop.toastUnequipped'), message: item?.itemName, emoji: '👋' });
+    },
+  });
 
   const equippedItems = (purchasesQuery.data ?? []).filter((p) => p.isEquipped);
   const equipped = equippedQuery.data;
@@ -85,16 +103,20 @@ export function ProfilePage() {
       <motion.div variants={fadeInUp}>
         <GlassCard className="overflow-hidden p-0">
           <div
-            className="h-24 w-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 sm:h-28"
+            className="relative h-40 w-full bg-gradient-to-r from-app-accent/20 to-app-accent-2/20 sm:h-56"
             style={equipped?.bannerImageUrl ? { backgroundImage: `url(${equipped.bannerImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
-          />
+          >
+            {equipped?.bannerImageUrl && (
+              <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/10 to-transparent dark:from-slate-900/90 dark:via-slate-900/10" />
+            )}
+          </div>
           <div className="flex flex-col items-center gap-4 px-8 pb-8 pt-0 text-center sm:flex-row sm:text-left">
             <FramedAvatar
               username={user?.firstName ?? user?.username ?? '?'}
               avatarUrl={equipped?.avatarUrl ?? user?.avatarUrl}
               frameImageUrl={equipped?.frameImageUrl}
-              size={80}
-              className="-mt-10 shrink-0 rounded-full ring-4 ring-white dark:ring-slate-900"
+              size={88}
+              className={`-mt-12 shrink-0 rounded-full ring-4 ring-white transition-transform duration-300 dark:ring-slate-900 ${justEquippedFlash ? 'animate-pop-in' : ''}`}
             />
             <div className="min-w-0">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -102,10 +124,10 @@ export function ProfilePage() {
               </h1>
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@{user?.username}</p>
               {equipped?.titleText && (
-                <p className="mt-0.5 text-xs font-semibold text-blue-600 dark:text-cyan-400">{equipped.titleText}</p>
+                <p className="mt-0.5 text-xs font-semibold text-app-accent dark:text-app-accent-2">{equipped.titleText}</p>
               )}
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-cyan-400">
+                <span className="rounded-full bg-app-accent/10 px-3 py-1 text-xs font-semibold text-app-accent dark:text-app-accent-2">
                   {user?.role}
                 </span>
                 {equipped?.badgeName && (
@@ -166,7 +188,7 @@ export function ProfilePage() {
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('profile.equippedTitle')}</h2>
             <Link
               to="/shop"
-              className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-cyan-400"
+              className="flex items-center gap-1 text-sm font-medium text-app-accent hover:underline dark:text-app-accent-2"
             >
               {t('profile.changeInShop')}
               <ArrowRight size={14} />
@@ -205,7 +227,7 @@ export function ProfilePage() {
                     key={item.id}
                     className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-app-accent to-app-accent-2 text-white">
                       {item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : <Icon size={16} />}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -256,7 +278,7 @@ export function ProfilePage() {
                           type="button"
                           onClick={() => equipMutation.mutate(item.marketplaceItemId)}
                           disabled={equipMutation.isPending}
-                          className="shrink-0 rounded-full border border-blue-400 px-2.5 py-1 text-[11px] font-medium text-blue-600 transition-colors hover:bg-blue-500/10 disabled:opacity-50 dark:text-cyan-400"
+                          className="shrink-0 rounded-full border border-app-accent px-2.5 py-1 text-[11px] font-medium text-app-accent transition-colors hover:bg-app-accent/10 disabled:opacity-50 dark:text-app-accent-2"
                         >
                           {t('shop.equip')}
                         </button>
@@ -289,7 +311,7 @@ export function ProfilePage() {
               <button
                 type="submit"
                 disabled={!isDirty || saveMutation.isPending}
-                className="rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-app-accent/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saveMutation.isPending ? t('profile.saving') : t('profile.save')}
               </button>

@@ -4,12 +4,15 @@ interface FramedAvatarProps {
   frameImageUrl?: string | null;
   size?: number;
   className?: string;
+  /** Set false to suppress the animated ring behind the frame (e.g. dense list rows). */
+  animated?: boolean;
 }
 
 // Shared avatar renderer: image or initial-letter fallback, with an optional equipped-frame ring
-// overlaid on top. Used everywhere an avatar appears (navbar, profile, leaderboard, battles,
-// friends, chat, notifications) so the frame cosmetic shows up consistently in one place.
-export function FramedAvatar({ username, avatarUrl, frameImageUrl, size = 36, className = '' }: FramedAvatarProps) {
+// overlaid on top plus a slow-spinning accent-colored glow ring behind it. Used everywhere an
+// avatar appears (navbar, profile, leaderboard, battles, notifications) so both the frame cosmetic
+// and its animation show up consistently in one place.
+export function FramedAvatar({ username, avatarUrl, frameImageUrl, size = 36, className = '', animated = true }: FramedAvatarProps) {
   return (
     <span className={`relative inline-flex shrink-0 items-center justify-center ${className}`} style={{ width: size, height: size }}>
       {avatarUrl ? (
@@ -23,12 +26,26 @@ export function FramedAvatar({ username, avatarUrl, frameImageUrl, size = 36, cl
         </span>
       )}
       {frameImageUrl && (
-        <img
-          src={frameImageUrl}
-          alt=""
-          className="pointer-events-none absolute inset-0 h-full w-full rounded-full"
-          style={{ transform: 'scale(1.25)' }}
-        />
+        <>
+          {animated && (
+            <span
+              className="animate-frame-spin pointer-events-none absolute rounded-full"
+              style={{
+                inset: '-22%',
+                background:
+                  'conic-gradient(from 0deg, var(--color-app-accent), var(--color-app-accent-2), transparent, var(--color-app-accent))',
+                WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), #fff calc(100% - 2px))',
+                mask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), #fff calc(100% - 2px))',
+              }}
+            />
+          )}
+          <img
+            src={frameImageUrl}
+            alt=""
+            className="pointer-events-none absolute inset-0 h-full w-full rounded-full"
+            style={{ transform: 'scale(1.25)' }}
+          />
+        </>
       )}
     </span>
   );
