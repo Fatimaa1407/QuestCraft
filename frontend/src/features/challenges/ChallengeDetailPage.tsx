@@ -10,12 +10,14 @@ import { runCode, submitCode } from '../../api/submissions';
 import type { RunResultDto, SubmissionResultDto, SubmissionTestResultDto } from '../../types/submission';
 import { useThemeStore } from '../../app/themeStore';
 import { useAuthStore } from '../../app/authStore';
+import { showToast } from '../../app/toastStore';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Confetti } from '../../components/ui/Confetti';
 import { FloatingXp } from '../../components/ui/FloatingXp';
 import { ChallengeCompleteModal } from '../../components/ui/ChallengeCompleteModal';
 import { LevelUpModal } from '../../components/ui/LevelUpModal';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { playFanfareSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 
@@ -107,6 +109,9 @@ export function ChallengeDetailPage() {
       } else if (data.level > data.previousLevel) {
         setLevelUpInfo(data);
       }
+      data.newAchievements.forEach((name) => {
+        showToast({ title: t('dashboard.achievementUnlocked', { name }), emoji: '🏆' });
+      });
     },
     onError: (err) => setActionError(getApiErrorMessage(err, t('challenges.actionError'))),
   });
@@ -120,7 +125,18 @@ export function ChallengeDetailPage() {
   });
 
   if (challengeQuery.isLoading) {
-    return <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>;
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-1/3" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_260px]">
+          <div className="space-y-4">
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+          <Skeleton className="h-48 w-full" />
+        </div>
+      </div>
+    );
   }
 
   const challenge = challengeQuery.data;

@@ -30,4 +30,8 @@ public class UserProfile : BaseEntity
 
     public int? EquippedBadgeId { get; set; }
     public MarketplaceItem? EquippedBadge { get; set; }
+
+    // Null until the user's first daily-login-reward claim; compared against "today" (UTC date)
+    // to decide claim eligibility, mirrors Streak.LastActivityDate's nullable-DateOnly pattern.
+    public DateOnly? LastLoginRewardClaimedAt { get; set; }
 }

@@ -2,14 +2,15 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X } from 'lucide-react';
+import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
 import { getMyProfile, updateMyProfile } from '../../api/profile';
 import { getMyPurchases, getMyEquippedCosmetics, equipItem, unequipItem } from '../../api/marketplace';
-import { getDashboardAnalytics, getMyRank } from '../../api/gamification';
+import { getDashboardAnalytics, getMyRank, getAchievements } from '../../api/gamification';
 import { getMySubmissions } from '../../api/submissions';
 import { getMyQuizAttempts } from '../../api/quizzes';
+import { getApiErrorMessage } from '../../utils/apiError';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { StatCard } from '../../components/ui/StatCard';
 import { Textarea } from '../../components/ui/Textarea';
@@ -51,6 +52,8 @@ export function ProfilePage() {
     queryKey: ['quizzes', 'attempts', 'my', 1, 15],
     queryFn: () => getMyQuizAttempts(1, 15),
   });
+  const achievementsQuery = useQuery({ queryKey: ['achievements'], queryFn: getAchievements });
+  const pinnedAchievements = (achievementsQuery.data ?? []).filter((a) => a.isPinned);
 
   useEffect(() => {
     if (profileQuery.data && !isDirty) {
@@ -64,6 +67,7 @@ export function ProfilePage() {
       setIsDirty(false);
       queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('profile.saveError')), emoji: '⚠️' }),
   });
 
   const handleSubmit = (event: FormEvent) => {
@@ -85,6 +89,7 @@ export function ProfilePage() {
       setJustEquippedFlash(true);
       setTimeout(() => setJustEquippedFlash(false), 700);
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('shop.actionError')), emoji: '⚠️' }),
   });
   const unequipMutation = useMutation({
     mutationFn: unequipItem,
@@ -93,6 +98,7 @@ export function ProfilePage() {
       const item = (purchasesQuery.data ?? []).find((p) => p.marketplaceItemId === itemId);
       showToast({ title: t('shop.toastUnequipped'), message: item?.itemName, emoji: '👋' });
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('shop.actionError')), emoji: '⚠️' }),
   });
 
   const equippedItems = (purchasesQuery.data ?? []).filter((p) => p.isEquipped);
@@ -149,6 +155,34 @@ export function ProfilePage() {
           </div>
         </GlassCard>
       </motion.div>
+
+      {pinnedAchievements.length > 0 && (
+        <motion.div variants={fadeInUp}>
+          <GlassCard className="p-6">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">{t('profile.featuredAchievements')}</h2>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {pinnedAchievements.map((achievement) => (
+                <div
+                  key={achievement.id}
+                  className="flex items-center gap-3 rounded-xl border border-amber-400/30 bg-amber-500/[0.04] px-4 py-3"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 text-white shadow-md shadow-amber-500/30">
+                    {achievement.iconUrl ? (
+                      <img src={achievement.iconUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Trophy size={18} />
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{achievement.name}</p>
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">{achievement.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
 
       <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard icon={ShieldCheck} label={t('dashboard.level')} value={user?.level ?? 1} tint="blue" />
@@ -251,42 +285,61 @@ export function ProfilePage() {
         </GlassCard>
       </motion.div>
 
-      {(purchasesQuery.data ?? []).some((p) => !p.isEquipped) && (
+      {(purchasesQuery.isLoading || (purchasesQuery.data ?? []).length > 0) && (
         <motion.div variants={fadeInUp}>
           <GlassCard className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('profile.inventoryTitle')}</h2>
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {(purchasesQuery.data ?? [])
-                .filter((p) => !p.isEquipped)
-                .map((item) => {
-                  const Icon = equippedTypeIcons[item.itemType] ?? Frame;
-                  const isEquipableType = Object.prototype.hasOwnProperty.call(equippedTypeIcons, item.itemType);
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
-                    >
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-500/10 text-slate-500 dark:text-slate-400">
-                        {item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : <Icon size={16} />}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{item.itemName}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{item.itemType}</p>
-                      </div>
-                      {isEquipableType && (
-                        <button
-                          type="button"
-                          onClick={() => equipMutation.mutate(item.marketplaceItemId)}
-                          disabled={equipMutation.isPending}
-                          className="shrink-0 rounded-full border border-app-accent px-2.5 py-1 text-[11px] font-medium text-app-accent transition-colors hover:bg-app-accent/10 disabled:opacity-50 dark:text-app-accent-2"
-                        >
-                          {t('shop.equip')}
-                        </button>
-                      )}
+            {purchasesQuery.isLoading ? (
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
+                  >
+                    <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-2/3" />
+                      <Skeleton className="h-3 w-1/3" />
                     </div>
-                  );
-                })}
-            </div>
+                  </div>
+                ))}
+              </div>
+            ) : (purchasesQuery.data ?? []).every((p) => p.isEquipped) ? (
+              <EmptyState bare icon={CheckCircle2} tint="blue" title={t('profile.allEquipped')} className="mt-2" />
+            ) : (
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {(purchasesQuery.data ?? [])
+                  .filter((p) => !p.isEquipped)
+                  .map((item) => {
+                    const Icon = equippedTypeIcons[item.itemType] ?? Frame;
+                    const isEquipableType = Object.prototype.hasOwnProperty.call(equippedTypeIcons, item.itemType);
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/5"
+                      >
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                          {item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : <Icon size={16} />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{item.itemName}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{item.itemType}</p>
+                        </div>
+                        {isEquipableType && (
+                          <button
+                            type="button"
+                            onClick={() => equipMutation.mutate(item.marketplaceItemId)}
+                            disabled={equipMutation.isPending}
+                            className="shrink-0 rounded-full border border-app-accent px-2.5 py-1 text-[11px] font-medium text-app-accent transition-colors hover:bg-app-accent/10 disabled:opacity-50 dark:text-app-accent-2"
+                          >
+                            {t('shop.equip')}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
           </GlassCard>
         </motion.div>
       )}

@@ -1,3 +1,5 @@
+import { isSoundEnabled } from '../app/soundStore';
+
 let ctx: AudioContext | null = null;
 
 function getContext(): AudioContext | null {
@@ -7,6 +9,7 @@ function getContext(): AudioContext | null {
 }
 
 function playTone(freq: number, startOffset: number, duration: number, type: OscillatorType = 'sine', peakGain = 0.15) {
+  if (!isSoundEnabled()) return;
   const audioCtx = getContext();
   if (!audioCtx) return;
 

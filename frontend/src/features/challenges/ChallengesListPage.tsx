@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Star, Coins, Lock, SearchX } from 'lucide-react';
 import { getCategories, getChallenges, getDifficulties } from '../../api/challenges';
@@ -11,6 +11,7 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { LevelSectionHeader, type LevelSectionStatus } from '../../components/ui/LevelSectionHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import type { ChallengeListItemDto } from '../../types/challenge';
 
@@ -19,9 +20,48 @@ type ChallengeStatus = 'Solved' | 'Attempted' | 'NotStarted';
 export function ChallengesListPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
-  const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
-  const [difficultyId, setDifficultyId] = useState<number | undefined>(undefined);
-  const [search, setSearch] = useState('');
+
+  // Filters live in the URL (not local state) so they survive a reload and the back button —
+  // reading/writing search params directly instead of mirroring them into useState.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryId = searchParams.get('category') ? Number(searchParams.get('category')) : undefined;
+  const difficultyId = searchParams.get('difficulty') ? Number(searchParams.get('difficulty')) : undefined;
+  const search = searchParams.get('q') ?? '';
+
+  const setCategoryId = (value: number | undefined) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value === undefined) next.delete('category');
+        else next.set('category', String(value));
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  const setDifficultyId = (value: number | undefined) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value === undefined) next.delete('difficulty');
+        else next.set('difficulty', String(value));
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  const setSearch = (value: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (!value) next.delete('q');
+        else next.set('q', value);
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(() => new Set([user?.level ?? 1]));
 
   const categoriesQuery = useQuery({ queryKey: ['categories'], queryFn: getCategories });
@@ -139,6 +179,8 @@ export function ChallengesListPage() {
             </div>
           ))}
         </div>
+      ) : challengesQuery.isError ? (
+        <QueryErrorState onRetry={() => challengesQuery.refetch()} />
       ) : !data || data.items.length === 0 ? (
         <EmptyState
           icon={SearchX}

@@ -6,12 +6,27 @@ import { motion } from 'framer-motion';
 import { Swords, Users, DoorOpen, Hash, Plus, ArrowRight } from 'lucide-react';
 import { getMyBattles, getOpenRooms, createDuelBattle, createRoomBattle, getBattleByCode, joinBattle } from '../../api/battles';
 import { getFriends } from '../../api/friends';
+import { showToast } from '../../app/toastStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 import type { BattleSummaryDto } from '../../types/battle';
+
+function BattleCardSkeleton() {
+  return (
+    <GlassCard hoverLift={false} className="p-4">
+      <div className="flex items-center justify-between gap-2">
+        <Skeleton className="h-4 w-16 rounded-full" />
+        <Skeleton className="h-3 w-12" />
+      </div>
+      <Skeleton className="mt-3 h-4 w-2/3" />
+      <Skeleton className="mt-2 h-3 w-1/3" />
+    </GlassCard>
+  );
+}
 
 const statusStyles: Record<string, string> = {
   Waiting: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -38,6 +53,7 @@ export function BattleLobbyPage() {
       queryClient.invalidateQueries({ queryKey: ['battles'] });
       if (battle) navigate(`/battles/${battle.id}`);
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('battles.actionError')), emoji: '⚠️' }),
   });
 
   const joinByCodeMutation = useMutation({
@@ -118,7 +134,13 @@ export function BattleLobbyPage() {
       <motion.div variants={fadeInUp}>
         <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">{t('battles.myBattles')}</h2>
         {myBattlesQuery.isLoading ? (
-          <Skeleton className="h-16 w-full" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <BattleCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : myBattlesQuery.isError ? (
+          <QueryErrorState onRetry={() => myBattlesQuery.refetch()} />
         ) : myBattles.length === 0 ? (
           <EmptyState icon={Swords} tint="blue" title={t('battles.noneActive')} />
         ) : (
@@ -133,7 +155,13 @@ export function BattleLobbyPage() {
       <motion.div variants={fadeInUp}>
         <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">{t('battles.openRooms')}</h2>
         {openRoomsQuery.isLoading ? (
-          <Skeleton className="h-16 w-full" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <BattleCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : openRoomsQuery.isError ? (
+          <QueryErrorState onRetry={() => openRoomsQuery.refetch()} />
         ) : openRooms.length === 0 ? (
           <EmptyState icon={DoorOpen} tint="violet" title={t('battles.noOpenRooms')} />
         ) : (
@@ -193,6 +221,7 @@ function CreateDuelPanel({ onClose, onCreated }: { onClose: () => void; onCreate
     onSuccess: (battle) => {
       if (battle) onCreated(battle.id);
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('battles.actionError')), emoji: '⚠️' }),
   });
 
   return (
@@ -245,6 +274,7 @@ function CreateRoomPanel({ onClose, onCreated }: { onClose: () => void; onCreate
     onSuccess: (battle) => {
       if (battle) onCreated(battle.id);
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('battles.actionError')), emoji: '⚠️' }),
   });
 
   return (

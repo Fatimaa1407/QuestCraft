@@ -202,7 +202,11 @@
     "subtitle": "Uğurlarını qeyd et, mükafatlarını topla.",
     "unlockedLabel": "Açılıb",
     "unlockedBadge": "✓ Açıq",
-    "empty": "Hələ heç bir nailiyyət yoxdur."
+    "empty": "Hələ heç bir nailiyyət yoxdur.",
+    "pin": "Sancaqla",
+    "unpin": "Çıxar",
+    "pinLimitReached": "Ən çoxu 3 nailiyyət sancıla bilər.",
+    "pinError": "Əməliyyat uğursuz oldu."
   },
   "profile": {
     "equippedTitle": "Taxılmış Əşyalar",
@@ -216,7 +220,10 @@
     "save": "Yadda saxla",
     "saving": "Yadda saxlanılır...",
     "saved": "Yadda saxlanıldı ✓",
-    "rank": "Reytinq"
+    "rank": "Reytinq",
+    "allEquipped": "Sahib olduğun hər şey taxılıb!",
+    "featuredAchievements": "Seçilmiş Nailiyyətlər",
+    "saveError": "Yadda saxlanıla bilmədi."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -229,10 +236,33 @@
     "achievements": "Nailiyyətlər",
     "shop": "Mağaza",
     "profile": "Profil",
+    "statistics": "Statistika",
+    "settings": "Ayarlar",
     "admin": "Admin",
     "logout": "Çıxış",
     "more": "Daha çox",
     "mobileNavLabel": "Əsas naviqasiya"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "subtitle": "Təcrübəni özünə uyğunlaşdır.",
+    "audioSection": "Səs",
+    "soundEffects": "Səs effektləri",
+    "soundEffectsHint": "Level qazanma, alış və digər hadisələr üçün səslər."
+  },
+  "statistics": {
+    "title": "Statistika",
+    "subtitle": "İrəliləyişinin tam mənzərəsi.",
+    "challengesSolved": "Həll Edilən Challenge",
+    "quizzesCompleted": "Tamamlanan Test",
+    "successRate": "Uğur Faizi",
+    "avgSolveTime": "Orta Həll Vaxtı",
+    "currentStreak": "Hazırkı Seriya",
+    "longestStreak": "Ən Uzun Seriya",
+    "totalXp": "Ümumi XP",
+    "coinsEarned": "Qazanılan Coin",
+    "battlesWon": "Qazanılan Döyüş",
+    "rank": "Reytinq"
   },
   "challenges": {
     "title": "Coding Challenge-lər",
@@ -292,7 +322,11 @@
   "dashboard": {
     "welcome": "Xoş gəldin, {{name}}!",
     "subtitle": "Bugünkü irəliləyişinə nəzər sal.",
-    "achievementUnlocked": "🎉 Yeni nailiyyət: {{name}}",
+    "achievementUnlocked": "Yeni nailiyyət: {{name}}",
+    "questRewardToastTitle": "Mükafat alındı!",
+    "questRewardToastBody": "+{{xp}} XP · +{{coins}} coin",
+    "streakToastTitle": "Seriya davam edir!",
+    "streakToastBody": "{{count}} gün ardıcıl",
     "level": "Level",
     "xp": "XP",
     "coins": "Coins",
@@ -495,7 +529,8 @@
   },
   "notifications": {
     "title": "Bildirişlər",
-    "empty": "Hələ bildiriş yoxdur.",
+    "empty": "Hamısını gördün.",
+    "actionError": "Əməliyyat uğursuz oldu.",
     "unreadBadge": "{{count}} oxunmamış",
     "markAllRead": "Hamısını oxu",
     "today": "Bu gün",
@@ -515,7 +550,9 @@
     "hidePassword": "Şifrəni gizlət",
     "comingSoon": "Bu bölmə tezliklə hazır olacaq.",
     "close": "Bağla",
-    "cancel": "İmtina et"
+    "cancel": "İmtina et",
+    "loadError": "Yüklənə bilmədi.",
+    "retry": "Yenidən cəhd et"
   },
   "levelUp": {
     "congratulations": "Təbriklər!",
@@ -525,6 +562,13 @@
     "challengesUnlocked": "{{count}} Yeni Çağırış Açıldı",
     "quizzesUnlocked": "{{count}} Yeni Test Açıldı",
     "continue": "Davam et"
+  },
+  "dailyReward": {
+    "title": "Gündəlik Mükafat!",
+    "mysteryTitle": "Sürpriz Mükafat! ✨",
+    "subtitle": "Bugün daxil olduğun üçün təşəkkürlər.",
+    "coins": "Coin",
+    "continue": "Əla!"
   },
   "landing": {
     "nav": {

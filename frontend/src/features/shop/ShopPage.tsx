@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lightbulb, UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake, X } from 'lucide-react';
+import { Lightbulb, UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake, X, Loader2 } from 'lucide-react';
 import { getMarketplaceItems, getItemTypes, purchaseItem, equipItem, unequipItem, getMyPurchases } from '../../api/marketplace';
 import { EQUIPABLE_ITEM_TYPES } from '../../types/marketplace';
 import type { PurchaseResultDto } from '../../types/marketplace';
@@ -13,6 +14,7 @@ import { showToast } from '../../app/toastStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { PurchaseSuccessModal } from '../../components/ui/PurchaseSuccessModal';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound } from '../../utils/sounds';
@@ -45,7 +47,19 @@ export function ShopPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
-  const [typeId, setTypeId] = useState<number | undefined>(undefined);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const typeId = searchParams.get('type') ? Number(searchParams.get('type')) : undefined;
+  const setTypeId = (value: number | undefined) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value === undefined) next.delete('type');
+        else next.set('type', String(value));
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [celebratingId, setCelebratingId] = useState<number | null>(null);
   const [purchaseModalItem, setPurchaseModalItem] = useState<PurchaseResultDto | null>(null);
@@ -188,6 +202,8 @@ export function ShopPage() {
             <ShopItemSkeleton key={i} />
           ))}
         </div>
+      ) : itemsQuery.isError ? (
+        <QueryErrorState onRetry={() => itemsQuery.refetch()} />
       ) : items.length === 0 ? (
         <EmptyState
           icon={ShoppingBag}
@@ -279,7 +295,11 @@ export function ShopPage() {
                               disabled={unequipMutation.isPending}
                               className="flex items-center gap-1 rounded-full border border-slate-300 px-3.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-500/10 disabled:opacity-50 dark:border-white/20 dark:text-slate-300"
                             >
-                              <X size={11} />
+                              {unequipMutation.isPending && unequipMutation.variables === item.id ? (
+                                <Loader2 size={11} className="animate-spin" />
+                              ) : (
+                                <X size={11} />
+                              )}
                               {t('shop.unequip')}
                             </motion.button>
                           ) : (
@@ -287,8 +307,11 @@ export function ShopPage() {
                               {...buttonTap}
                               onClick={() => equipMutation.mutate(item.id)}
                               disabled={equipMutation.isPending}
-                              className="rounded-full border border-blue-400 px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/10 disabled:opacity-50 dark:text-cyan-400"
+                              className="flex items-center gap-1 rounded-full border border-blue-400 px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/10 disabled:opacity-50 dark:text-cyan-400"
                             >
+                              {equipMutation.isPending && equipMutation.variables === item.id && (
+                                <Loader2 size={11} className="animate-spin" />
+                              )}
                               {t('shop.equip')}
                             </motion.button>
                           )
@@ -298,8 +321,11 @@ export function ShopPage() {
                           {...buttonTap}
                           onClick={() => purchaseMutation.mutate(item.id)}
                           disabled={purchaseMutation.isPending}
-                          className="rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm shadow-app-accent/30"
+                          className="flex items-center gap-1 rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm shadow-app-accent/30"
                         >
+                          {purchaseMutation.isPending && purchaseMutation.variables === item.id && (
+                            <Loader2 size={11} className="animate-spin" />
+                          )}
                           {t('shop.buy')}
                         </motion.button>
                       ) : (

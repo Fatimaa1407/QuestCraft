@@ -73,7 +73,7 @@ export function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? t('auth.login.submitting') : t('auth.login.submit')}
         </Button>
 

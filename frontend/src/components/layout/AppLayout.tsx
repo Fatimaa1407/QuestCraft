@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthStore } from '../../app/authStore';
 import { ThemeSwitcher } from '../ui/ThemeSwitcher';
@@ -11,22 +11,47 @@ import { AmbientGlow } from '../ui/AmbientGlow';
 import { SeasonalEventBanner } from '../ui/SeasonalEventBanner';
 import { FramedAvatar } from '../ui/FramedAvatar';
 import { ToastStack } from '../ui/ToastStack';
+import { DailyRewardModal } from '../ui/DailyRewardModal';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
 import { pageTransition } from '../../utils/motion';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
 import { useNotificationsHub } from '../../utils/useNotificationsHub';
 import { getMyEquippedCosmetics } from '../../api/marketplace';
+import { claimDailyLoginReward } from '../../api/gamification';
+import type { DailyLoginRewardDto } from '../../types/gamification';
 import { applyAccentPalette } from '../../utils/themePalettes';
 
 export function AppLayout() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
   const location = useLocation();
   useNotificationsHub();
   const animatedLevel = useAnimatedNumber(user?.level ?? 0);
   const animatedXp = useAnimatedNumber(user?.xp ?? 0);
   const animatedCoins = useAnimatedNumber(user?.coins ?? 0);
+
+  // Idempotent on the backend (a no-op "already claimed" response after the first call each day),
+  // so firing this unconditionally once per app load — including twice under React StrictMode in
+  // dev — is safe without extra guarding.
+  const [dailyReward, setDailyReward] = useState<DailyLoginRewardDto | null>(null);
+  const claimDailyRewardMutation = useMutation({
+    mutationFn: claimDailyLoginReward,
+    onSuccess: (result) => {
+      if (result && !result.alreadyClaimed) {
+        updateUser({ coins: result.newCoinsTotal, xp: result.newXpTotal });
+        setDailyReward(result);
+      }
+    },
+  });
+  const claimDailyReward = claimDailyRewardMutation.mutate;
+  useEffect(() => {
+    if (user) claimDailyReward();
+    // Only re-fire when the user transitions from logged-out to logged-in, not on every user
+    // object update (e.g. coins/xp changing elsewhere would otherwise re-trigger this).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!user]);
 
   const { data: equipped } = useQuery({
     queryKey: ['profile', 'equipped'],
@@ -110,6 +135,13 @@ export function AppLayout() {
 
       <MobileNav />
       <ToastStack />
+      <DailyRewardModal
+        isOpen={!!dailyReward}
+        coinsAwarded={dailyReward?.coinsAwarded ?? 0}
+        xpAwarded={dailyReward?.xpAwarded ?? 0}
+        isMysteryBonus={dailyReward?.wasMysteryBonus ?? false}
+        onClose={() => setDailyReward(null)}
+      />
     </div>
   );
 }

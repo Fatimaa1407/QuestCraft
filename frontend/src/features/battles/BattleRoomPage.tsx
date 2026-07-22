@@ -225,6 +225,13 @@ export function BattleRoomPage() {
             </GlassCard>
           )}
 
+          {battle.status === 'InProgress' && challengeQuery.isLoading && (
+            <div className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          )}
+
           {battle.status === 'InProgress' && challengeQuery.data && (
             <>
               <GlassCard hoverLift={false} className="p-5">

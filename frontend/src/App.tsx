@@ -27,6 +27,8 @@ const BattleLobbyPage = lazy(() => import('./features/battles/BattleLobbyPage').
 const BattleRoomPage = lazy(() => import('./features/battles/BattleRoomPage').then((m) => ({ default: m.BattleRoomPage })));
 const AchievementsPage = lazy(() => import('./features/achievements/AchievementsPage').then((m) => ({ default: m.AchievementsPage })));
 const ProfilePage = lazy(() => import('./features/profile/ProfilePage').then((m) => ({ default: m.ProfilePage })));
+const StatisticsPage = lazy(() => import('./features/statistics/StatisticsPage').then((m) => ({ default: m.StatisticsPage })));
+const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const AdminDashboardPage = lazy(() => import('./features/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })));
 const CategoriesAdminPage = lazy(() => import('./features/admin/CategoriesAdminPage').then((m) => ({ default: m.CategoriesAdminPage })));
 const DifficultiesAdminPage = lazy(() => import('./features/admin/DifficultiesAdminPage').then((m) => ({ default: m.DifficultiesAdminPage })));
@@ -79,6 +81,8 @@ function App() {
                   <Route path="/achievements" element={<AchievementsPage />} />
                   <Route path="/shop" element={<ShopPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/statistics" element={<StatisticsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
 
                   <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
                     <Route path="/admin" element={<AdminDashboardPage />} />

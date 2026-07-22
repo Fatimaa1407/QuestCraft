@@ -1,20 +1,36 @@
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Trophy, Award, Lock, Star, Coins } from 'lucide-react';
-import { getAchievements } from '../../api/gamification';
+import { Trophy, Award, Lock, Star, Coins, Pin, PinOff } from 'lucide-react';
+import { getAchievements, pinAchievement, unpinAchievement } from '../../api/gamification';
+import { showToast } from '../../app/toastStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { QueryErrorState } from '../../components/ui/QueryErrorState';
+import { getApiErrorMessage } from '../../utils/apiError';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 export function AchievementsPage() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const achievementsQuery = useQuery({ queryKey: ['achievements'], queryFn: getAchievements });
   const achievements = achievementsQuery.data ?? [];
   const unlockedCount = achievements.filter((a) => a.isUnlocked).length;
+  const pinnedCount = achievements.filter((a) => a.isPinned).length;
   const progressPct = achievements.length > 0 ? (unlockedCount / achievements.length) * 100 : 0;
+
+  const pinMutation = useMutation({
+    mutationFn: pinAchievement,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['achievements'] }),
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('achievements.pinError')), emoji: '⚠️' }),
+  });
+  const unpinMutation = useMutation({
+    mutationFn: unpinAchievement,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['achievements'] }),
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('achievements.pinError')), emoji: '⚠️' }),
+  });
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
@@ -54,6 +70,8 @@ export function AchievementsPage() {
             <AchievementCardSkeleton key={i} />
           ))}
         </div>
+      ) : achievementsQuery.isError ? (
+        <QueryErrorState onRetry={() => achievementsQuery.refetch()} />
       ) : achievements.length === 0 ? (
         <EmptyState icon={Trophy} tint="violet" title={t('achievements.empty')} />
       ) : (
@@ -106,6 +124,29 @@ export function AchievementsPage() {
                     </span>
                   )}
                 </div>
+
+                {achievement.isUnlocked && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      achievement.isPinned ? unpinMutation.mutate(achievement.id) : pinMutation.mutate(achievement.id)
+                    }
+                    disabled={
+                      (pinMutation.isPending && pinMutation.variables === achievement.id) ||
+                      (unpinMutation.isPending && unpinMutation.variables === achievement.id) ||
+                      (!achievement.isPinned && pinnedCount >= 3)
+                    }
+                    title={!achievement.isPinned && pinnedCount >= 3 ? t('achievements.pinLimitReached') : undefined}
+                    className={`mt-3 flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                      achievement.isPinned
+                        ? 'bg-app-accent/10 text-app-accent dark:text-app-accent-2'
+                        : 'border border-slate-200/70 text-slate-500 hover:border-app-accent hover:text-app-accent dark:border-white/[0.08] dark:text-slate-400'
+                    }`}
+                  >
+                    {achievement.isPinned ? <PinOff size={12} /> : <Pin size={12} />}
+                    {achievement.isPinned ? t('achievements.unpin') : t('achievements.pin')}
+                  </button>
+                )}
               </GlassCard>
             </motion.div>
           ))}

@@ -13,7 +13,8 @@ public record AchievementDto(
     int XpReward,
     int CoinReward,
     bool IsUnlocked,
-    DateTime? UnlockedAt);
+    DateTime? UnlockedAt,
+    bool IsPinned);
 
 public record GetAchievementsQuery : IQuery<List<AchievementDto>>;
 
@@ -36,7 +37,7 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
             ? []
             : await _context.UserAchievements
                 .Where(ua => ua.UserId == userId)
-                .ToDictionaryAsync(ua => ua.AchievementId, ua => ua.UnlockedAt, cancellationToken);
+                .ToDictionaryAsync(ua => ua.AchievementId, ua => (ua.UnlockedAt, ua.IsPinned), cancellationToken);
 
         var achievements = await _context.Achievements
             .Where(a => a.IsActive)
@@ -44,12 +45,16 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
             .ToListAsync(cancellationToken);
 
         var isEnglish = _currentUser.IsEnglish;
-        return achievements.Select(a => new AchievementDto(
-            a.Id,
-            LocalizationHelper.Pick(a.Name, a.NameEn, isEnglish),
-            LocalizationHelper.Pick(a.Description, a.DescriptionEn, isEnglish),
-            a.IconUrl, a.XpReward, a.CoinReward,
-            unlockedMap.ContainsKey(a.Id), unlockedMap.GetValueOrDefault(a.Id)))
+        return achievements.Select(a =>
+        {
+            unlockedMap.TryGetValue(a.Id, out var unlocked);
+            return new AchievementDto(
+                a.Id,
+                LocalizationHelper.Pick(a.Name, a.NameEn, isEnglish),
+                LocalizationHelper.Pick(a.Description, a.DescriptionEn, isEnglish),
+                a.IconUrl, a.XpReward, a.CoinReward,
+                unlockedMap.ContainsKey(a.Id), unlocked.UnlockedAt, unlocked.IsPinned);
+        })
             .ToList();
     }
 }

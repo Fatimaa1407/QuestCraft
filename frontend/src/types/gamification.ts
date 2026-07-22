@@ -27,6 +27,7 @@ export interface Achievement {
   coinReward: number;
   isUnlocked: boolean;
   unlockedAt: string | null;
+  isPinned: boolean;
 }
 
 export interface LevelProgress {
@@ -92,4 +93,27 @@ export interface MyRankDto {
   totalUsers: number;
   xp: number;
   level: number;
+}
+
+export interface DailyLoginRewardDto {
+  alreadyClaimed: boolean;
+  coinsAwarded: number;
+  xpAwarded: number;
+  wasMysteryBonus: boolean;
+  newCoinsTotal: number;
+  newXpTotal: number;
+}
+
+export interface MyStatisticsDto {
+  challengesSolved: number;
+  quizzesCompleted: number;
+  successRatePercent: number;
+  averageSolveTimeMs: number | null;
+  currentStreak: number;
+  longestStreak: number;
+  totalXp: number;
+  totalCoinsEarned: number;
+  battlesWon: number;
+  rank: number;
+  totalUsers: number;
 }

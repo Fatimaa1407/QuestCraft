@@ -3,14 +3,18 @@ import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck, CalendarDays, UserPlus, UserCheck } from 'lucide-react';
+import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck, CalendarDays, UserPlus, UserCheck, BellOff } from 'lucide-react';
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/notifications';
 import { getMyEquippedCosmetics } from '../../api/marketplace';
 import { useAuthStore } from '../../app/authStore';
+import { showToast } from '../../app/toastStore';
 import type { AppNotification, NotificationType } from '../../types/notification';
 import { Z_INDEX } from '../../styles/zIndex';
 import { useRelativeTime } from '../../utils/useRelativeTime';
+import { getApiErrorMessage } from '../../utils/apiError';
 import { FramedAvatar } from './FramedAvatar';
+import { Skeleton } from './Skeleton';
+import { EmptyState } from './EmptyState';
 
 const MAX_NOTIFICATIONS = 30;
 
@@ -141,13 +145,21 @@ export function NotificationBell() {
 
   const handleItemClick = async (notification: AppNotification) => {
     if (notification.isRead) return;
-    await markNotificationRead(notification.id);
-    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    try {
+      await markNotificationRead(notification.id);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    } catch (err) {
+      showToast({ title: getApiErrorMessage(err, t('notifications.actionError')), emoji: '⚠️' });
+    }
   };
 
   const handleMarkAllRead = async () => {
-    await markAllNotificationsRead();
-    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    try {
+      await markAllNotificationsRead();
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    } catch (err) {
+      showToast({ title: getApiErrorMessage(err, t('notifications.actionError')), emoji: '⚠️' });
+    }
   };
 
   const groupedItems = list ? groupByDate(list.items) : [];
@@ -207,8 +219,20 @@ export function NotificationBell() {
               </div>
 
               <div className="max-h-96 overflow-y-auto">
-                {!list || list.items.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">{t('notifications.empty')}</p>
+                {!list ? (
+                  <div className="space-y-3 px-4 py-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+                        <div className="min-w-0 flex-1 space-y-1.5">
+                          <Skeleton className="h-3.5 w-2/3" />
+                          <Skeleton className="h-3 w-4/5" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : list.items.length === 0 ? (
+                  <EmptyState bare icon={BellOff} tint="blue" title={t('notifications.empty')} />
                 ) : (
                   groupedItems.map(({ bucket, items }) => (
                     <div key={bucket}>

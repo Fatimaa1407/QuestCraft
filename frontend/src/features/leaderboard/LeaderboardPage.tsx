@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Medal, Crown, Zap, Trophy } from 'lucide-react';
 import { getLeaderboard, getMyRank } from '../../api/gamification';
@@ -9,6 +9,7 @@ import { useAuthStore } from '../../app/authStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { FramedAvatar } from '../../components/ui/FramedAvatar';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
@@ -47,7 +48,20 @@ const podiumStyle: Record<
 export function LeaderboardPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
-  const [period, setPeriod] = useState<LeaderboardPeriod>('AllTime');
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const periodParam = searchParams.get('period');
+  const period: LeaderboardPeriod = periods.includes(periodParam as LeaderboardPeriod) ? (periodParam as LeaderboardPeriod) : 'AllTime';
+  const setPeriod = (value: LeaderboardPeriod) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('period', value);
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   const leaderboardQuery = useQuery({
     queryKey: ['leaderboard', period],
@@ -107,6 +121,8 @@ export function LeaderboardPage() {
             ))}
           </GlassCard>
         </div>
+      ) : leaderboardQuery.isError ? (
+        <QueryErrorState onRetry={() => leaderboardQuery.refetch()} />
       ) : entries.length === 0 ? (
         <EmptyState icon={Trophy} tint="amber" title={t('leaderboard.empty')} />
       ) : (

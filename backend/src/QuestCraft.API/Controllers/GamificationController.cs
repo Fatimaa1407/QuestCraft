@@ -84,4 +84,36 @@ public class GamificationController : ControllerBase
         var result = await _mediator.Send(new GetMyRankQuery(period), cancellationToken);
         return Ok(ApiResponse<MyRankDto>.Ok(result));
     }
+
+    [HttpPost("daily-login-reward/claim")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<DailyLoginRewardDto>>> ClaimDailyLoginReward(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ClaimDailyLoginRewardCommand(), cancellationToken);
+        return Ok(ApiResponse<DailyLoginRewardDto>.Ok(result));
+    }
+
+    [HttpGet("statistics")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<MyStatisticsDto>>> GetMyStatistics(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetMyStatisticsQuery(), cancellationToken);
+        return Ok(ApiResponse<MyStatisticsDto>.Ok(result));
+    }
+
+    [HttpPost("achievements/{id:int}/pin")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<object?>>> PinAchievement(int id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new PinAchievementCommand(id), cancellationToken);
+        return Ok(ApiResponse<object?>.Ok(null, "Sancıldı."));
+    }
+
+    [HttpPost("achievements/{id:int}/unpin")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<object?>>> UnpinAchievement(int id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new UnpinAchievementCommand(id), cancellationToken);
+        return Ok(ApiResponse<object?>.Ok(null, "Çıxarıldı."));
+    }
 }

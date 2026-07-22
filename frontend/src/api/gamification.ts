@@ -4,12 +4,14 @@ import type {
   Achievement,
   ClaimDailyQuestResult,
   CurrentSeasonalEventDto,
+  DailyLoginRewardDto,
   DailyQuest,
   DashboardAnalyticsDto,
   LeaderboardEntry,
   LeaderboardPeriod,
   LevelProgress,
   MyRankDto,
+  MyStatisticsDto,
   StreakDto,
 } from '../types/gamification';
 
@@ -60,4 +62,22 @@ export async function getMyRank(period: LeaderboardPeriod = 'AllTime'): Promise<
 export async function getCurrentSeasonalEvent(): Promise<CurrentSeasonalEventDto | null> {
   const { data } = await apiClient.get<ApiResponse<CurrentSeasonalEventDto | null>>('/api/seasonal-events/current');
   return data.data;
+}
+
+export async function claimDailyLoginReward(): Promise<DailyLoginRewardDto | null> {
+  const { data } = await apiClient.post<ApiResponse<DailyLoginRewardDto>>('/api/gamification/daily-login-reward/claim');
+  return data.data;
+}
+
+export async function getMyStatistics(): Promise<MyStatisticsDto | null> {
+  const { data } = await apiClient.get<ApiResponse<MyStatisticsDto>>('/api/gamification/statistics');
+  return data.data;
+}
+
+export async function pinAchievement(achievementId: number): Promise<void> {
+  await apiClient.post(`/api/gamification/achievements/${achievementId}/pin`);
+}
+
+export async function unpinAchievement(achievementId: number): Promise<void> {
+  await apiClient.post(`/api/gamification/achievements/${achievementId}/unpin`);
 }

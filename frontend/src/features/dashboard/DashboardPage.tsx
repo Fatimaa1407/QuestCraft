@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Trophy, Lock, TrendingUp } from 'lucide-react';
+import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Lock, TrendingUp } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
+import { showToast } from '../../app/toastStore';
 import { getDailyQuests, claimDailyQuest, getLevelProgress, getDashboardAnalytics, getMyStreak } from '../../api/gamification';
 import type { LevelProgress } from '../../types/gamification';
 import { getMySubmissions } from '../../api/submissions';
@@ -11,6 +12,7 @@ import { getMyQuizAttempts } from '../../api/quizzes';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { StatCard } from '../../components/ui/StatCard';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { LevelUpModal } from '../../components/ui/LevelUpModal';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 import { playSuccessSound } from '../../utils/sounds';
 import { XpTrendChart } from './XpTrendChart';
@@ -19,11 +21,18 @@ import { CategoryBreakdown } from './CategoryBreakdown';
 import { StreakStat } from './StreakStat';
 import { ActivityFeed } from './ActivityFeed';
 
+interface DashboardLevelUpInfo {
+  previousLevel: number;
+  newLevel: number;
+  xpEarned: number;
+  coinsEarned: number;
+}
+
 export function DashboardPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
-  const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  const [levelUpInfo, setLevelUpInfo] = useState<DashboardLevelUpInfo | null>(null);
 
   const questsQuery = useQuery({ queryKey: ['daily-quests'], queryFn: getDailyQuests });
   const levelProgressQuery = useQuery({ queryKey: ['level-progress'], queryFn: getLevelProgress });
@@ -38,17 +47,50 @@ export function DashboardPage() {
   const analyticsQuery = useQuery({ queryKey: ['dashboard-analytics'], queryFn: getDashboardAnalytics });
   const streakQuery = useQuery({ queryKey: ['streak', 'my'], queryFn: getMyStreak });
 
+  // Fires once whenever the streak counter has grown since the last time this component saw it
+  // (e.g. after solving a challenge/quiz elsewhere and coming back to the dashboard) — never on
+  // first load, since previousStreakRef starts null.
+  const previousStreakRef = useRef<number | null>(null);
+  useEffect(() => {
+    const current = streakQuery.data?.currentStreak;
+    if (current === undefined) return;
+    if (previousStreakRef.current !== null && current > previousStreakRef.current) {
+      showToast({ title: t('dashboard.streakToastTitle'), message: t('dashboard.streakToastBody', { count: current }), emoji: '🔥' });
+    }
+    previousStreakRef.current = current;
+  }, [streakQuery.data?.currentStreak, t]);
+
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const claimMutation = useMutation({
     mutationFn: claimDailyQuest,
     onSuccess: (result) => {
       if (result) {
+        const previousLevel = user?.level ?? 1;
+        const previousCoins = user?.coins ?? 0;
+        const previousXp = user?.xp ?? 0;
         updateUser({ xp: result.totalXp, coins: result.totalCoins, level: result.level });
+
+        playSuccessSound();
+        showToast({
+          title: t('dashboard.questRewardToastTitle'),
+          message: t('dashboard.questRewardToastBody', { xp: result.totalXp - previousXp, coins: result.totalCoins - previousCoins }),
+          emoji: '🎁',
+        });
+
         if (result.newAchievements.length > 0) {
-          playSuccessSound();
-          setNewAchievements(result.newAchievements);
-          setTimeout(() => setNewAchievements([]), 4000);
+          result.newAchievements.forEach((name) => {
+            showToast({ title: t('dashboard.achievementUnlocked', { name }), emoji: '🏆' });
+          });
+        }
+
+        if (result.level > previousLevel) {
+          setLevelUpInfo({
+            previousLevel,
+            newLevel: result.level,
+            xpEarned: result.totalXp - previousXp,
+            coinsEarned: result.totalCoins - previousCoins,
+          });
         }
       }
       queryClient.invalidateQueries({ queryKey: ['daily-quests'] });
@@ -58,27 +100,25 @@ export function DashboardPage() {
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-10">
+      {levelUpInfo && (
+        <LevelUpModal
+          isOpen
+          previousLevel={levelUpInfo.previousLevel}
+          newLevel={levelUpInfo.newLevel}
+          xpEarned={levelUpInfo.xpEarned}
+          coinsEarned={levelUpInfo.coinsEarned}
+          newChallengesUnlocked={0}
+          newQuizzesUnlocked={0}
+          onContinue={() => setLevelUpInfo(null)}
+        />
+      )}
+
       <motion.div variants={fadeInUp}>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
           {t('dashboard.welcome', { name: user?.firstName ?? user?.username })}
         </h1>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('dashboard.subtitle')}</p>
       </motion.div>
-
-      {newAchievements.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-1.5 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3"
-        >
-          {newAchievements.map((name) => (
-            <p key={name} className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-400">
-              <Trophy size={15} />
-              {t('dashboard.achievementUnlocked', { name })}
-            </p>
-          ))}
-        </motion.div>
-      )}
 
       <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={ShieldCheck} label={t('dashboard.level')} value={user?.level ?? 1} tint="blue" />

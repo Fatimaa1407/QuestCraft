@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Code2, LayoutDashboard, Swords, Dumbbell, Trophy, Award, User, ShoppingBag, LogOut, ShieldCheck, Users, MessageCircle, Gamepad2 } from 'lucide-react';
+import { Code2, LayoutDashboard, Swords, Dumbbell, Trophy, Award, User, ShoppingBag, LogOut, ShieldCheck, Users, MessageCircle, Gamepad2, BarChart3, Settings } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { logout } from '../../api/auth';
 
@@ -14,8 +14,10 @@ const navItems = [
   { to: '/chat', labelKey: 'nav.chat', icon: MessageCircle, end: false },
   { to: '/battles', labelKey: 'nav.battles', icon: Gamepad2, end: false },
   { to: '/achievements', labelKey: 'nav.achievements', icon: Award, end: false },
+  { to: '/statistics', labelKey: 'nav.statistics', icon: BarChart3, end: false },
   { to: '/shop', labelKey: 'nav.shop', icon: ShoppingBag, end: false },
   { to: '/profile', labelKey: 'nav.profile', icon: User, end: false },
+  { to: '/settings', labelKey: 'nav.settings', icon: Settings, end: false },
 ];
 
 const adminNavItem = { to: '/admin', labelKey: 'nav.admin', icon: ShieldCheck, end: false };

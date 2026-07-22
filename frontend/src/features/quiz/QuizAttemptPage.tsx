@@ -7,11 +7,13 @@ import { ArrowLeft, CheckCircle2, XCircle, Star, Trophy, Sparkles } from 'lucide
 import { getQuizForAttempt, submitQuizAttempt } from '../../api/quizzes';
 import type { QuizAttemptResultDto } from '../../types/quiz';
 import { useAuthStore } from '../../app/authStore';
+import { showToast } from '../../app/toastStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Confetti } from '../../components/ui/Confetti';
 import { FloatingXp } from '../../components/ui/FloatingXp';
 import { QuizCompleteModal } from '../../components/ui/QuizCompleteModal';
 import { LevelUpModal } from '../../components/ui/LevelUpModal';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound, playFanfareSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
@@ -58,6 +60,9 @@ export function QuizAttemptPage() {
       queryClient.invalidateQueries({ queryKey: ['quizzes', 'attempts', 'my'] });
       queryClient.invalidateQueries({ queryKey: ['quiz-attempt-view', quizId] });
       queryClient.invalidateQueries({ queryKey: ['level-progress'] });
+      data.newAchievements.forEach((name) => {
+        showToast({ title: t('dashboard.achievementUnlocked', { name }), emoji: '🏆' });
+      });
     },
     onError: (err) => setError(getApiErrorMessage(err, t('quiz.actionError'))),
   });
@@ -102,7 +107,13 @@ export function QuizAttemptPage() {
   }, [quizQuery.data]);
 
   if (quizQuery.isLoading) {
-    return <p className="text-sm text-slate-400 dark:text-slate-500">{t('common.loading')}</p>;
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    );
   }
 
   const quiz = quizQuery.data;

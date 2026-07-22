@@ -202,7 +202,11 @@
     "subtitle": "Track your wins, collect your rewards.",
     "unlockedLabel": "Unlocked",
     "unlockedBadge": "✓ Unlocked",
-    "empty": "No achievements yet."
+    "empty": "No achievements yet.",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "pinLimitReached": "You can pin up to 3 achievements.",
+    "pinError": "Action failed."
   },
   "profile": {
     "equippedTitle": "Equipped Items",
@@ -216,7 +220,10 @@
     "save": "Save",
     "saving": "Saving...",
     "saved": "Saved ✓",
-    "rank": "Rank"
+    "rank": "Rank",
+    "allEquipped": "Everything you own is equipped!",
+    "featuredAchievements": "Featured Achievements",
+    "saveError": "Couldn't save."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -229,10 +236,33 @@
     "achievements": "Achievements",
     "shop": "Shop",
     "profile": "Profile",
+    "statistics": "Statistics",
+    "settings": "Settings",
     "admin": "Admin",
     "logout": "Log out",
     "more": "More",
     "mobileNavLabel": "Main navigation"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Make the experience your own.",
+    "audioSection": "Audio",
+    "soundEffects": "Sound effects",
+    "soundEffectsHint": "Sounds for leveling up, purchases and other events."
+  },
+  "statistics": {
+    "title": "Statistics",
+    "subtitle": "The full picture of your progress.",
+    "challengesSolved": "Challenges Solved",
+    "quizzesCompleted": "Quizzes Completed",
+    "successRate": "Success Rate",
+    "avgSolveTime": "Avg. Solve Time",
+    "currentStreak": "Current Streak",
+    "longestStreak": "Longest Streak",
+    "totalXp": "Total XP",
+    "coinsEarned": "Coins Earned",
+    "battlesWon": "Battles Won",
+    "rank": "Rank"
   },
   "challenges": {
     "title": "Coding Challenges",
@@ -292,7 +322,11 @@
   "dashboard": {
     "welcome": "Welcome, {{name}}!",
     "subtitle": "Here's a look at your progress today.",
-    "achievementUnlocked": "🎉 New achievement: {{name}}",
+    "achievementUnlocked": "New achievement: {{name}}",
+    "questRewardToastTitle": "Reward claimed!",
+    "questRewardToastBody": "+{{xp}} XP · +{{coins}} coins",
+    "streakToastTitle": "Streak continues!",
+    "streakToastBody": "{{count}} days in a row",
     "level": "Level",
     "xp": "XP",
     "coins": "Coins",
@@ -495,7 +529,8 @@
   },
   "notifications": {
     "title": "Notifications",
-    "empty": "No notifications yet.",
+    "empty": "You're all caught up.",
+    "actionError": "Action failed.",
     "unreadBadge": "{{count}} unread",
     "markAllRead": "Mark all read",
     "today": "Today",
@@ -515,7 +550,9 @@
     "hidePassword": "Hide password",
     "comingSoon": "This section will be ready soon.",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loadError": "Couldn't load this.",
+    "retry": "Retry"
   },
   "levelUp": {
     "congratulations": "Congratulations!",
@@ -525,6 +562,13 @@
     "challengesUnlocked": "{{count}} New Challenges Unlocked",
     "quizzesUnlocked": "{{count}} New Quiz Unlocked",
     "continue": "Continue"
+  },
+  "dailyReward": {
+    "title": "Daily Reward!",
+    "mysteryTitle": "Surprise Reward! ✨",
+    "subtitle": "Thanks for coming back today.",
+    "coins": "Coins",
+    "continue": "Awesome!"
   },
   "landing": {
     "nav": {

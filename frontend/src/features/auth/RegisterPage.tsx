@@ -129,7 +129,7 @@ export function RegisterPage() {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}
         </Button>
 
