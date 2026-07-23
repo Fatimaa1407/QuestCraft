@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CalendarDays } from 'lucide-react';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
+import type { HeatmapDay } from '../../types/gamification';
 
 const DAYS = 30;
 
@@ -10,9 +11,26 @@ function toIsoDate(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// 0 = inactive, 1-4 = increasing intensity buckets by action count.
+function intensityLevel(count: number): 0 | 1 | 2 | 3 | 4 {
+  if (count <= 0) return 0;
+  if (count === 1) return 1;
+  if (count <= 3) return 2;
+  if (count <= 5) return 3;
+  return 4;
+}
+
+const LEVEL_CLASSES: Record<0 | 1 | 2 | 3 | 4, string> = {
+  0: 'bg-slate-200/70 dark:bg-white/[0.06]',
+  1: 'bg-blue-300/60 dark:bg-cyan-900/60',
+  2: 'bg-blue-400/80 dark:bg-cyan-700/80',
+  3: 'bg-blue-500 dark:bg-cyan-500',
+  4: 'bg-gradient-to-br from-blue-600 to-cyan-500 shadow-sm shadow-blue-500/40',
+};
+
 interface DayCell {
   iso: string;
-  isActive: boolean;
+  count: number;
   isToday: boolean;
   weekday: number; // 0 = Monday .. 6 = Sunday
 }
@@ -20,7 +38,7 @@ interface DayCell {
 // Builds a GitHub-contribution-graph-style grid: columns are weeks, rows are weekdays
 // (Monday-first), covering the last 30 days. Leading cells before day 1 of the range
 // are left as empty spacers so the first real day lands on its correct weekday row.
-function buildWeeks(activeDates: Set<string>): DayCell[][] {
+function buildWeeks(countByDate: Map<string, number>): DayCell[][] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const days: DayCell[] = [];
@@ -30,7 +48,7 @@ function buildWeeks(activeDates: Set<string>): DayCell[][] {
     const iso = toIsoDate(d);
     const jsWeekday = d.getDay(); // 0 = Sunday
     const weekday = (jsWeekday + 6) % 7; // 0 = Monday
-    days.push({ iso, isActive: activeDates.has(iso), isToday: i === 0, weekday });
+    days.push({ iso, count: countByDate.get(iso) ?? 0, isToday: i === 0, weekday });
   }
 
   const weeks: DayCell[][] = [];
@@ -49,9 +67,12 @@ function buildWeeks(activeDates: Set<string>): DayCell[][] {
   return weeks;
 }
 
-export function ActivityHeatmap({ activeDates, isLoading }: { activeDates: string[] | undefined; isLoading: boolean }) {
+export function ActivityHeatmap({ activeDates, isLoading }: { activeDates: HeatmapDay[] | undefined; isLoading: boolean }) {
   const { t } = useTranslation();
-  const weeks = useMemo(() => buildWeeks(new Set(activeDates ?? [])), [activeDates]);
+  const weeks = useMemo(
+    () => buildWeeks(new Map((activeDates ?? []).map((d) => [d.date, d.count]))),
+    [activeDates],
+  );
 
   return (
     <GlassCard hoverLift={false} className="p-6">
@@ -73,12 +94,10 @@ export function ActivityHeatmap({ activeDates, isLoading }: { activeDates: strin
                   day ? (
                     <div
                       key={day.iso}
-                      title={`${day.iso}${day.isActive ? ` · ${t('dashboard.activityHeatmapActive')}` : ''}`}
-                      className={`h-3.5 w-3.5 rounded-[3px] ${
-                        day.isActive
-                          ? 'bg-gradient-to-br from-blue-500 to-cyan-500 shadow-sm shadow-blue-500/30'
-                          : 'bg-slate-200/70 dark:bg-white/[0.06]'
-                      } ${day.isToday ? 'ring-1 ring-offset-1 ring-blue-500 ring-offset-white dark:ring-cyan-400 dark:ring-offset-slate-900' : ''}`}
+                      title={`${day.iso}${day.count > 0 ? ` · ${t('dashboard.activityHeatmapCount', { count: day.count })}` : ''}`}
+                      className={`h-3.5 w-3.5 rounded-[3px] ${LEVEL_CLASSES[intensityLevel(day.count)]} ${
+                        day.isToday ? 'ring-1 ring-offset-1 ring-blue-500 ring-offset-white dark:ring-cyan-400 dark:ring-offset-slate-900' : ''
+                      }`}
                     />
                   ) : (
                     <div key={dayIdx} className="h-3.5 w-3.5" />
@@ -90,8 +109,9 @@ export function ActivityHeatmap({ activeDates, isLoading }: { activeDates: strin
 
           <div className="ml-1 flex shrink-0 items-center gap-1.5 self-end text-[11px] text-slate-400 dark:text-slate-500">
             <span>{t('dashboard.activityHeatmapLess')}</span>
-            <span className="h-3 w-3 rounded-[3px] bg-slate-200/70 dark:bg-white/[0.06]" />
-            <span className="h-3 w-3 rounded-[3px] bg-gradient-to-br from-blue-500 to-cyan-500" />
+            {([0, 1, 2, 3, 4] as const).map((level) => (
+              <span key={level} className={`h-3 w-3 rounded-[3px] ${LEVEL_CLASSES[level]}`} />
+            ))}
             <span>{t('dashboard.activityHeatmapMore')}</span>
           </div>
         </div>

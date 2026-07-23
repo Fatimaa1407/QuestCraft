@@ -116,4 +116,28 @@ public class GamificationController : ControllerBase
         await _mediator.Send(new UnpinAchievementCommand(id), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null, "Çıxarıldı."));
     }
+
+    [HttpGet("recommendations")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<RecommendationDto>>> GetRecommendations(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetRecommendationsQuery(), cancellationToken);
+        return Ok(ApiResponse<RecommendationDto>.Ok(result));
+    }
+
+    [HttpGet("heatmap")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<List<HeatmapDayDetailDto>>>> GetActivityHeatmap([FromQuery] int days = 180, CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetActivityHeatmapQuery(days), cancellationToken);
+        return Ok(ApiResponse<List<HeatmapDayDetailDto>>.Ok(result));
+    }
+
+    [HttpGet("certificate")]
+    [Authorize]
+    public async Task<IActionResult> GetCertificate(CancellationToken cancellationToken)
+    {
+        var bytes = await _mediator.Send(new GenerateCertificateQuery(), cancellationToken);
+        return File(bytes, "application/pdf", "questcraft-certificate.pdf");
+    }
 }

@@ -34,4 +34,10 @@ public class UserProfile : BaseEntity
     // Null until the user's first daily-login-reward claim; compared against "today" (UTC date)
     // to decide claim eligibility, mirrors Streak.LastActivityDate's nullable-DateOnly pattern.
     public DateOnly? LastLoginRewardClaimedAt { get; set; }
+
+    // User-configured daily targets; null means the user hasn't set that goal. Progress against these
+    // is computed statelessly from today's ChallengeSubmission/XpTransaction/BattleParticipant rows.
+    public int? DailyGoalChallenges { get; set; }
+    public int? DailyGoalXp { get; set; }
+    public int? DailyGoalBattles { get; set; }
 }

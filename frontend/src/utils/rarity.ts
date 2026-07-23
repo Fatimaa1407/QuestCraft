@@ -1,6 +1,7 @@
-export type Rarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
+export type Rarity = 'Common' | 'Rare' | 'Epic' | 'Legendary' | 'Mythic';
 
 export function getRarity(price: number): Rarity {
+  if (price >= 200) return 'Mythic';
   if (price >= 150) return 'Legendary';
   if (price >= 100) return 'Epic';
   if (price >= 50) return 'Rare';
@@ -38,5 +39,12 @@ export const RARITY_STYLES: Record<
     borderColor: 'rgba(245, 158, 11, 0.55)',
     glow: 'hover:shadow-amber-500/30',
     labelAz: 'Legendary',
+  },
+  Mythic: {
+    dot: 'bg-fuchsia-500',
+    text: 'text-fuchsia-600 dark:text-fuchsia-400',
+    borderColor: 'rgba(217, 70, 239, 0.6)',
+    glow: 'hover:shadow-fuchsia-500/40',
+    labelAz: 'Mythic',
   },
 };

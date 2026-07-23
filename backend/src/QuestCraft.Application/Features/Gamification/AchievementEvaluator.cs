@@ -43,17 +43,6 @@ public class AchievementEvaluator : IAchievementEvaluator
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
         var streak = await _context.Streaks.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
 
-        // A challenge counts as a "no-hint solve" if it was ever Accepted and no hint was unlocked for
-        // it by this user (ChallengeHint.UnlockedAt has no time ordering requirement — unlocking a hint
-        // after already solving it without one still disqualifies it, which matches player expectations).
-        var noHintSolveCount = candidates.Any(a => a.ConditionType == AchievementConditionType.NoHintSolve)
-            ? await _context.ChallengeSubmissions
-                .Where(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted)
-                .Select(s => s.ChallengeId)
-                .Distinct()
-                .CountAsync(challengeId => !_context.ChallengeHints.Any(h => h.UserId == userId && h.ChallengeId == challengeId), cancellationToken)
-            : 0;
-
         // "Fast solve" = accepted with a client-reported solve time under a minute. The timer is
         // client-controlled (like any quiz timer elsewhere in the app), so this is a soft signal used
         // only for this achievement, never for XP/coin rewards.
@@ -62,6 +51,17 @@ public class AchievementEvaluator : IAchievementEvaluator
             ? await _context.ChallengeSubmissions
                 .CountAsync(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted
                     && s.SolveTimeMs != null && s.SolveTimeMs <= SpeedSolveThresholdMs, cancellationToken)
+            : 0;
+
+        // Approximated as distinct calendar days with an Accepted submission on any daily-puzzle-pool
+        // challenge, rather than reconstructing which exact challenge was "today's" pick on each past
+        // day — the pool is small and stable enough that this is a reasonable soft signal for a badge.
+        var dailyPuzzleDaysSolved = candidates.Any(a => a.ConditionType == AchievementConditionType.DailyPuzzleDaysSolved)
+            ? await _context.ChallengeSubmissions
+                .Where(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted && s.Challenge.IsDailyPuzzle)
+                .Select(s => s.SubmittedAt.Date)
+                .Distinct()
+                .CountAsync(cancellationToken)
             : 0;
 
         var unlocked = new List<Achievement>();
@@ -75,8 +75,8 @@ public class AchievementEvaluator : IAchievementEvaluator
                 AchievementConditionType.XpTotal => profile?.Xp >= achievement.ConditionValue,
                 AchievementConditionType.StreakDays => streak?.LongestStreak >= achievement.ConditionValue,
                 AchievementConditionType.QuizzesCompleted => stats?.TotalQuizzesCompleted >= achievement.ConditionValue,
-                AchievementConditionType.NoHintSolve => noHintSolveCount >= achievement.ConditionValue,
                 AchievementConditionType.SpeedSolve => speedSolveCount >= achievement.ConditionValue,
+                AchievementConditionType.DailyPuzzleDaysSolved => dailyPuzzleDaysSolved >= achievement.ConditionValue,
                 _ => false,
             };
 

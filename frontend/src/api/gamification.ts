@@ -7,11 +7,14 @@ import type {
   DailyLoginRewardDto,
   DailyQuest,
   DashboardAnalyticsDto,
+  HeatmapDayDetail,
   LeaderboardEntry,
   LeaderboardPeriod,
   LevelProgress,
   MyRankDto,
   MyStatisticsDto,
+  PersonalGoalsProgressDto,
+  RecommendationDto,
   StreakDto,
 } from '../types/gamification';
 
@@ -50,6 +53,34 @@ export async function getDashboardAnalytics(): Promise<DashboardAnalyticsDto> {
 export async function getMyStreak(): Promise<StreakDto> {
   const { data } = await apiClient.get<ApiResponse<StreakDto>>('/api/gamification/streak');
   return data.data ?? { currentStreak: 0, longestStreak: 0, lastActivityDate: null, activeDatesLast30: [] };
+}
+
+export async function getRecommendations(): Promise<RecommendationDto> {
+  const { data } = await apiClient.get<ApiResponse<RecommendationDto>>('/api/gamification/recommendations');
+  return data.data ?? { weakCategoryName: null, acceptanceRate: null, challenges: [] };
+}
+
+export async function getPersonalGoals(): Promise<PersonalGoalsProgressDto> {
+  const { data } = await apiClient.get<ApiResponse<PersonalGoalsProgressDto>>('/api/profile/goals');
+  return data.data ?? { challengeGoal: null, challengesDoneToday: 0, xpGoal: null, xpToday: 0, battleGoal: null, battlesToday: 0 };
+}
+
+export async function updatePersonalGoals(goals: {
+  dailyGoalChallenges: number | null;
+  dailyGoalXp: number | null;
+  dailyGoalBattles: number | null;
+}): Promise<void> {
+  await apiClient.put('/api/profile/goals', goals);
+}
+
+export async function getActivityHeatmap(days = 180): Promise<HeatmapDayDetail[]> {
+  const { data } = await apiClient.get<ApiResponse<HeatmapDayDetail[]>>('/api/gamification/heatmap', { params: { days } });
+  return data.data ?? [];
+}
+
+export async function downloadCertificate(): Promise<Blob> {
+  const { data } = await apiClient.get('/api/gamification/certificate', { responseType: 'blob' });
+  return data as Blob;
 }
 
 export async function getMyRank(period: LeaderboardPeriod = 'AllTime'): Promise<MyRankDto> {

@@ -1,37 +1,43 @@
 import { useTranslation } from 'react-i18next';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { motion } from 'framer-motion';
 import { PieChart } from 'lucide-react';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { useThemeStore } from '../../app/themeStore';
+import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
 import type { CategoryProgress } from '../../types/gamification';
 
-interface Row extends CategoryProgress {
-  remaining: number;
-}
+function CategoryRow({ categoryName, completed, total }: CategoryProgress) {
+  const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const animatedPercent = useAnimatedNumber(percent, 900);
 
-function TooltipContent({ active, payload }: { active?: boolean; payload?: Array<{ payload: Row }> }) {
-  const { t } = useTranslation();
-  if (!active || !payload || payload.length === 0) return null;
-  const row = payload[0].payload;
   return (
-    <div className="rounded-xl border border-slate-200/70 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur-xl dark:border-white/[0.08] dark:bg-slate-900/95">
-      <p className="font-medium text-slate-700 dark:text-slate-200">{row.categoryName}</p>
-      <p className="mt-0.5 text-blue-600 dark:text-cyan-400">{t('dashboard.categoryTooltip', { completed: row.completed, total: row.total })}</p>
+    <div>
+      <div className="mb-1.5 flex items-center justify-between gap-2 text-sm">
+        <span className="font-medium text-slate-700 dark:text-slate-200">{categoryName}</span>
+        <span className="flex items-center gap-2 text-xs">
+          <span className="text-slate-500 dark:text-slate-400">
+            {completed}/{total}
+          </span>
+          <span className="font-semibold text-blue-600 dark:text-cyan-400">{animatedPercent}%</span>
+        </span>
+      </div>
+      <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/[0.06]">
+        <motion.div
+          className="relative h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+          initial={{ width: 0 }}
+          animate={{ width: `${percent}%` }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+        >
+          <span className="animate-shimmer-sweep-loop absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+        </motion.div>
+      </div>
     </div>
   );
 }
 
 export function CategoryBreakdown({ data, isLoading }: { data: CategoryProgress[] | undefined; isLoading: boolean }) {
   const { t } = useTranslation();
-  const theme = useThemeStore((s) => s.theme);
-  const isDark = theme === 'dark';
-  const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
-  const axisColor = isDark ? '#94a3b8' : '#64748b';
-  const trackColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.08)';
-
-  const rows: Row[] = (data ?? []).map((c) => ({ ...c, remaining: Math.max(0, c.total - c.completed) }));
-  const chartHeight = Math.max(140, rows.length * 44);
+  const rows = data ?? [];
 
   return (
     <GlassCard hoverLift={false} className="p-6">
@@ -43,30 +49,23 @@ export function CategoryBreakdown({ data, isLoading }: { data: CategoryProgress[
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-40 w-full" />
+        <div className="space-y-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-1.5">
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-2.5 w-full" />
+            </div>
+          ))}
+        </div>
       ) : rows.length === 0 ? (
         <div className="flex h-40 items-center justify-center">
           <p className="text-sm text-slate-500 dark:text-slate-500">{t('dashboard.noCategoryData')}</p>
         </div>
       ) : (
-        <div style={{ height: chartHeight }} className="w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={rows} layout="vertical" margin={{ top: 0, right: 16, left: 0, bottom: 0 }} barCategoryGap={14}>
-              <CartesianGrid stroke={gridColor} horizontal={false} />
-              <XAxis type="number" allowDecimals={false} tick={{ fill: axisColor, fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis
-                type="category"
-                dataKey="categoryName"
-                tick={{ fill: axisColor, fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-                width={110}
-              />
-              <Tooltip content={<TooltipContent />} cursor={{ fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(15,23,42,0.03)' }} />
-              <Bar dataKey="completed" stackId="progress" fill="#06b6d4" radius={[4, 0, 0, 4]} barSize={16} />
-              <Bar dataKey="remaining" stackId="progress" fill={trackColor} radius={[0, 4, 4, 0]} barSize={16} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="space-y-4">
+          {rows.map((row) => (
+            <CategoryRow key={row.categoryName} {...row} />
+          ))}
         </div>
       )}
     </GlassCard>

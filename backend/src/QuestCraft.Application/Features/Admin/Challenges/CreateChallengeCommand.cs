@@ -22,7 +22,6 @@ public record CreateChallengeCommand(
     string? OutputFormat,
     string? SampleInput,
     string? SampleOutput,
-    string? Hint,
     bool IsPublished,
     int RequiredLevel = 1,
     string? TitleEn = null,
@@ -30,7 +29,6 @@ public record CreateChallengeCommand(
     string? ConstraintsEn = null,
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
-    string? HintEn = null,
     string? StarterCodeEn = null,
     string? Tags = null,
     bool IsBattleOnly = false) : ICommand<ChallengeDetailDto>;
@@ -96,7 +94,6 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             OutputFormat = request.OutputFormat,
             SampleInput = request.SampleInput,
             SampleOutput = request.SampleOutput,
-            Hint = request.Hint,
             IsPublished = request.IsPublished,
             RequiredLevel = request.RequiredLevel,
             TitleEn = request.TitleEn,
@@ -104,7 +101,6 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             ConstraintsEn = request.ConstraintsEn,
             InputFormatEn = request.InputFormatEn,
             OutputFormatEn = request.OutputFormatEn,
-            HintEn = request.HintEn,
             StarterCodeEn = request.StarterCodeEn,
             Tags = request.Tags,
             IsBattleOnly = request.IsBattleOnly,
@@ -118,8 +114,7 @@ public class CreateChallengeCommandHandler : IRequestHandler<CreateChallengeComm
             challenge.CategoryId, category.Name, challenge.DifficultyId, difficulty.Name,
             challenge.TimeLimitMs, challenge.MemoryLimitMb, challenge.XpReward, challenge.CoinReward,
             challenge.StarterCode, challenge.Constraints, challenge.InputFormat, challenge.OutputFormat,
-            challenge.SampleInput, challenge.SampleOutput, challenge.Hint,
-            !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished, challenge.RequiredLevel,
+            challenge.SampleInput, challenge.SampleOutput, challenge.IsPublished, challenge.RequiredLevel,
             [], [], false, Tags: challenge.Tags, IsBattleOnly: challenge.IsBattleOnly);
     }
 }

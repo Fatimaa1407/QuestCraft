@@ -23,8 +23,8 @@ import { fadeInUp, staggerContainer } from '../../utils/motion';
 const emptyForm: ChallengePayload = {
   title: '', description: '', categoryId: 0, difficultyId: 0, timeLimitMs: 2000, memoryLimitMb: 256,
   xpReward: 20, coinReward: 5, starterCode: '', constraints: '', inputFormat: '', outputFormat: '',
-  sampleInput: '', sampleOutput: '', hint: '', isPublished: true, requiredLevel: 1,
-  titleEn: '', descriptionEn: '', constraintsEn: '', inputFormatEn: '', outputFormatEn: '', hintEn: '', starterCodeEn: '',
+  sampleInput: '', sampleOutput: '', isPublished: true, requiredLevel: 1,
+  titleEn: '', descriptionEn: '', constraintsEn: '', inputFormatEn: '', outputFormatEn: '', starterCodeEn: '',
   tags: '', isBattleOnly: false,
 };
 
@@ -57,9 +57,9 @@ export function ChallengeEditPage() {
         timeLimitMs: c.timeLimitMs, memoryLimitMb: c.memoryLimitMb, xpReward: c.xpReward, coinReward: c.coinReward,
         starterCode: c.starterCode, constraints: c.constraints ?? '', inputFormat: c.inputFormat ?? '',
         outputFormat: c.outputFormat ?? '', sampleInput: c.sampleInput ?? '', sampleOutput: c.sampleOutput ?? '',
-        hint: c.hint ?? '', isPublished: c.isPublished, requiredLevel: c.requiredLevel,
+        isPublished: c.isPublished, requiredLevel: c.requiredLevel,
         titleEn: c.titleEn ?? '', descriptionEn: c.descriptionEn ?? '', constraintsEn: c.constraintsEn ?? '',
-        inputFormatEn: c.inputFormatEn ?? '', outputFormatEn: c.outputFormatEn ?? '', hintEn: c.hintEn ?? '',
+        inputFormatEn: c.inputFormatEn ?? '', outputFormatEn: c.outputFormatEn ?? '',
         starterCodeEn: c.starterCodeEn ?? '',
         tags: c.tags ?? '', isBattleOnly: c.isBattleOnly,
       });
@@ -176,8 +176,6 @@ export function ChallengeEditPage() {
             <TextField id="outputFormatEn" label="Output Format (EN)" value={form.outputFormatEn ?? ''} onChange={(e) => set('outputFormatEn', e.target.value)} />
             <TextField id="sampleInput" label="Sample Input" value={form.sampleInput ?? ''} onChange={(e) => set('sampleInput', e.target.value)} />
             <TextField id="sampleOutput" label="Sample Output" value={form.sampleOutput ?? ''} onChange={(e) => set('sampleOutput', e.target.value)} />
-            <TextField id="hint" label="Hint" value={form.hint ?? ''} onChange={(e) => set('hint', e.target.value)} />
-            <TextField id="hintEn" label="Hint (EN)" value={form.hintEn ?? ''} onChange={(e) => set('hintEn', e.target.value)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">

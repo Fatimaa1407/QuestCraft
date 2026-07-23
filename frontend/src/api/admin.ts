@@ -31,7 +31,6 @@ export interface ChallengePayload {
   outputFormat: string | null;
   sampleInput: string | null;
   sampleOutput: string | null;
-  hint: string | null;
   isPublished: boolean;
   requiredLevel: number;
   titleEn: string | null;
@@ -39,7 +38,6 @@ export interface ChallengePayload {
   constraintsEn: string | null;
   inputFormatEn: string | null;
   outputFormatEn: string | null;
-  hintEn: string | null;
   starterCodeEn: string | null;
   tags: string | null;
   isBattleOnly: boolean;

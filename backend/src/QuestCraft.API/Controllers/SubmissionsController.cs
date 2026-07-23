@@ -47,6 +47,13 @@ public class SubmissionsController : ControllerBase
         var result = await _mediator.Send(new GetMySubmissionsQuery(page, pageSize), cancellationToken);
         return Ok(ApiResponse<PagedResult<SubmissionListItemDto>>.Ok(result));
     }
+
+    [HttpGet("challenge/{challengeId:int}")]
+    public async Task<ActionResult<ApiResponse<ChallengeReplayDto>>> GetChallengeReplay(int challengeId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetChallengeReplayQuery(challengeId), cancellationToken);
+        return Ok(ApiResponse<ChallengeReplayDto>.Ok(result));
+    }
 }
 
 public record RunRequest(int ChallengeId, string SourceCode);

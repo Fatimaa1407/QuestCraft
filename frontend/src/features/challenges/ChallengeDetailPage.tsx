@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import Editor from '@monaco-editor/react';
-import { ArrowLeft, ArrowRight, Play, Send, Lock, Star, Coins, CheckCircle2, XCircle, Trophy, Sparkles } from 'lucide-react';
-import { getChallengeById, getChallenges, unlockHint } from '../../api/challenges';
+import { ArrowLeft, ArrowRight, Play, Send, Star, Coins, CheckCircle2, XCircle, Trophy, Sparkles, Zap } from 'lucide-react';
+import { getChallengeById, getChallenges } from '../../api/challenges';
 import { runCode, submitCode } from '../../api/submissions';
 import type { RunResultDto, SubmissionResultDto, SubmissionTestResultDto } from '../../types/submission';
 import { useThemeStore } from '../../app/themeStore';
@@ -18,8 +18,12 @@ import { FloatingXp } from '../../components/ui/FloatingXp';
 import { ChallengeCompleteModal } from '../../components/ui/ChallengeCompleteModal';
 import { LevelUpModal } from '../../components/ui/LevelUpModal';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { SuccessSweep } from '../../components/ui/SuccessSweep';
 import { playFanfareSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
+import { ChallengeStatsBar } from './ChallengeStatsBar';
+import { ChallengeReplayPanel } from './ChallengeReplayPanel';
+import { ChallengeDiscussion } from './ChallengeDiscussion';
 
 const difficultyStyles: Record<string, string> = {
   Easy: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
@@ -116,14 +120,6 @@ export function ChallengeDetailPage() {
     onError: (err) => setActionError(getApiErrorMessage(err, t('challenges.actionError'))),
   });
 
-  const hintMutation = useMutation({
-    mutationFn: () => unlockHint(challengeId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['challenge', challengeId] });
-    },
-    onError: (err) => setActionError(getApiErrorMessage(err, t('challenges.actionError'))),
-  });
-
   if (challengeQuery.isLoading) {
     return (
       <div className="space-y-6">
@@ -150,6 +146,7 @@ export function ChallengeDetailPage() {
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
       {celebrate && <Confetti />}
+      {celebrate && <SuccessSweep />}
       {celebrate && submitResult && <FloatingXp xp={submitResult.xpEarned} />}
 
       {showCompleteModal && submitResult && (
@@ -207,6 +204,17 @@ export function ChallengeDetailPage() {
                 <Coins size={13} className="text-amber-500" />
                 {challenge.coinReward}
               </span>
+              <Link
+                to={`/challenges/${challengeId}/speed`}
+                className="ml-auto flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-600 transition-colors hover:bg-amber-500/20 dark:text-amber-400"
+              >
+                <Zap size={11} />
+                {t('challenges.speedModeLink')}
+              </Link>
+            </div>
+
+            <div className="mt-3">
+              <ChallengeStatsBar challengeId={challengeId} />
             </div>
 
             <p className="mt-4 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">{challenge.description}</p>
@@ -237,26 +245,11 @@ export function ChallengeDetailPage() {
                 )}
               </div>
             )}
-
-            {challenge.hasHint && (
-              <div className="mt-4 rounded-2xl border border-slate-200/70 p-3.5 dark:border-white/[0.06]">
-                {challenge.isHintUnlocked ? (
-                  <p className="text-sm text-slate-700 dark:text-slate-300">{challenge.hint}</p>
-                ) : (
-                  <button
-                    onClick={() => hintMutation.mutate()}
-                    disabled={hintMutation.isPending}
-                    className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline disabled:opacity-50 dark:text-cyan-400"
-                  >
-                    <Lock size={14} />
-                    {t('challenges.unlockHint')}
-                  </button>
-                )}
-              </div>
-            )}
           </GlassCard>
 
           {(runResult || submitResult) && <ResultPanel runResult={runResult} submitResult={submitResult} />}
+
+          <ChallengeReplayPanel challengeId={challengeId} />
         </motion.div>
 
         <motion.div variants={fadeInUp} className="flex flex-col gap-4">
@@ -308,6 +301,8 @@ export function ChallengeDetailPage() {
           </div>
         </motion.div>
       </div>
+
+      <ChallengeDiscussion challengeId={challengeId} />
 
       {levelUpInfo && (
         <LevelUpModal

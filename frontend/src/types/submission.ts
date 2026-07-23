@@ -32,6 +32,23 @@ export interface SubmissionTestResultDto {
   actualOutput: string | null;
 }
 
+export interface ChallengeReplayAttemptDto {
+  id: number;
+  verdict: SubmissionVerdict;
+  submittedAt: string;
+  executionTimeMs: number;
+  solveTimeMs: number | null;
+}
+
+export interface ChallengeReplayDto {
+  totalAttempts: number;
+  wrongAttempts: number;
+  firstSubmittedAt: string | null;
+  firstAcceptedAt: string | null;
+  timeToSolveMs: number | null;
+  attempts: ChallengeReplayAttemptDto[];
+}
+
 export interface SubmissionResultDto {
   submissionId: number;
   verdict: SubmissionVerdict;

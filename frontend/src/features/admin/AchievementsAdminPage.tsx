@@ -15,9 +15,9 @@ const conditionTypeOptions = [
   { value: 'AcceptedCount', label: 'AcceptedCount' },
   { value: 'XpTotal', label: 'XpTotal' },
   { value: 'StreakDays', label: 'StreakDays' },
-  { value: 'NoHintSolve', label: 'NoHintSolve' },
   { value: 'SpeedSolve', label: 'SpeedSolve' },
   { value: 'QuizzesCompleted', label: 'QuizzesCompleted' },
+  { value: 'DailyPuzzleDaysSolved', label: 'DailyPuzzleDaysSolved' },
 ];
 
 export function AchievementsAdminPage() {

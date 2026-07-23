@@ -23,7 +23,6 @@ public record UpdateChallengeCommand(
     string? OutputFormat,
     string? SampleInput,
     string? SampleOutput,
-    string? Hint,
     bool IsPublished,
     int RequiredLevel = 1,
     string? TitleEn = null,
@@ -31,7 +30,6 @@ public record UpdateChallengeCommand(
     string? ConstraintsEn = null,
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
-    string? HintEn = null,
     string? StarterCodeEn = null,
     string? Tags = null,
     bool IsBattleOnly = false) : ICommand<ChallengeDetailDto>;
@@ -100,7 +98,6 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
         challenge.OutputFormat = request.OutputFormat;
         challenge.SampleInput = request.SampleInput;
         challenge.SampleOutput = request.SampleOutput;
-        challenge.Hint = request.Hint;
         challenge.IsPublished = request.IsPublished;
         challenge.RequiredLevel = request.RequiredLevel;
         challenge.TitleEn = request.TitleEn;
@@ -108,7 +105,6 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
         challenge.ConstraintsEn = request.ConstraintsEn;
         challenge.InputFormatEn = request.InputFormatEn;
         challenge.OutputFormatEn = request.OutputFormatEn;
-        challenge.HintEn = request.HintEn;
         challenge.StarterCodeEn = request.StarterCodeEn;
         challenge.Tags = request.Tags;
         challenge.IsBattleOnly = request.IsBattleOnly;
@@ -120,8 +116,7 @@ public class UpdateChallengeCommandHandler : IRequestHandler<UpdateChallengeComm
             challenge.CategoryId, category.Name, challenge.DifficultyId, difficulty.Name,
             challenge.TimeLimitMs, challenge.MemoryLimitMb, challenge.XpReward, challenge.CoinReward,
             challenge.StarterCode, challenge.Constraints, challenge.InputFormat, challenge.OutputFormat,
-            challenge.SampleInput, challenge.SampleOutput, challenge.Hint,
-            !string.IsNullOrWhiteSpace(challenge.Hint), true, challenge.IsPublished, challenge.RequiredLevel,
+            challenge.SampleInput, challenge.SampleOutput, challenge.IsPublished, challenge.RequiredLevel,
             challenge.TestCases.OrderBy(t => t.OrderIndex)
                 .Select(t => new TestCaseDto(t.Id, t.Input, t.ExpectedOutput, t.OrderIndex))
                 .ToList(),

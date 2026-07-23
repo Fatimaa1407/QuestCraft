@@ -70,6 +70,11 @@ public class ImportQuizQuestionsCommandHandler : IRequestHandler<ImportQuizQuest
                     throw new InvalidOperationException("Düzgün olaraq yalnız bir seçim işarələnməlidir.");
                 }
 
+                if (options.Select(o => o.Text.Trim()).Distinct().Count() != options.Count)
+                {
+                    throw new InvalidOperationException("Seçimlərin mətni bir-birindən fərqli olmalıdır.");
+                }
+
                 _context.Questions.Add(new Question
                 {
                     QuizId = request.QuizId,

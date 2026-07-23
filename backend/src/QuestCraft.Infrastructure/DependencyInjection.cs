@@ -5,6 +5,7 @@ using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Infrastructure.CodeExecution;
 using QuestCraft.Infrastructure.Excel;
 using QuestCraft.Infrastructure.Identity;
+using QuestCraft.Infrastructure.Pdf;
 using QuestCraft.Infrastructure.Persistence;
 
 namespace QuestCraft.Infrastructure;
@@ -24,6 +25,7 @@ public static class DependencyInjection
         services.AddSingleton<ICodeExecutionEngine, SubprocessCodeExecutionEngine>();
         services.AddSingleton<IExcelReader, ClosedXmlExcelReader>();
         services.AddSingleton<IExcelExportService, ClosedXmlExportService>();
+        services.AddSingleton<ICertificatePdfGenerator, CertificatePdfGenerator>();
 
         return services;
     }

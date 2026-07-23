@@ -1,6 +1,6 @@
 import { apiClient } from './client';
 import type { ApiResponse, PagedResult } from '../types/api';
-import type { RunResultDto, SubmissionListItem, SubmissionResultDto } from '../types/submission';
+import type { ChallengeReplayDto, RunResultDto, SubmissionListItem, SubmissionResultDto } from '../types/submission';
 
 export async function getMySubmissions(page = 1, pageSize = 5): Promise<PagedResult<SubmissionListItem>> {
   const { data } = await apiClient.get<ApiResponse<PagedResult<SubmissionListItem>>>('/api/submissions/my', {
@@ -17,4 +17,9 @@ export async function runCode(challengeId: number, sourceCode: string): Promise<
 export async function submitCode(challengeId: number, sourceCode: string, solveTimeMs?: number): Promise<SubmissionResultDto | null> {
   const { data } = await apiClient.post<ApiResponse<SubmissionResultDto>>('/api/submissions/submit', { challengeId, sourceCode, solveTimeMs });
   return data.data;
+}
+
+export async function getChallengeReplay(challengeId: number): Promise<ChallengeReplayDto> {
+  const { data } = await apiClient.get<ApiResponse<ChallengeReplayDto>>(`/api/submissions/challenge/${challengeId}`);
+  return data.data ?? { totalAttempts: 0, wrongAttempts: 0, firstSubmittedAt: null, firstAcceptedAt: null, timeToSolveMs: null, attempts: [] };
 }

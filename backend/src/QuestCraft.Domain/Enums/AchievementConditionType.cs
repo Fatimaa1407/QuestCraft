@@ -6,7 +6,7 @@ public enum AchievementConditionType
     AcceptedCount,
     XpTotal,
     StreakDays,
-    NoHintSolve,
     SpeedSolve,
     QuizzesCompleted,
+    DailyPuzzleDaysSolved,
 }

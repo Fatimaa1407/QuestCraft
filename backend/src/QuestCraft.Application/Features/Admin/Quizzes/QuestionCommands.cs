@@ -22,7 +22,15 @@ public class AddQuestionCommandValidator : AbstractValidator<AddQuestionCommand>
         RuleFor(x => x.Options).Must(o => o.Count >= 2).WithMessage("Ən azı 2 seçim olmalıdır.");
         RuleFor(x => x.Options).Must(o => o.Count(x => x.IsCorrect) == 1)
             .WithMessage("Düzgün olaraq yalnız bir seçim işarələnməlidir.");
+        RuleFor(x => x.Options).Must(HaveDistinctText)
+            .WithMessage("Seçimlərin mətni bir-birindən fərqli olmalıdır.");
     }
+
+    // Case-SENSITIVE on purpose: options that differ only by case (e.g. "SALAM" vs "salam") render as
+    // visibly distinct text and are a legitimate way to quiz exact-case output — only truly identical
+    // (after trimming outer whitespace) option text is the real "student can't tell them apart" bug.
+    internal static bool HaveDistinctText(List<QuestionOptionInput> options) =>
+        options.Select(o => o.Text.Trim()).Distinct().Count() == options.Count;
 }
 
 public class AddQuestionCommandHandler : IRequestHandler<AddQuestionCommand, int>
@@ -78,6 +86,8 @@ public class UpdateQuestionCommandValidator : AbstractValidator<UpdateQuestionCo
         RuleFor(x => x.Options).Must(o => o.Count >= 2).WithMessage("Ən azı 2 seçim olmalıdır.");
         RuleFor(x => x.Options).Must(o => o.Count(x => x.IsCorrect) == 1)
             .WithMessage("Düzgün olaraq yalnız bir seçim işarələnməlidir.");
+        RuleFor(x => x.Options).Must(AddQuestionCommandValidator.HaveDistinctText)
+            .WithMessage("Seçimlərin mətni bir-birindən fərqli olmalıdır.");
     }
 }
 

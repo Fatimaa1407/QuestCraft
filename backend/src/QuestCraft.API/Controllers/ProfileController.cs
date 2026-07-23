@@ -38,4 +38,18 @@ public class ProfileController : ControllerBase
         var result = await _mediator.Send(new GetMyEquippedCosmeticsQuery(), cancellationToken);
         return Ok(ApiResponse<EquippedCosmeticsDto>.Ok(result));
     }
+
+    [HttpGet("goals")]
+    public async Task<ActionResult<ApiResponse<PersonalGoalsProgressDto>>> GetGoals(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetPersonalGoalsProgressQuery(), cancellationToken);
+        return Ok(ApiResponse<PersonalGoalsProgressDto>.Ok(result));
+    }
+
+    [HttpPut("goals")]
+    public async Task<ActionResult<ApiResponse<PersonalGoalsDto>>> UpdateGoals(UpdatePersonalGoalsCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command, cancellationToken);
+        return Ok(ApiResponse<PersonalGoalsDto>.Ok(result, "Məqsədlər yeniləndi."));
+    }
 }

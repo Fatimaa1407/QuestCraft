@@ -14,6 +14,8 @@ using QuestCraft.Infrastructure;
 using QuestCraft.Infrastructure.Identity;
 using QuestCraft.Infrastructure.Persistence;
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

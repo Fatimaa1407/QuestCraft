@@ -2,10 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Lock, TrendingUp } from 'lucide-react';
+import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Lock, TrendingUp, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
-import { getDailyQuests, claimDailyQuest, getLevelProgress, getDashboardAnalytics, getMyStreak } from '../../api/gamification';
+import {
+  getDailyQuests,
+  claimDailyQuest,
+  getLevelProgress,
+  getDashboardAnalytics,
+  getMyStreak,
+  getActivityHeatmap,
+  getMyStatistics,
+} from '../../api/gamification';
+import { getDailyPuzzle } from '../../api/challenges';
 import type { LevelProgress } from '../../types/gamification';
 import { getMySubmissions } from '../../api/submissions';
 import { getMyQuizAttempts } from '../../api/quizzes';
@@ -16,10 +25,14 @@ import { LevelUpModal } from '../../components/ui/LevelUpModal';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 import { playSuccessSound } from '../../utils/sounds';
 import { XpTrendChart } from './XpTrendChart';
-import { ActivityHeatmap } from './ActivityHeatmap';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { StreakStat } from './StreakStat';
 import { ActivityFeed } from './ActivityFeed';
+import { RecommendationPanel } from './RecommendationPanel';
+import { PersonalGoalsPanel } from './PersonalGoalsPanel';
+import { DailyPuzzleCard } from './DailyPuzzleCard';
+import { ContributionHeatmap } from './ContributionHeatmap';
+import { AnalyticsStatsRow } from './AnalyticsStatsRow';
 
 interface DashboardLevelUpInfo {
   previousLevel: number;
@@ -46,6 +59,9 @@ export function DashboardPage() {
   });
   const analyticsQuery = useQuery({ queryKey: ['dashboard-analytics'], queryFn: getDashboardAnalytics });
   const streakQuery = useQuery({ queryKey: ['streak', 'my'], queryFn: getMyStreak });
+  const heatmapQuery = useQuery({ queryKey: ['gamification', 'heatmap', 180], queryFn: () => getActivityHeatmap(180) });
+  const statisticsQuery = useQuery({ queryKey: ['gamification', 'statistics'], queryFn: getMyStatistics });
+  const dailyPuzzleQuery = useQuery({ queryKey: ['daily-puzzle'], queryFn: getDailyPuzzle });
 
   // Fires once whenever the streak counter has grown since the last time this component saw it
   // (e.g. after solving a challenge/quiz elsewhere and coming back to the dashboard) — never on
@@ -136,9 +152,42 @@ export function DashboardPage() {
         <XpTrendChart data={analyticsQuery.data?.xpLast30Days} isLoading={analyticsQuery.isLoading} />
       </motion.div>
 
-      <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ActivityHeatmap activeDates={streakQuery.data?.activeDatesLast30} isLoading={streakQuery.isLoading} />
+      <motion.div variants={fadeInUp}>
+        <GlassCard hoverLift={false} glow className="p-6">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-cyan-400">
+                <CalendarDays size={16} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t('dashboard.activityHeatmapTitle')}</h2>
+                <p className="text-xs text-slate-400 dark:text-slate-500">{t('dashboard.heatmapSubtitle')}</p>
+              </div>
+            </div>
+          </div>
+
+          <AnalyticsStatsRow
+            currentStreak={streakQuery.data?.currentStreak ?? 0}
+            longestStreak={streakQuery.data?.longestStreak ?? 0}
+            totalSolved={statisticsQuery.data?.challengesSolved ?? 0}
+            totalCodingTimeMs={statisticsQuery.data?.totalCodingTimeMs ?? 0}
+            dailyPuzzleSolved={dailyPuzzleQuery.data?.challengeId ? dailyPuzzleQuery.data.solvedToday : undefined}
+          />
+
+          <div className="mt-6">
+            <ContributionHeatmap days={heatmapQuery.data} isLoading={heatmapQuery.isLoading} />
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      <motion.div variants={fadeInUp}>
         <CategoryBreakdown data={analyticsQuery.data?.categoryProgress} isLoading={analyticsQuery.isLoading} />
+      </motion.div>
+
+      <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <DailyPuzzleCard />
+        <RecommendationPanel />
+        <PersonalGoalsPanel />
       </motion.div>
 
       <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-6 lg:grid-cols-2">

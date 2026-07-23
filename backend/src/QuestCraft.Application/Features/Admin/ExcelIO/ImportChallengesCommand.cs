@@ -8,7 +8,7 @@ using QuestCraft.Domain.Entities;
 namespace QuestCraft.Application.Features.Admin.ExcelIO;
 
 // Column order: Title, Description, CategoryName, DifficultyName, TimeLimitMs, MemoryLimitMb,
-// XpReward, CoinReward, StarterCode, Constraints, InputFormat, OutputFormat, SampleInput, SampleOutput, Hint, IsPublished
+// XpReward, CoinReward, StarterCode, Constraints, InputFormat, OutputFormat, SampleInput, SampleOutput, IsPublished
 public record ImportChallengesCommand(string FileName, byte[] FileContent) : ICommand<ExcelImportResultDto>;
 
 public class ImportChallengesCommandHandler : IRequestHandler<ImportChallengesCommand, ExcelImportResultDto>
@@ -69,8 +69,7 @@ public class ImportChallengesCommandHandler : IRequestHandler<ImportChallengesCo
                     OutputFormat = ExcelRowReader.Cell(row, 11),
                     SampleInput = ExcelRowReader.Cell(row, 12),
                     SampleOutput = ExcelRowReader.Cell(row, 13),
-                    Hint = ExcelRowReader.Cell(row, 14),
-                    IsPublished = ExcelRowReader.ParseBool(row, 15),
+                    IsPublished = ExcelRowReader.ParseBool(row, 14),
                 });
 
                 successCount++;

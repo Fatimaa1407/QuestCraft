@@ -27,6 +27,5 @@ public class User : BaseEntity
     public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public ICollection<ActivityLog> ActivityLogs { get; set; } = new List<ActivityLog>();
-    public ICollection<ChallengeHint> UnlockedHints { get; set; } = new List<ChallengeHint>();
     public ICollection<LeaderboardSnapshot> LeaderboardSnapshots { get; set; } = new List<LeaderboardSnapshot>();
 }

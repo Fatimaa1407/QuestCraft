@@ -63,17 +63,12 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
                 .ToListAsync(cancellationToken);
         }
 
-        var hasHint = !string.IsNullOrWhiteSpace(challenge.Hint);
-        var isHintUnlocked = isAdmin || (hasHint && _currentUser.UserId is not null &&
-            await _context.ChallengeHints.AnyAsync(h => h.UserId == _currentUser.UserId && h.ChallengeId == request.Id, cancellationToken));
-
         var isAlreadySolved = _currentUser.UserId is not null &&
             await _context.ChallengeSubmissions.AnyAsync(
                 s => s.UserId == _currentUser.UserId && s.ChallengeId == request.Id && s.Verdict == SubmissionVerdict.Accepted,
                 cancellationToken);
 
         var isEnglish = _currentUser.IsEnglish;
-        var localizedHint = isHintUnlocked ? LocalizationHelper.PickNullable(challenge.Hint, challenge.HintEn, isEnglish) : null;
 
         return new ChallengeDetailDto(
             challenge.Id,
@@ -93,9 +88,6 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
             LocalizationHelper.PickNullable(challenge.OutputFormat, challenge.OutputFormatEn, isEnglish),
             challenge.SampleInput,
             challenge.SampleOutput,
-            localizedHint,
-            hasHint,
-            isHintUnlocked,
             challenge.IsPublished,
             challenge.RequiredLevel,
             challenge.TestCases.OrderBy(t => t.OrderIndex)
@@ -108,7 +100,6 @@ public class GetChallengeByIdQueryHandler : IRequestHandler<GetChallengeByIdQuer
             isAdmin ? challenge.ConstraintsEn : null,
             isAdmin ? challenge.InputFormatEn : null,
             isAdmin ? challenge.OutputFormatEn : null,
-            isAdmin ? challenge.HintEn : null,
             isAdmin ? challenge.StarterCodeEn : null,
             challenge.Tags,
             challenge.IsBattleOnly);

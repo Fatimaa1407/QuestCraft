@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lightbulb, UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake, X, Loader2 } from 'lucide-react';
+import { UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake, X, Loader2 } from 'lucide-react';
 import { getMarketplaceItems, getItemTypes, purchaseItem, equipItem, unequipItem, getMyPurchases } from '../../api/marketplace';
 import { EQUIPABLE_ITEM_TYPES } from '../../types/marketplace';
 import type { PurchaseResultDto } from '../../types/marketplace';
@@ -20,8 +20,7 @@ import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 
-const typeIcons: Record<string, typeof Lightbulb> = {
-  Hint: Lightbulb,
+const typeIcons: Record<string, typeof UserCircle> = {
   Avatar: UserCircle,
   ProfileFrame: Frame,
   ProfileBanner: Image,
@@ -34,7 +33,6 @@ const typeIcons: Record<string, typeof Lightbulb> = {
 const typeEmoji: Record<string, string> = {
   Avatar: '😀',
   Badge: '🏅',
-  Hint: '💡',
   ProfileFrame: '🖼️',
   ProfileBanner: '🏳️',
   Theme: '🎨',

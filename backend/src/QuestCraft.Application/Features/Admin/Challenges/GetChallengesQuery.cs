@@ -41,13 +41,13 @@ public class GetChallengesQueryHandler : IRequestHandler<GetChallengesQuery, Pag
             }
         }
 
-        // Battle-pool challenges are a separate set entirely — never shown in the leveled
-        // practice list (student or admin), only ever surfaced via GetBattlePoolChallengesQuery
-        // and picked at random when a Battle room/duel is created.
+        // Battle-pool and daily-puzzle-pool challenges are separate sets entirely — never shown in
+        // the leveled practice list (student or admin); battle-pool challenges are only ever
+        // surfaced via GetBattlePoolChallengesQuery, daily-puzzle ones via GetDailyPuzzleQuery.
         var query = _context.Challenges
             .Include(c => c.Category)
             .Include(c => c.Difficulty)
-            .Where(c => !c.IsBattleOnly);
+            .Where(c => !c.IsBattleOnly && !c.IsDailyPuzzle);
 
         if (!request.IncludeUnpublished)
         {

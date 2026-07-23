@@ -35,9 +35,6 @@ public record ChallengeDetailDto(
     string? OutputFormat,
     string? SampleInput,
     string? SampleOutput,
-    string? Hint,
-    bool HasHint,
-    bool IsHintUnlocked,
     bool IsPublished,
     int RequiredLevel,
     List<TestCaseDto> TestCases,
@@ -50,7 +47,6 @@ public record ChallengeDetailDto(
     string? ConstraintsEn = null,
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
-    string? HintEn = null,
     string? StarterCodeEn = null,
     string? Tags = null,
     bool IsBattleOnly = false);

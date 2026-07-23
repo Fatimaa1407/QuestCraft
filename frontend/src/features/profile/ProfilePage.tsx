@@ -2,12 +2,12 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X, CheckCircle2 } from 'lucide-react';
+import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X, CheckCircle2, Download } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
 import { getMyProfile, updateMyProfile } from '../../api/profile';
 import { getMyPurchases, getMyEquippedCosmetics, equipItem, unequipItem } from '../../api/marketplace';
-import { getDashboardAnalytics, getMyRank, getAchievements } from '../../api/gamification';
+import { getDashboardAnalytics, getMyRank, getAchievements, getMyStreak, downloadCertificate } from '../../api/gamification';
 import { getMySubmissions } from '../../api/submissions';
 import { getMyQuizAttempts } from '../../api/quizzes';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -19,8 +19,11 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { FramedAvatar } from '../../components/ui/FramedAvatar';
 import { CategoryBreakdown } from '../dashboard/CategoryBreakdown';
 import { ActivityFeed } from '../dashboard/ActivityFeed';
+import { ActivityHeatmap } from '../dashboard/ActivityHeatmap';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import { motion } from 'framer-motion';
+
+const CERTIFICATE_REQUIRED_LEVEL = 10;
 
 const equippedTypeIcons: Record<string, typeof Frame> = {
   Avatar: UserCircle,
@@ -54,6 +57,20 @@ export function ProfilePage() {
   });
   const achievementsQuery = useQuery({ queryKey: ['achievements'], queryFn: getAchievements });
   const pinnedAchievements = (achievementsQuery.data ?? []).filter((a) => a.isPinned);
+  const streakQuery = useQuery({ queryKey: ['streak', 'my'], queryFn: getMyStreak });
+
+  const certificateMutation = useMutation({
+    mutationFn: downloadCertificate,
+    onSuccess: (blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'questcraft-certificate.pdf';
+      link.click();
+      URL.revokeObjectURL(url);
+    },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('profile.certificateError')), emoji: '⚠️' }),
+  });
 
   useEffect(() => {
     if (profileQuery.data && !isDirty) {
@@ -204,7 +221,28 @@ export function ProfilePage() {
         )}
       </motion.div>
 
-      <motion.div variants={fadeInUp}>
+      {(user?.level ?? 1) >= CERTIFICATE_REQUIRED_LEVEL && (
+        <motion.div variants={fadeInUp}>
+          <GlassCard className="flex flex-col items-start justify-between gap-3 p-6 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('profile.certificateTitle')}</h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('profile.certificateSubtitle')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => certificateMutation.mutate()}
+              disabled={certificateMutation.isPending}
+              className="flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-app-accent/25 transition hover:brightness-110 disabled:opacity-50"
+            >
+              <Download size={15} />
+              {certificateMutation.isPending ? t('profile.certificateDownloading') : t('profile.certificateDownload')}
+            </button>
+          </GlassCard>
+        </motion.div>
+      )}
+
+      <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ActivityHeatmap activeDates={streakQuery.data?.activeDatesLast30} isLoading={streakQuery.isLoading} />
         <CategoryBreakdown data={analyticsQuery.data?.categoryProgress} isLoading={analyticsQuery.isLoading} />
       </motion.div>
 

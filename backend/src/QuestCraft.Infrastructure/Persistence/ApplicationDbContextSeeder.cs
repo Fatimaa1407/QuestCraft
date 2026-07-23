@@ -20,6 +20,7 @@ public static class ApplicationDbContextSeeder
         // Ids by name right after (same reason SeedMarketplaceItemsAsync needs the type-seed committed first).
         await context.SaveChangesAsync();
         await SeedBattlePoolChallengesAsync(context);
+        await SeedDailyPuzzleChallengesAsync(context);
         await SeedMarketplaceItemTypesAsync(context);
         await SeedMarketplaceItemsAsync(context);
         await SeedDailyQuestTemplatesAsync(context);
@@ -380,6 +381,139 @@ public static class ApplicationDbContextSeeder
         );
     }
 
+    // Dedicated daily-puzzle pool, deliberately separate from both the leveled practice list and the
+    // battle pool. GetDailyPuzzleQuery picks one deterministically by date (today.DayNumber % pool
+    // size), so every user sees the same challenge on a given day and it rotates at UTC midnight.
+    private static async Task SeedDailyPuzzleChallengesAsync(ApplicationDbContext context)
+    {
+        if (await context.Challenges.AnyAsync(c => c.IsDailyPuzzle))
+        {
+            return;
+        }
+
+        const string starterCodeAz = "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        // Kodunuzu bura yazın\n    }\n}\n";
+        const string starterCodeEn = "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        // Write your code here\n    }\n}\n";
+
+        const int Arrays = 1, Strings = 2, LoopsConditions = 3, Oop = 4, Linq = 5, Collections = 6,
+            Recursion = 7, ExceptionHandling = 8, Generics = 9, DelegatesEvents = 10;
+        const int Easy = 1, Medium = 2;
+
+        Challenge Build(
+            string title, string titleEn, string description, string descriptionEn,
+            string inputFormat, string inputFormatEn, string outputFormat, string outputFormatEn,
+            string sampleInput, string sampleOutput, int categoryId, int difficultyId, int xp, int coin,
+            (string Input, string Output)[] visible, (string Input, string Output)[] hidden)
+        {
+            var challenge = new Challenge
+            {
+                Title = title,
+                TitleEn = titleEn,
+                Description = description,
+                DescriptionEn = descriptionEn,
+                InputFormat = inputFormat,
+                InputFormatEn = inputFormatEn,
+                OutputFormat = outputFormat,
+                OutputFormatEn = outputFormatEn,
+                SampleInput = sampleInput,
+                SampleOutput = sampleOutput,
+                StarterCode = starterCodeAz,
+                StarterCodeEn = starterCodeEn,
+                TimeLimitMs = 2000,
+                MemoryLimitMb = 256,
+                XpReward = xp,
+                CoinReward = coin,
+                RequiredLevel = 1,
+                IsPublished = true,
+                IsDailyPuzzle = true,
+                CategoryId = categoryId,
+                DifficultyId = difficultyId,
+                Tags = "daily-puzzle",
+            };
+            for (var i = 0; i < visible.Length; i++)
+            {
+                challenge.TestCases.Add(new TestCase { Input = visible[i].Input, ExpectedOutput = visible[i].Output, OrderIndex = i + 1 });
+            }
+            for (var i = 0; i < hidden.Length; i++)
+            {
+                challenge.HiddenTestCases.Add(new HiddenTestCase { Input = hidden[i].Input, ExpectedOutput = hidden[i].Output, OrderIndex = visible.Length + i + 1, Weight = 1 });
+            }
+            return challenge;
+        }
+
+        var arrayInputFormatAz = "Birinci sətirdə n, ikinci sətirdə n tam ədəd (boşluqla ayrılmış)";
+        var arrayInputFormatEn = "First line n, second line n integers (space-separated)";
+
+        context.Challenges.AddRange(
+            Build("Minimum Elementin İndeksi", "Index of Minimum Element",
+                "Massivdəki ən kiçik elementin indeksini (0-dan başlayaraq) tap. Bərabərlik olarsa, ilk rastlaşdığın indeksi çap et.",
+                "Find the index (0-based) of the smallest element in the array. On ties, print the first occurrence's index.",
+                arrayInputFormatAz, arrayInputFormatEn, "Minimum elementin indeksi", "The index of the minimum element",
+                "4\n5 2 8 1", "3", Arrays, Easy, 30, 10,
+                [("4\n5 2 8 1", "3"), ("3\n7 7 7", "0")],
+                [("5\n10 -3 4 -3 9", "1")]),
+            Build("Sözlərin Sayı", "Count Words",
+                "Bir sətirdə boşluqla ayrılmış sözlərin sayını tap.", "Count how many space-separated words are on a line.",
+                "Bir sətir mətn", "A single line of text", "Sözlərin sayı", "Word count",
+                "Salam dünya necəsən", "3", Strings, Easy, 30, 10,
+                [("Salam dünya necəsən", "3"), ("bir", "1")],
+                [("a b c d e", "5")]),
+            Build("3 və ya 5-ə Bölünənlərin Cəmi", "Sum of Multiples of 3 or 5",
+                "1-dən n-ə qədər (daxil olmaqla) 3 və ya 5-ə bölünən ədədlərin cəmini tap.",
+                "Find the sum of numbers from 1 to n (inclusive) divisible by 3 or 5.",
+                "Bir tam ədəd n", "A single integer n", "Cəm", "The sum",
+                "10", "33", LoopsConditions, Easy, 30, 10,
+                [("10", "33"), ("1", "0")],
+                [("15", "60")]),
+            Build("Düzbucaqlının Sahəsi", "Rectangle Area",
+                "Düzbucaqlının en və uzunluğuna görə sahəsini hesabla.", "Compute a rectangle's area from its width and height.",
+                "Bir sətirdə boşluqla ayrılmış en və uzunluq", "Width and height, space-separated, on one line",
+                "Sahə", "The area",
+                "4 5", "20", Oop, Easy, 30, 10,
+                [("4 5", "20"), ("3 3", "9")],
+                [("10 2", "20")]),
+            Build("Cüt Ədədlərin Cəmi", "Sum of Even Numbers",
+                "Massivdəki cüt ədədlərin cəmini tap.", "Find the sum of the even numbers in the array.",
+                arrayInputFormatAz, arrayInputFormatEn, "Cəm", "The sum",
+                "5\n1 2 3 4 5", "6", Linq, Easy, 30, 10,
+                [("5\n1 2 3 4 5", "6"), ("4\n2 4 6 8", "20")],
+                [("3\n1 3 5", "0")]),
+            Build("Təkrarsız Elementlərin Sayı", "Count Distinct Elements",
+                "Massivdəki fərqli (təkrarsız) elementlərin sayını tap.", "Count the distinct (unique) values in the array.",
+                arrayInputFormatAz, arrayInputFormatEn, "Fərqli elementlərin sayı", "Count of distinct elements",
+                "5\n1 2 2 3 3", "3", Collections, Easy, 30, 10,
+                [("5\n1 2 2 3 3", "3"), ("4\n5 5 5 5", "1")],
+                [("3\n1 2 3", "3")]),
+            Build("Faktorial", "Factorial",
+                "Verilən n ədədinin faktorialını (n!) hesabla.", "Compute the factorial (n!) of the given number.",
+                "Bir tam ədəd n", "A single integer n", "n!", "n factorial",
+                "5", "120", Recursion, Medium, 45, 15,
+                [("5", "120"), ("0", "1")],
+                [("6", "720")]),
+            Build("Massiv İndeks Yoxlaması", "Array Index Check",
+                "Verilən indeks massivin sərhədlərindən kənardadırsa \"Xəta\" çap et, əks halda həmin indeksdəki elementi çap et.",
+                "If the given index is out of the array's bounds, print \"Xəta\"; otherwise print the element at that index.",
+                "Birinci sətirdə n, ikinci sətirdə n ədəd, üçüncü sətirdə yoxlanacaq indeks",
+                "First line n, second line n numbers, third line the index to check",
+                "Element və ya \"Xəta\"", "The element or \"Xəta\"",
+                "3\n10 20 30\n1", "20", ExceptionHandling, Easy, 30, 10,
+                [("3\n10 20 30\n1", "20"), ("3\n10 20 30\n5", "Xəta")],
+                [("2\n1 2\n-1", "Xəta")]),
+            Build("Siyahının Son Elementi", "Last Element of List",
+                "Massivdəki son elementi çap et.", "Print the last element of the array.",
+                arrayInputFormatAz, arrayInputFormatEn, "Son element", "The last element",
+                "4\n1 2 3 4", "4", Generics, Easy, 30, 10,
+                [("4\n1 2 3 4", "4"), ("1\n99", "99")],
+                [("3\n5 10 15", "15")]),
+            Build("Ədədlərin Kvadratı", "Square Each Number",
+                "Massivdəki hər ədədin kvadratını boşluqla ayrılmış şəkildə çap et.",
+                "Print the square of each number in the array, space-separated.",
+                arrayInputFormatAz, arrayInputFormatEn, "Kvadratlar (boşluqla ayrılmış)", "The squares (space-separated)",
+                "3\n1 2 3", "1 4 9", DelegatesEvents, Medium, 45, 15,
+                [("3\n1 2 3", "1 4 9"), ("1\n0", "0")],
+                [("2\n-2 5", "4 25")])
+        );
+    }
+
     private static async Task SeedMarketplaceItemTypesAsync(ApplicationDbContext context)
     {
         if (await context.MarketplaceItemTypes.AnyAsync())
@@ -387,7 +521,7 @@ public static class ApplicationDbContextSeeder
             return;
         }
 
-        string[] types = ["Hint", "Avatar", "ProfileFrame", "ProfileBanner", "Theme", "Badge", "Title", "StreakFreeze"];
+        string[] types = ["Avatar", "ProfileFrame", "ProfileBanner", "Theme", "Badge", "Title", "StreakFreeze"];
         context.MarketplaceItemTypes.AddRange(types.Select(name => new MarketplaceItemType { Name = name }));
 
         // Committed immediately so SeedMarketplaceItemsAsync can look these up by real Id right after.
@@ -548,6 +682,17 @@ public static class ApplicationDbContextSeeder
                 ConditionValue = 30,
                 XpReward = 300,
                 CoinReward = 150,
+            },
+            new Achievement
+            {
+                Name = "Gündəlik Tapmaca Ustası",
+                NameEn = "Daily Puzzle Master",
+                Description = "5 fərqli gündə gündəlik tapmacanı həll etdin.",
+                DescriptionEn = "Solved the Daily Puzzle on 5 different days.",
+                ConditionType = AchievementConditionType.DailyPuzzleDaysSolved,
+                ConditionValue = 5,
+                XpReward = 80,
+                CoinReward = 40,
             }
         );
     }

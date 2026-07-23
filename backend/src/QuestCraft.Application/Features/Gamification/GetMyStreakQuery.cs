@@ -4,7 +4,9 @@ using QuestCraft.Application.Common.Interfaces;
 
 namespace QuestCraft.Application.Features.Gamification;
 
-public record StreakDto(int CurrentStreak, int LongestStreak, DateOnly? LastActivityDate, List<DateOnly> ActiveDatesLast30);
+public record HeatmapDayDto(DateOnly Date, int Count);
+
+public record StreakDto(int CurrentStreak, int LongestStreak, DateOnly? LastActivityDate, List<HeatmapDayDto> ActiveDatesLast30);
 
 public record GetMyStreakQuery : IQuery<StreakDto>;
 
@@ -35,7 +37,7 @@ public class GetMyStreakQueryHandler : IRequestHandler<GetMyStreakQuery, StreakD
         var activeDatesLast30 = await _context.ActivityLogs
             .Where(a => a.UserId == userId && a.ActionCount > 0 && a.ActivityDate >= startDate && a.ActivityDate <= today)
             .OrderBy(a => a.ActivityDate)
-            .Select(a => a.ActivityDate)
+            .Select(a => new HeatmapDayDto(a.ActivityDate, a.ActionCount))
             .ToListAsync(cancellationToken);
 
         return new StreakDto(

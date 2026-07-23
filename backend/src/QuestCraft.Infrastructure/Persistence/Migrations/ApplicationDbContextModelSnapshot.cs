@@ -312,12 +312,6 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<int>("DifficultyId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Hint")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HintEn")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("InputFormat")
                         .HasColumnType("nvarchar(max)");
 
@@ -325,6 +319,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsBattleOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDailyPuzzle")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
@@ -423,6 +420,51 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.ToTable("ChallengeCategories");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSpoiler")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ChallengeId", "CreatedAt");
+
+                    b.ToTable("ChallengeComments");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeDifficulty", b =>
                 {
                     b.Property<int>("Id")
@@ -457,42 +499,6 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("ChallengeDifficulties");
-                });
-
-            modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeHint", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChallengeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UnlockedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.HasIndex("UserId", "ChallengeId")
-                        .IsUnique();
-
-                    b.ToTable("ChallengeHints");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeSubmission", b =>
@@ -1687,6 +1693,15 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DailyGoalBattles")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DailyGoalChallenges")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DailyGoalXp")
+                        .HasColumnType("int");
+
                     b.Property<int?>("EquippedAvatarId")
                         .HasColumnType("int");
 
@@ -1912,21 +1927,28 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Navigation("Difficulty");
                 });
 
-            modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeHint", b =>
+            modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeComment", b =>
                 {
                     b.HasOne("QuestCraft.Domain.Entities.Challenge", "Challenge")
-                        .WithMany("UnlockedHints")
+                        .WithMany()
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("QuestCraft.Domain.Entities.ChallengeComment", "Parent")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("QuestCraft.Domain.Entities.User", "User")
-                        .WithMany("UnlockedHints")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Challenge");
+
+                    b.Navigation("Parent");
 
                     b.Navigation("User");
                 });
@@ -2324,8 +2346,6 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Navigation("Submissions");
 
                     b.Navigation("TestCases");
-
-                    b.Navigation("UnlockedHints");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeCategory", b =>
@@ -2333,6 +2353,11 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Navigation("Challenges");
 
                     b.Navigation("Quizzes");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeComment", b =>
+                {
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeDifficulty", b =>
@@ -2407,8 +2432,6 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Navigation("Streak");
 
                     b.Navigation("Submissions");
-
-                    b.Navigation("UnlockedHints");
                 });
 #pragma warning restore 612, 618
         }

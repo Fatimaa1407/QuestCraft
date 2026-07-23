@@ -17,6 +17,7 @@ const LandingPage = lazy(() => import('./features/landing/LandingPage').then((m)
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const ChallengesListPage = lazy(() => import('./features/challenges/ChallengesListPage').then((m) => ({ default: m.ChallengesListPage })));
 const ChallengeDetailPage = lazy(() => import('./features/challenges/ChallengeDetailPage').then((m) => ({ default: m.ChallengeDetailPage })));
+const SpeedChallengePage = lazy(() => import('./features/challenges/SpeedChallengePage').then((m) => ({ default: m.SpeedChallengePage })));
 const QuizListPage = lazy(() => import('./features/quiz/QuizListPage').then((m) => ({ default: m.QuizListPage })));
 const QuizAttemptPage = lazy(() => import('./features/quiz/QuizAttemptPage').then((m) => ({ default: m.QuizAttemptPage })));
 const ShopPage = lazy(() => import('./features/shop/ShopPage').then((m) => ({ default: m.ShopPage })));
@@ -70,6 +71,7 @@ function App() {
                   <Route path="/" element={<DashboardPage />} />
                   <Route path="/challenges" element={<ChallengesListPage />} />
                   <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
+                  <Route path="/challenges/:id/speed" element={<SpeedChallengePage />} />
                   <Route path="/practice" element={<QuizListPage />} />
                   <Route path="/practice/:id" element={<QuizAttemptPage />} />
                   <Route path="/leaderboard" element={<LeaderboardPage />} />

@@ -41,6 +41,36 @@ export interface HiddenTestCaseDto {
   weight: number;
 }
 
+export interface ChallengeStatsDto {
+  solverCount: number;
+  totalSubmissions: number;
+  acceptanceRate: number;
+  averageSolveTimeMs: number | null;
+}
+
+export interface ChallengeCommentDto {
+  id: number;
+  content: string;
+  isSpoiler: boolean;
+  createdAt: string;
+  userId: number;
+  username: string;
+  avatarUrl: string | null;
+  parentCommentId: number | null;
+}
+
+export interface ChallengeCommentThreadDto {
+  comment: ChallengeCommentDto;
+  replies: ChallengeCommentDto[];
+}
+
+export interface DailyPuzzleDto {
+  challengeId: number | null;
+  title: string | null;
+  difficulty: string | null;
+  solvedToday: boolean;
+}
+
 export interface ChallengeDetailDto {
   id: number;
   title: string;
@@ -59,9 +89,6 @@ export interface ChallengeDetailDto {
   outputFormat: string | null;
   sampleInput: string | null;
   sampleOutput: string | null;
-  hint: string | null;
-  hasHint: boolean;
-  isHintUnlocked: boolean;
   isPublished: boolean;
   requiredLevel: number;
   testCases: TestCaseDto[];
@@ -73,7 +100,6 @@ export interface ChallengeDetailDto {
   constraintsEn: string | null;
   inputFormatEn: string | null;
   outputFormatEn: string | null;
-  hintEn: string | null;
   starterCodeEn: string | null;
   tags: string | null;
   isBattleOnly: boolean;

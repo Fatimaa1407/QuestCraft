@@ -11,6 +11,7 @@ public record MyStatisticsDto(
     int QuizzesCompleted,
     double SuccessRatePercent,
     int? AverageSolveTimeMs,
+    int TotalCodingTimeMs,
     int CurrentStreak,
     int LongestStreak,
     int TotalXp,
@@ -53,6 +54,7 @@ public class GetMyStatisticsQueryHandler : IRequestHandler<GetMyStatisticsQuery,
             .Select(s => s.SolveTimeMs!.Value)
             .ToListAsync(cancellationToken);
         int? avgSolveTimeMs = solveTimes.Count > 0 ? (int)solveTimes.Average() : null;
+        var totalCodingTimeMs = solveTimes.Sum();
 
         var battlesWon = await _context.BattleParticipants
             .CountAsync(p => p.UserId == userId && p.Rank == 1 && p.Battle.Status == BattleStatus.Finished, cancellationToken);
@@ -66,6 +68,7 @@ public class GetMyStatisticsQueryHandler : IRequestHandler<GetMyStatisticsQuery,
             stats?.TotalQuizzesCompleted ?? 0,
             successRate,
             avgSolveTimeMs,
+            totalCodingTimeMs,
             streak?.CurrentStreak ?? 0,
             streak?.LongestStreak ?? 0,
             myXp,

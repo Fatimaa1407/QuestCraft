@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestCraft.Application.Common.Models;
 using QuestCraft.Application.Features.Admin.Challenges;
-using QuestCraft.Application.Features.Hints;
+using QuestCraft.Application.Features.Challenges;
 
 namespace QuestCraft.API.Controllers;
 
@@ -57,9 +57,9 @@ public class ChallengesController : ControllerBase
             id, request.Title, request.Description, request.CategoryId, request.DifficultyId,
             request.TimeLimitMs, request.MemoryLimitMb, request.XpReward, request.CoinReward,
             request.StarterCode, request.Constraints, request.InputFormat, request.OutputFormat,
-            request.SampleInput, request.SampleOutput, request.Hint, request.IsPublished, request.RequiredLevel,
+            request.SampleInput, request.SampleOutput, request.IsPublished, request.RequiredLevel,
             request.TitleEn, request.DescriptionEn, request.ConstraintsEn, request.InputFormatEn,
-            request.OutputFormatEn, request.HintEn, request.StarterCodeEn, request.Tags, request.IsBattleOnly);
+            request.OutputFormatEn, request.StarterCodeEn, request.Tags, request.IsBattleOnly);
 
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(ApiResponse<ChallengeDetailDto>.Ok(result, "Challenge yeniləndi."));
@@ -123,14 +123,38 @@ public class ChallengesController : ControllerBase
         return Ok(ApiResponse<object?>.Ok(null, "Test case silindi."));
     }
 
-    [HttpPost("{id:int}/hint/unlock")]
-    [Authorize]
-    public async Task<ActionResult<ApiResponse<string>>> UnlockHint(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:int}/stats")]
+    public async Task<ActionResult<ApiResponse<ChallengeStatsDto>>> GetStats(int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new UnlockHintCommand(id), cancellationToken);
-        return Ok(ApiResponse<string>.Ok(result, "Hint açıldı."));
+        var result = await _mediator.Send(new GetChallengeStatsQuery(id), cancellationToken);
+        return Ok(ApiResponse<ChallengeStatsDto>.Ok(result));
+    }
+
+    [HttpGet("{id:int}/comments")]
+    public async Task<ActionResult<ApiResponse<List<ChallengeCommentThreadDto>>>> GetComments(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetChallengeCommentsQuery(id), cancellationToken);
+        return Ok(ApiResponse<List<ChallengeCommentThreadDto>>.Ok(result));
+    }
+
+    [HttpPost("{id:int}/comments")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<ChallengeCommentDto>>> PostComment(int id, PostCommentRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new PostChallengeCommentCommand(id, request.Content, request.IsSpoiler, request.ParentCommentId), cancellationToken);
+        return Ok(ApiResponse<ChallengeCommentDto>.Ok(result, "Şərh əlavə edildi."));
+    }
+
+    [HttpGet("daily-puzzle")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<DailyPuzzleDto>>> GetDailyPuzzle(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDailyPuzzleQuery(), cancellationToken);
+        return Ok(ApiResponse<DailyPuzzleDto>.Ok(result));
     }
 }
+
+public record PostCommentRequest(string Content, bool IsSpoiler, int? ParentCommentId = null);
 
 public record UpdateChallengeRequest(
     string Title,
@@ -147,7 +171,6 @@ public record UpdateChallengeRequest(
     string? OutputFormat,
     string? SampleInput,
     string? SampleOutput,
-    string? Hint,
     bool IsPublished,
     int RequiredLevel = 1,
     string? TitleEn = null,
@@ -155,7 +178,6 @@ public record UpdateChallengeRequest(
     string? ConstraintsEn = null,
     string? InputFormatEn = null,
     string? OutputFormatEn = null,
-    string? HintEn = null,
     string? StarterCodeEn = null,
     string? Tags = null,
     bool IsBattleOnly = false);

@@ -41,7 +41,7 @@ public interface IApplicationDbContext
     DbSet<MarketplaceItemType> MarketplaceItemTypes { get; }
     DbSet<MarketplaceItem> MarketplaceItems { get; }
     DbSet<Purchase> Purchases { get; }
-    DbSet<ChallengeHint> ChallengeHints { get; }
+    DbSet<ChallengeComment> ChallengeComments { get; }
 
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<SystemSetting> SystemSettings { get; }

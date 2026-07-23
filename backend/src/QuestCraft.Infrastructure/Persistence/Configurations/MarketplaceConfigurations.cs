@@ -42,20 +42,3 @@ public class PurchaseConfiguration : IEntityTypeConfiguration<Purchase>
     }
 }
 
-public class ChallengeHintConfiguration : IEntityTypeConfiguration<ChallengeHint>
-{
-    public void Configure(EntityTypeBuilder<ChallengeHint> builder)
-    {
-        builder.HasIndex(h => new { h.UserId, h.ChallengeId }).IsUnique();
-
-        builder.HasOne(h => h.User)
-            .WithMany(u => u.UnlockedHints)
-            .HasForeignKey(h => h.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(h => h.Challenge)
-            .WithMany(c => c.UnlockedHints)
-            .HasForeignKey(h => h.ChallengeId)
-            .OnDelete(DeleteBehavior.Restrict);
-    }
-}

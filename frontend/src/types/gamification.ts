@@ -73,11 +73,16 @@ export interface DashboardAnalyticsDto {
   activeDaysLast30: number;
 }
 
+export interface HeatmapDay {
+  date: string;
+  count: number;
+}
+
 export interface StreakDto {
   currentStreak: number;
   longestStreak: number;
   lastActivityDate: string | null;
-  activeDatesLast30: string[];
+  activeDatesLast30: HeatmapDay[];
 }
 
 export interface CurrentSeasonalEventDto {
@@ -104,11 +109,42 @@ export interface DailyLoginRewardDto {
   newXpTotal: number;
 }
 
+export interface RecommendedChallenge {
+  id: number;
+  title: string;
+  difficulty: string;
+  xpReward: number;
+}
+
+export interface RecommendationDto {
+  weakCategoryName: string | null;
+  acceptanceRate: number | null;
+  challenges: RecommendedChallenge[];
+}
+
+export interface PersonalGoalsProgressDto {
+  challengeGoal: number | null;
+  challengesDoneToday: number;
+  xpGoal: number | null;
+  xpToday: number;
+  battleGoal: number | null;
+  battlesToday: number;
+}
+
+export interface HeatmapDayDetail {
+  date: string;
+  count: number;
+  challengesSolved: number;
+  xpEarned: number;
+  codingTimeMs: number;
+}
+
 export interface MyStatisticsDto {
   challengesSolved: number;
   quizzesCompleted: number;
   successRatePercent: number;
   averageSolveTimeMs: number | null;
+  totalCodingTimeMs: number;
   currentStreak: number;
   longestStreak: number;
   totalXp: number;
