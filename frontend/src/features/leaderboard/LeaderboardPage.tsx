@@ -158,13 +158,13 @@ export function LeaderboardPage() {
                     rank: myRank.rank,
                     userId: user.id,
                     username: user.username,
-                    avatarUrl: user.avatarUrl,
+                    avatarUrl: myRank.avatarUrl ?? user.avatarUrl,
                     xp: myRank.xp,
                     level: myRank.level,
-                    frameImageUrl: null,
-                    titleText: null,
-                    badgeImageUrl: null,
-                    badgeName: null,
+                    frameImageUrl: myRank.frameImageUrl,
+                    titleText: myRank.titleText,
+                    badgeImageUrl: myRank.badgeImageUrl,
+                    badgeName: myRank.badgeName,
                   }}
                   isMe
                   index={0}

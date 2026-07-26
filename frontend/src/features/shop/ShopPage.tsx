@@ -1,24 +1,38 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Check, Lock, Wallet, Snowflake, X, Loader2 } from 'lucide-react';
-import { getMarketplaceItems, getItemTypes, purchaseItem, equipItem, unequipItem, getMyPurchases } from '../../api/marketplace';
+import { UserCircle, Frame, Image, Palette, Award, Type, ShoppingBag, Wallet, Snowflake, Receipt, Heart, SearchX } from 'lucide-react';
+import {
+  getMarketplaceItems, getItemTypes, purchaseItem, equipItem, unequipItem, getMyPurchases,
+  getBundles, purchaseBundle, toggleWishlist, getMyWishlist, getMyEquippedCosmetics,
+} from '../../api/marketplace';
 import { EQUIPABLE_ITEM_TYPES } from '../../types/marketplace';
-import type { PurchaseResultDto } from '../../types/marketplace';
-import { getRarity, RARITY_STYLES } from '../../utils/rarity';
+import type { PurchaseResultDto, MarketplaceItemDto } from '../../types/marketplace';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
+import { getRarity, RARITY_ORDER } from '../../utils/rarity';
 import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
-import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { GlassCard } from '../../components/ui/GlassCard';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { PurchaseSuccessModal } from '../../components/ui/PurchaseSuccessModal';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound } from '../../utils/sounds';
-import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
+import { fadeInUp, staggerContainer } from '../../utils/motion';
+import { ShopItemCard } from './ShopItemCard';
+import { FeaturedItem } from './FeaturedItem';
+import { BundleCard } from './BundleCard';
+import { MysteryBox } from './MysteryBox';
+import { MiniProfilePreview } from './MiniProfilePreview';
+import { ShopFilters, type ShopOwnership, type ShopSort } from './ShopFilters';
+
+// staggerContainer's default 0.12s-per-child delay is fine for short lists, but the catalogue
+// grid can hold well over a dozen items — at the default rate the last cards wouldn't start
+// entering for 2+ seconds, reading as "missing" rather than "still animating in".
+const itemGridStagger = { hidden: {}, show: { transition: { staggerChildren: 0.025, delayChildren: 0.05 } } };
 
 const typeIcons: Record<string, typeof UserCircle> = {
   Avatar: UserCircle,
@@ -58,23 +72,32 @@ export function ShopPage() {
       { replace: true },
     );
   };
+  const [tab, setTab] = useState<'shop' | 'wishlist'>('shop');
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<ShopSort>('default');
+  const [ownership, setOwnership] = useState<ShopOwnership>('all');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [celebratingId, setCelebratingId] = useState<number | null>(null);
   const [purchaseModalItem, setPurchaseModalItem] = useState<PurchaseResultDto | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<MarketplaceItemDto | null>(null);
 
   const animatedCoins = useAnimatedNumber(user?.coins ?? 0);
 
   const typesQuery = useQuery({ queryKey: ['marketplace', 'item-types'], queryFn: getItemTypes });
-  const itemsQuery = useQuery({
-    queryKey: ['marketplace', 'items', typeId],
-    queryFn: () => getMarketplaceItems(typeId),
-  });
+  // Full catalogue fetched once — category/search/sort/ownership are all applied client-side so the
+  // Featured pick and filters compose without extra round-trips.
+  const itemsQuery = useQuery({ queryKey: ['marketplace', 'items'], queryFn: () => getMarketplaceItems() });
   const purchasesQuery = useQuery({ queryKey: ['marketplace', 'my-purchases'], queryFn: getMyPurchases });
+  const bundlesQuery = useQuery({ queryKey: ['marketplace', 'bundles'], queryFn: getBundles });
+  const wishlistQuery = useQuery({ queryKey: ['marketplace', 'wishlist'], queryFn: getMyWishlist, enabled: tab === 'wishlist' });
+  // Same queryKey AppLayout uses for the navbar cosmetics chip — shares its cache instead of refetching.
+  const equippedQuery = useQuery({ queryKey: ['profile', 'equipped'], queryFn: getMyEquippedCosmetics });
   const equippedItemIds = new Set((purchasesQuery.data ?? []).filter((p) => p.isEquipped).map((p) => p.marketplaceItemId));
 
   const invalidateEquipState = () => {
     queryClient.invalidateQueries({ queryKey: ['marketplace', 'items'] });
     queryClient.invalidateQueries({ queryKey: ['marketplace', 'my-purchases'] });
+    queryClient.invalidateQueries({ queryKey: ['marketplace', 'bundles'] });
     queryClient.invalidateQueries({ queryKey: ['profile', 'equipped'] });
   };
 
@@ -83,16 +106,22 @@ export function ShopPage() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
+  const items = itemsQuery.data ?? [];
+
   const purchaseMutation = useMutation({
     mutationFn: purchaseItem,
     onSuccess: (result, itemId) => {
       if (!result) return;
       updateUser({ coins: result.remainingCoins });
       invalidateEquipState();
+      queryClient.invalidateQueries({ queryKey: ['marketplace', 'wishlist'] });
       playSuccessSound();
       setCelebratingId(itemId);
       setTimeout(() => setCelebratingId(null), 1300);
       showFeedback('success', t('shop.purchaseSuccess', { name: result.itemName }));
+      if (result.autoEquipped) {
+        showToast({ title: t('shop.toastEquipped'), message: result.itemName, imageUrl: result.imageUrl, emoji: '✨' });
+      }
       setPurchaseModalItem(result);
     },
     onError: (err) => {
@@ -132,24 +161,96 @@ export function ShopPage() {
     },
   });
 
-  const items = itemsQuery.data ?? [];
+  const purchaseBundleMutation = useMutation({
+    mutationFn: purchaseBundle,
+    onSuccess: (result) => {
+      if (!result) return;
+      updateUser({ coins: result.remainingCoins });
+      invalidateEquipState();
+      playSuccessSound();
+      showToast({ title: t('shop.purchaseSuccess', { name: result.bundleName }), emoji: '🎁' });
+    },
+    onError: (err) => {
+      playErrorSound();
+      showFeedback('error', getApiErrorMessage(err, t('shop.actionError')));
+    },
+  });
+
+  const wishlistMutation = useMutation({
+    mutationFn: toggleWishlist,
+    onSuccess: (isWishlisted, itemId) => {
+      queryClient.invalidateQueries({ queryKey: ['marketplace', 'items'] });
+      queryClient.invalidateQueries({ queryKey: ['marketplace', 'wishlist'] });
+      const item = items.find((i) => i.id === itemId) ?? wishlistQuery.data?.find((i) => i.id === itemId);
+      showToast({
+        title: isWishlisted ? t('shop.wishlistAdded') : t('shop.wishlistRemoved'),
+        message: item?.name,
+        emoji: isWishlisted ? '❤️' : '💔',
+      });
+    },
+    onError: (err) => showFeedback('error', getApiErrorMessage(err, t('shop.actionError'))),
+  });
+
+  const featuredItem = useMemo(() => {
+    if (items.length === 0) return null;
+    return items.find((i) => i.isFeatured) ?? items.reduce((a, b) => (b.price > a.price ? b : a));
+  }, [items]);
+
+  const filteredItems = useMemo(() => {
+    let list = items;
+    if (typeId !== undefined) list = list.filter((i) => i.itemTypeId === typeId);
+    if (search.trim()) {
+      const term = search.trim().toLowerCase();
+      list = list.filter((i) => i.name.toLowerCase().includes(term) || i.description?.toLowerCase().includes(term));
+    }
+    if (ownership === 'owned') list = list.filter((i) => i.isOwned);
+    else if (ownership === 'notOwned') list = list.filter((i) => !i.isOwned);
+    else if (ownership === 'equipped') list = list.filter((i) => equippedItemIds.has(i.id));
+    else if (ownership === 'wishlisted') list = list.filter((i) => i.isWishlisted);
+
+    const sorted = [...list];
+    if (sort === 'priceAsc') sorted.sort((a, b) => a.price - b.price);
+    else if (sort === 'priceDesc') sorted.sort((a, b) => b.price - a.price);
+    else if (sort === 'rarityAsc') sorted.sort((a, b) => RARITY_ORDER.indexOf(getRarity(a.price)) - RARITY_ORDER.indexOf(getRarity(b.price)));
+    else if (sort === 'rarityDesc') sorted.sort((a, b) => RARITY_ORDER.indexOf(getRarity(b.price)) - RARITY_ORDER.indexOf(getRarity(a.price)));
+    return sorted;
+  }, [items, typeId, search, ownership, sort, equippedItemIds]);
+
+  const hasActiveFilters = typeId !== undefined || search.trim() !== '' || ownership !== 'all' || sort !== 'default';
+  const clearFilters = () => {
+    setTypeId(undefined);
+    setSearch('');
+    setOwnership('all');
+    setSort('default');
+  };
+
+  const wishlistItems = wishlistQuery.data ?? [];
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
-      <motion.div variants={fadeInUp} className="flex flex-wrap items-start justify-between gap-4">
+      <motion.div variants={fadeInUp} className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">{t('shop.title')}</h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('shop.subtitle')}</p>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-5 py-3">
-          <Wallet size={20} className="text-amber-600 dark:text-amber-400" />
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-600/80 dark:text-amber-400/80">
-              {t('shop.coinsLabel')}
-            </p>
-            <p className="flex items-center gap-1 text-xl font-bold text-amber-600 dark:text-amber-400">
-              🪙 {animatedCoins}
-            </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/shop/history"
+            className="flex items-center gap-1.5 rounded-full border border-slate-200/70 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:border-app-accent dark:border-white/[0.08] dark:text-slate-300"
+          >
+            <Receipt size={15} />
+            {t('shop.history')}
+          </Link>
+          <div className="flex items-center gap-3 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-5 py-3">
+            <Wallet size={20} className="text-amber-600 dark:text-amber-400" />
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-600/80 dark:text-amber-400/80">
+                {t('shop.coinsLabel')}
+              </p>
+              <p className="flex items-center gap-1 text-xl font-bold text-amber-600 dark:text-amber-400">
+                🪙 {animatedCoins}
+              </p>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -168,184 +269,201 @@ export function ShopPage() {
         </motion.p>
       )}
 
-      <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-2">
+      <motion.div variants={fadeInUp} className="flex items-center gap-2">
         <button
-          onClick={() => setTypeId(undefined)}
+          onClick={() => setTab('shop')}
           className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-            typeId === undefined
+            tab === 'shop'
               ? 'bg-gradient-to-r from-app-accent to-app-accent-2 text-white shadow-sm shadow-app-accent/30'
-              : 'border border-slate-200/70 text-slate-600 hover:border-app-accent dark:border-white/[0.08] dark:text-slate-300'
+              : 'border border-slate-200/70 text-slate-600 dark:border-white/[0.08] dark:text-slate-300'
           }`}
         >
-          🛍️ {t('shop.all')}
+          🛍️ {t('shop.title')}
         </button>
-        {typesQuery.data?.map((type) => (
-          <button
-            key={type.id}
-            onClick={() => setTypeId(type.id)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              typeId === type.id
-                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm shadow-blue-500/30'
-                : 'border border-slate-200/70 text-slate-600 hover:border-blue-400 dark:border-white/[0.08] dark:text-slate-300'
-            }`}
-          >
-            {typeEmoji[type.name] ?? '✨'} {type.name}
-          </button>
-        ))}
+        <button
+          onClick={() => setTab('wishlist')}
+          className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+            tab === 'wishlist'
+              ? 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-sm shadow-rose-500/30'
+              : 'border border-slate-200/70 text-slate-600 dark:border-white/[0.08] dark:text-slate-300'
+          }`}
+        >
+          <Heart size={13} className={tab === 'wishlist' ? 'fill-white' : ''} />
+          {t('shop.wishlist')}
+        </button>
       </motion.div>
 
-      {itemsQuery.isLoading ? (
+      {tab === 'shop' ? (
+        <>
+          {featuredItem && (
+            <motion.div variants={fadeInUp}>
+              <FeaturedItem
+                item={featuredItem}
+                icon={typeIcons[featuredItem.itemType] ?? ShoppingBag}
+                canAfford={(user?.coins ?? 0) >= featuredItem.price}
+                isPurchasing={purchaseMutation.isPending && purchaseMutation.variables === featuredItem.id}
+                isTogglingWishlist={wishlistMutation.isPending && wishlistMutation.variables === featuredItem.id}
+                onPurchase={() => purchaseMutation.mutate(featuredItem.id)}
+                onLockedClick={() => showFeedback('error', t('shop.needMoreCoins', { count: featuredItem.price - (user?.coins ?? 0) }))}
+                onToggleWishlist={() => wishlistMutation.mutate(featuredItem.id)}
+              />
+            </motion.div>
+          )}
+
+          {(bundlesQuery.data?.length ?? 0) > 0 && (
+            <motion.div variants={fadeInUp} className="space-y-3">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t('shop.bundles')}</h2>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {bundlesQuery.data!.map((bundle) => (
+                  <BundleCard
+                    key={bundle.id}
+                    bundle={bundle}
+                    canAfford={(user?.coins ?? 0) >= bundle.bundlePrice}
+                    isPurchasing={purchaseBundleMutation.isPending && purchaseBundleMutation.variables === bundle.id}
+                    onPurchase={() => purchaseBundleMutation.mutate(bundle.id)}
+                  />
+                ))}
+                <MysteryBox />
+              </div>
+            </motion.div>
+          )}
+          {(bundlesQuery.data?.length ?? 0) === 0 && (
+            <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <MysteryBox />
+            </motion.div>
+          )}
+
+          <motion.div variants={fadeInUp} className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setTypeId(undefined)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                  typeId === undefined
+                    ? 'bg-gradient-to-r from-app-accent to-app-accent-2 text-white shadow-sm shadow-app-accent/30'
+                    : 'border border-slate-200/70 text-slate-600 hover:border-app-accent dark:border-white/[0.08] dark:text-slate-300'
+                }`}
+              >
+                🛍️ {t('shop.all')}
+              </button>
+              {typesQuery.data?.map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => setTypeId(type.id)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                    typeId === type.id
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm shadow-blue-500/30'
+                      : 'border border-slate-200/70 text-slate-600 hover:border-blue-400 dark:border-white/[0.08] dark:text-slate-300'
+                  }`}
+                >
+                  {typeEmoji[type.name] ?? '✨'} {type.name}
+                </button>
+              ))}
+            </div>
+            <ShopFilters search={search} onSearchChange={setSearch} sort={sort} onSortChange={setSort} ownership={ownership} onOwnershipChange={setOwnership} />
+          </motion.div>
+
+          {itemsQuery.isLoading ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ShopItemSkeleton key={i} />
+              ))}
+            </div>
+          ) : itemsQuery.isError ? (
+            <QueryErrorState onRetry={() => itemsQuery.refetch()} />
+          ) : filteredItems.length === 0 ? (
+            <EmptyState
+              icon={items.length === 0 ? ShoppingBag : ownership === 'wishlisted' ? Heart : SearchX}
+              tint="amber"
+              title={
+                items.length === 0
+                  ? t('shop.empty')
+                  : ownership === 'owned'
+                    ? t('shop.noOwnedItems')
+                    : ownership === 'equipped'
+                      ? t('shop.noEquippedItems')
+                      : ownership === 'wishlisted'
+                        ? t('shop.wishlistEmpty')
+                        : t('shop.noSearchResults')
+              }
+              action={hasActiveFilters ? { label: t('shop.clearFilters'), onClick: clearFilters } : undefined}
+            />
+          ) : (
+            <motion.div variants={itemGridStagger} initial="hidden" animate="show" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredItems.map((item) => {
+                const Icon = typeIcons[item.itemType] ?? ShoppingBag;
+                const isEquipable = EQUIPABLE_ITEM_TYPES.includes(item.itemType);
+                const isEquipped = equippedItemIds.has(item.id);
+                const canAfford = (user?.coins ?? 0) >= item.price;
+
+                return (
+                  <ShopItemCard
+                    key={item.id}
+                    item={item}
+                    icon={Icon}
+                    isEquipable={isEquipable}
+                    isEquipped={isEquipped}
+                    canAfford={canAfford}
+                    isCelebrating={celebratingId === item.id}
+                    isPurchasing={purchaseMutation.isPending && purchaseMutation.variables === item.id}
+                    isEquipping={equipMutation.isPending && equipMutation.variables === item.id}
+                    isUnequipping={unequipMutation.isPending && unequipMutation.variables === item.id}
+                    isTogglingWishlist={wishlistMutation.isPending && wishlistMutation.variables === item.id}
+                    onPurchase={() => purchaseMutation.mutate(item.id)}
+                    onEquip={() => equipMutation.mutate(item.id)}
+                    onUnequip={() => unequipMutation.mutate(item.id)}
+                    onLockedClick={() => showFeedback('error', t('shop.needMoreCoins', { count: item.price - (user?.coins ?? 0) }))}
+                    onToggleWishlist={() => wishlistMutation.mutate(item.id)}
+                    onHoverStart={() => setHoveredItem(item)}
+                    onHoverEnd={() => setHoveredItem((current) => (current?.id === item.id ? null : current))}
+                  />
+                );
+              })}
+            </motion.div>
+          )}
+        </>
+      ) : wishlistQuery.isLoading ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <ShopItemSkeleton key={i} />
           ))}
         </div>
-      ) : itemsQuery.isError ? (
-        <QueryErrorState onRetry={() => itemsQuery.refetch()} />
-      ) : items.length === 0 ? (
-        <EmptyState
-          icon={ShoppingBag}
-          tint="amber"
-          title={t('shop.empty')}
-          action={
-            typeId !== undefined
-              ? {
-                  label: t('shop.all'),
-                  onClick: () => setTypeId(undefined),
-                }
-              : undefined
-          }
-        />
+      ) : wishlistItems.length === 0 ? (
+        <EmptyState icon={Heart} tint="amber" title={t('shop.wishlistEmpty')} description={t('shop.wishlistEmptyHint')} />
       ) : (
-        <motion.div variants={staggerContainer} className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => {
+        <motion.div variants={itemGridStagger} initial="hidden" animate="show" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {wishlistItems.map((item) => {
             const Icon = typeIcons[item.itemType] ?? ShoppingBag;
             const isEquipable = EQUIPABLE_ITEM_TYPES.includes(item.itemType);
             const isEquipped = equippedItemIds.has(item.id);
             const canAfford = (user?.coins ?? 0) >= item.price;
-            const rarity = getRarity(item.price);
-            const rarityStyle = RARITY_STYLES[rarity];
-            const isCelebrating = celebratingId === item.id;
 
             return (
-              <motion.div key={item.id} variants={fadeInUp}>
-                <GlassCard
-                  style={{ border: `2px solid ${rarityStyle.borderColor}` }}
-                  className={`relative flex flex-col overflow-hidden p-0 ${rarityStyle.glow} ${isCelebrating ? 'animate-card-pulse' : ''}`}
-                >
-                  {isCelebrating && (
-                    <span className="animate-shimmer-sweep pointer-events-none absolute inset-y-0 left-0 z-10 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  )}
-                  {isCelebrating && (
-                    <span className="animate-toast-pop pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-900/90 px-4 py-2 text-sm font-semibold text-white shadow-xl">
-                      🎉 {t('shop.purchased')}
-                    </span>
-                  )}
-
-                  {item.isOwned && (
-                    <div
-                      className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold ${
-                        isEquipped
-                          ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/10 text-blue-600 dark:text-cyan-400'
-                          : 'bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                      }`}
-                    >
-                      <Check size={13} />
-                      {isEquipped ? t('shop.equipped') : t('shop.owned')}
-                    </div>
-                  )}
-
-                  <div className="flex flex-1 flex-col p-6">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-cyan-400">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt="" className="h-full w-full rounded-2xl object-cover" />
-                      ) : (
-                        <Icon size={26} />
-                      )}
-                    </div>
-
-                    <h2 className="mt-4 text-lg font-semibold text-slate-900 dark:text-slate-100">{item.name}</h2>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                      <span>{item.itemType}</span>
-                      <span className="text-slate-300 dark:text-slate-700">·</span>
-                      <span className={`flex items-center gap-1 font-medium ${rarityStyle.text}`}>
-                        <span className={`h-2 w-2 rounded-full ${rarityStyle.dot}`} />
-                        {rarityStyle.labelAz}
-                      </span>
-                    </div>
-
-                    {item.description && (
-                      <p className="mt-2 flex-1 text-sm text-slate-600 dark:text-slate-300">{item.description}</p>
-                    )}
-                    {!item.description && <div className="flex-1" />}
-
-                    <div className="mt-5 flex items-center justify-between gap-2 border-t border-slate-200/70 pt-4 dark:border-white/[0.06]">
-                      <span className="flex items-center gap-1 text-sm font-semibold text-amber-600 dark:text-amber-400">
-                        🪙 {item.price}
-                      </span>
-
-                      {item.isOwned ? (
-                        isEquipable ? (
-                          isEquipped ? (
-                            <motion.button
-                              {...buttonTap}
-                              onClick={() => unequipMutation.mutate(item.id)}
-                              disabled={unequipMutation.isPending}
-                              className="flex items-center gap-1 rounded-full border border-slate-300 px-3.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-500/10 disabled:opacity-50 dark:border-white/20 dark:text-slate-300"
-                            >
-                              {unequipMutation.isPending && unequipMutation.variables === item.id ? (
-                                <Loader2 size={11} className="animate-spin" />
-                              ) : (
-                                <X size={11} />
-                              )}
-                              {t('shop.unequip')}
-                            </motion.button>
-                          ) : (
-                            <motion.button
-                              {...buttonTap}
-                              onClick={() => equipMutation.mutate(item.id)}
-                              disabled={equipMutation.isPending}
-                              className="flex items-center gap-1 rounded-full border border-blue-400 px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/10 disabled:opacity-50 dark:text-cyan-400"
-                            >
-                              {equipMutation.isPending && equipMutation.variables === item.id && (
-                                <Loader2 size={11} className="animate-spin" />
-                              )}
-                              {t('shop.equip')}
-                            </motion.button>
-                          )
-                        ) : null
-                      ) : canAfford ? (
-                        <motion.button
-                          {...buttonTap}
-                          onClick={() => purchaseMutation.mutate(item.id)}
-                          disabled={purchaseMutation.isPending}
-                          className="flex items-center gap-1 rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm shadow-app-accent/30"
-                        >
-                          {purchaseMutation.isPending && purchaseMutation.variables === item.id && (
-                            <Loader2 size={11} className="animate-spin" />
-                          )}
-                          {t('shop.buy')}
-                        </motion.button>
-                      ) : (
-                        <motion.button
-                          {...buttonTap}
-                          onClick={() =>
-                            showFeedback('error', t('shop.needMoreCoins', { count: item.price - (user?.coins ?? 0) }))
-                          }
-                          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-slate-400 backdrop-blur-sm transition-colors hover:border-white/20 hover:text-slate-300 dark:text-slate-400"
-                        >
-                          <Lock size={11} />
-                          {t('shop.locked')}
-                        </motion.button>
-                      )}
-                    </div>
-                  </div>
-                </GlassCard>
-              </motion.div>
+              <ShopItemCard
+                key={item.id}
+                item={item}
+                icon={Icon}
+                isEquipable={isEquipable}
+                isEquipped={isEquipped}
+                canAfford={canAfford}
+                isCelebrating={celebratingId === item.id}
+                isPurchasing={purchaseMutation.isPending && purchaseMutation.variables === item.id}
+                isEquipping={equipMutation.isPending && equipMutation.variables === item.id}
+                isUnequipping={unequipMutation.isPending && unequipMutation.variables === item.id}
+                isTogglingWishlist={wishlistMutation.isPending && wishlistMutation.variables === item.id}
+                onPurchase={() => purchaseMutation.mutate(item.id)}
+                onEquip={() => equipMutation.mutate(item.id)}
+                onUnequip={() => unequipMutation.mutate(item.id)}
+                onLockedClick={() => showFeedback('error', t('shop.needMoreCoins', { count: item.price - (user?.coins ?? 0) }))}
+                onToggleWishlist={() => wishlistMutation.mutate(item.id)}
+                onHoverStart={() => setHoveredItem(item)}
+                onHoverEnd={() => setHoveredItem((current) => (current?.id === item.id ? null : current))}
+              />
             );
           })}
         </motion.div>
       )}
+
+      <MiniProfilePreview item={hoveredItem} equipped={equippedQuery.data} username={user?.username ?? ''} level={user?.level ?? 1} />
 
       <PurchaseSuccessModal
         isOpen={!!purchaseModalItem}
@@ -353,9 +471,7 @@ export function ShopPage() {
         itemType={purchaseModalItem?.itemType ?? ''}
         imageUrl={purchaseModalItem?.imageUrl ?? null}
         pricePaid={purchaseModalItem?.pricePaid ?? 0}
-        isEquipable={!!purchaseModalItem && EQUIPABLE_ITEM_TYPES.includes(purchaseModalItem.itemType)}
-        isEquipping={equipMutation.isPending}
-        onEquipNow={() => purchaseModalItem && equipMutation.mutate(purchaseModalItem.marketplaceItemId)}
+        autoEquipped={!!purchaseModalItem?.autoEquipped}
         onClose={() => setPurchaseModalItem(null)}
       />
     </motion.div>

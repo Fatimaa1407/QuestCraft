@@ -56,6 +56,19 @@ public class PurchaseItemCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_EquipableItem_AutoEquipsOnPurchase()
+    {
+        var (db, user, item) = await SeedAsync(coins: 100, price: 60);
+        var handler = new PurchaseItemCommandHandler(db, new FakeCurrentUserService { UserId = user.Id });
+
+        var result = await handler.Handle(new PurchaseItemCommand(item.Id), CancellationToken.None);
+
+        Assert.True(result.AutoEquipped);
+        var profile = await db.UserProfiles.FirstAsync(p => p.UserId == user.Id);
+        Assert.Equal(item.Id, profile.EquippedAvatarId);
+    }
+
+    [Fact]
     public async Task Handle_InsufficientCoins_ThrowsBadRequest()
     {
         var (db, user, item) = await SeedAsync(coins: 10, price: 60);

@@ -21,6 +21,7 @@ const SpeedChallengePage = lazy(() => import('./features/challenges/SpeedChallen
 const QuizListPage = lazy(() => import('./features/quiz/QuizListPage').then((m) => ({ default: m.QuizListPage })));
 const QuizAttemptPage = lazy(() => import('./features/quiz/QuizAttemptPage').then((m) => ({ default: m.QuizAttemptPage })));
 const ShopPage = lazy(() => import('./features/shop/ShopPage').then((m) => ({ default: m.ShopPage })));
+const PurchaseHistoryPage = lazy(() => import('./features/shop/PurchaseHistoryPage').then((m) => ({ default: m.PurchaseHistoryPage })));
 const LeaderboardPage = lazy(() => import('./features/leaderboard/LeaderboardPage').then((m) => ({ default: m.LeaderboardPage })));
 const FriendsPage = lazy(() => import('./features/friends/FriendsPage').then((m) => ({ default: m.FriendsPage })));
 const ChatPage = lazy(() => import('./features/chat/ChatPage').then((m) => ({ default: m.ChatPage })));
@@ -82,6 +83,7 @@ function App() {
                   <Route path="/battles/:id" element={<BattleRoomPage />} />
                   <Route path="/achievements" element={<AchievementsPage />} />
                   <Route path="/shop" element={<ShopPage />} />
+                  <Route path="/shop/history" element={<PurchaseHistoryPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/statistics" element={<StatisticsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />

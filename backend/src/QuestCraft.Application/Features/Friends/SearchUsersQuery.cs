@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Enums;
@@ -22,6 +23,7 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, List<Us
     public async Task<List<UserSearchResultDto>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
+        var isEnglish = _currentUser.IsEnglish;
 
         if (string.IsNullOrWhiteSpace(request.Query) || request.Query.Trim().Length < 2)
         {
@@ -40,6 +42,11 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, List<Us
                 AvatarUrl = p.EquippedAvatar != null ? p.EquippedAvatar.ImageUrl : p.AvatarUrl,
                 p.Level,
                 FrameImageUrl = p.EquippedFrame != null ? p.EquippedFrame.ImageUrl : null,
+                TitleName = p.EquippedTitle != null ? p.EquippedTitle.Name : null,
+                TitleNameEn = p.EquippedTitle != null ? p.EquippedTitle.NameEn : null,
+                BadgeImageUrl = p.EquippedBadge != null ? p.EquippedBadge.ImageUrl : null,
+                BadgeName = p.EquippedBadge != null ? p.EquippedBadge.Name : null,
+                BadgeNameEn = p.EquippedBadge != null ? p.EquippedBadge.NameEn : null,
             })
             .ToListAsync(cancellationToken);
 
@@ -59,7 +66,9 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, List<Us
                 { Status: FriendRequestStatus.Pending } => "PendingReceived",
                 _ => "None",
             };
-            return new UserSearchResultDto(c.UserId, c.Username, c.AvatarUrl, c.Level, status, c.FrameImageUrl);
+            return new UserSearchResultDto(c.UserId, c.Username, c.AvatarUrl, c.Level, status, c.FrameImageUrl,
+                LocalizationHelper.PickNullable(c.TitleName, c.TitleNameEn, isEnglish),
+                c.BadgeImageUrl, LocalizationHelper.PickNullable(c.BadgeName, c.BadgeNameEn, isEnglish));
         }).ToList();
     }
 }

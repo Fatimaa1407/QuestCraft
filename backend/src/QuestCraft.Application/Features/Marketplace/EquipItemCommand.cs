@@ -36,29 +36,7 @@ public class EquipItemCommandHandler : IRequestHandler<EquipItemCommand, Unit>
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken)
             ?? throw new NotFoundException(nameof(UserProfile), userId);
 
-        switch (item.ItemType.Name)
-        {
-            case "ProfileFrame":
-                profile.EquippedFrameId = item.Id;
-                break;
-            case "Title":
-                profile.EquippedTitleId = item.Id;
-                break;
-            case "Theme":
-                profile.EquippedThemeId = item.Id;
-                break;
-            case "Avatar":
-                profile.EquippedAvatarId = item.Id;
-                break;
-            case "ProfileBanner":
-                profile.EquippedBannerId = item.Id;
-                break;
-            case "Badge":
-                profile.EquippedBadgeId = item.Id;
-                break;
-            default:
-                throw new BadRequestException("Bu tip məhsul taxıla bilməz.");
-        }
+        MarketplaceEquipHelper.Equip(profile, item);
 
         await _context.SaveChangesAsync(cancellationToken);
         return Unit.Value;

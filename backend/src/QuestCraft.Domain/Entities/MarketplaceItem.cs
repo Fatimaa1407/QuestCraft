@@ -11,6 +11,7 @@ public class MarketplaceItem : BaseEntity
     public int Price { get; set; }
     public string? ImageUrl { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool IsFeatured { get; set; }
 
     public int ItemTypeId { get; set; }
     public MarketplaceItemType ItemType { get; set; } = default!;

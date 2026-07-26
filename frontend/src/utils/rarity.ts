@@ -8,9 +8,12 @@ export function getRarity(price: number): Rarity {
   return 'Common';
 }
 
+// Common -> Mythic ordinal, for sort-by-rarity controls.
+export const RARITY_ORDER: Rarity[] = ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'];
+
 export const RARITY_STYLES: Record<
   Rarity,
-  { dot: string; text: string; borderColor: string; glow: string; labelAz: string }
+  { dot: string; text: string; borderColor: string; glow: string; labelAz: string; ringClass?: string }
 > = {
   Common: {
     dot: 'bg-emerald-500',
@@ -39,6 +42,8 @@ export const RARITY_STYLES: Record<
     borderColor: 'rgba(245, 158, 11, 0.55)',
     glow: 'hover:shadow-amber-500/30',
     labelAz: 'Legendary',
+    // Animated gold ring — see .rarity-ring-legendary in index.css.
+    ringClass: 'rarity-ring-legendary',
   },
   Mythic: {
     dot: 'bg-fuchsia-500',
@@ -46,5 +51,7 @@ export const RARITY_STYLES: Record<
     borderColor: 'rgba(217, 70, 239, 0.6)',
     glow: 'hover:shadow-fuchsia-500/40',
     labelAz: 'Mythic',
+    // Animated fuchsia/pink ring — see .rarity-ring-mythic in index.css.
+    ringClass: 'rarity-ring-mythic',
   },
 };

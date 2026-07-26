@@ -103,7 +103,12 @@ export function ChatPage() {
                   <Avatar username={conv.friendUsername} avatarUrl={conv.friendAvatarUrl} frameImageUrl={conv.friendFrameImageUrl} size={40} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{conv.friendUsername}</p>
+                      <p className="flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
+                        {conv.friendBadgeImageUrl && (
+                          <img src={conv.friendBadgeImageUrl} alt="" title={conv.friendBadgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
+                        )}
+                        <span className="truncate">{conv.friendUsername}</span>
+                      </p>
                       {conv.unreadCount > 0 && (
                         <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-semibold text-white">
                           {conv.unreadCount}
@@ -129,7 +134,17 @@ export function ChatPage() {
                   <ArrowLeft size={18} />
                 </button>
                 {activeFriend && <Avatar username={activeFriend.friendUsername} avatarUrl={activeFriend.friendAvatarUrl} frameImageUrl={activeFriend.friendFrameImageUrl} size={32} />}
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{activeFriend?.friendUsername ?? '...'}</p>
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    {activeFriend?.friendBadgeImageUrl && (
+                      <img src={activeFriend.friendBadgeImageUrl} alt="" title={activeFriend.friendBadgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
+                    )}
+                    {activeFriend?.friendUsername ?? '...'}
+                  </p>
+                  {activeFriend?.friendTitleText && (
+                    <p className="text-[11px] font-medium text-app-accent dark:text-app-accent-2">{activeFriend.friendTitleText}</p>
+                  )}
+                </div>
               </div>
 
               <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto p-4" style={{ maxHeight: '50vh' }}>

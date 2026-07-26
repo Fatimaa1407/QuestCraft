@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PartyPopper, Sparkles } from 'lucide-react';
+import { PartyPopper, Sparkles, Check } from 'lucide-react';
 import { Z_INDEX } from '../../styles/zIndex';
 import { Confetti } from './Confetti';
 import { getRarity, RARITY_STYLES } from '../../utils/rarity';
@@ -12,24 +12,22 @@ interface PurchaseSuccessModalProps {
   itemType: string;
   imageUrl: string | null;
   pricePaid: number;
-  isEquipable: boolean;
-  isEquipping: boolean;
-  onEquipNow: () => void;
+  autoEquipped: boolean;
   onClose: () => void;
 }
 
 // Deliberately a bigger, more celebratory moment than the inline card shimmer already used in
 // ShopPage — the coin spend should feel like an event, not just a state flip. Modeled on
 // LevelUpModal's portal/confetti pattern rather than the plain Modal.tsx dialog.
+// Purchases auto-equip immediately (PurchaseItemCommand), so there is no Equip Now/Maybe Later
+// choice here anymore — just a status line reflecting what already happened.
 export function PurchaseSuccessModal({
   isOpen,
   itemName,
   itemType,
   imageUrl,
   pricePaid,
-  isEquipable,
-  isEquipping,
-  onEquipNow,
+  autoEquipped,
   onClose,
 }: PurchaseSuccessModalProps) {
   const { t } = useTranslation();
@@ -106,25 +104,25 @@ export function PurchaseSuccessModal({
                 </span>
               </p>
 
-              <div className="mt-6 flex flex-col gap-2">
-                {isEquipable && (
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={onEquipNow}
-                    disabled={isEquipping}
-                    className="w-full rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-shadow hover:shadow-xl disabled:opacity-60"
-                  >
-                    {isEquipping ? t('shop.equipping') : t('shop.equipNow')}
-                  </motion.button>
-                )}
+              {autoEquipped && (
+                <motion.p
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.3 }}
+                  className="mt-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                >
+                  <Check size={13} />
+                  {t('shop.autoEquipped')}
+                </motion.p>
+              )}
+
+              <div className="mt-6">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full rounded-full px-5 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-500/10 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  className="w-full rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-shadow hover:shadow-xl"
                 >
-                  {isEquipable ? t('shop.maybeLater') : t('shop.close')}
+                  {t('shop.close')}
                 </button>
               </div>
             </motion.div>

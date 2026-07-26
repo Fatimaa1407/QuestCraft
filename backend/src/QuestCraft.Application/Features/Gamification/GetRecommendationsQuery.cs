@@ -73,7 +73,7 @@ public class GetRecommendationsQueryHandler : IRequestHandler<GetRecommendations
             .ToListAsync(cancellationToken);
 
         var recommended = await _context.Challenges
-            .Where(c => c.IsPublished && !c.IsBattleOnly && c.CategoryId == weakest.CategoryId
+            .Where(c => c.IsPublished && !c.IsBattleOnly && !c.IsDailyPuzzle && c.CategoryId == weakest.CategoryId
                 && c.RequiredLevel <= userLevel && !solvedChallengeIds.Contains(c.Id))
             .OrderBy(c => c.RequiredLevel).ThenBy(c => c.XpReward)
             .Take(3)

@@ -10,4 +10,6 @@ public record BattleDto(
     int HostUserId, int? InvitedUserId, string? JoinCode, int MaxPlayers,
     DateTime? StartedAt, DateTime? EndedAt, List<BattleParticipantDto> Participants);
 
-public record BattleSummaryDto(int Id, string Mode, string Status, string ChallengeTitle, int PlayerCount, int MaxPlayers, string? JoinCode, DateTime CreatedAt);
+public record BattleSummaryDto(
+    int Id, string Mode, string Status, string ChallengeTitle, int PlayerCount, int MaxPlayers, string? JoinCode, DateTime CreatedAt,
+    string HostUsername, string? HostAvatarUrl, string? HostFrameImageUrl);

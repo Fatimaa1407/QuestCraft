@@ -97,30 +97,30 @@ export function ContributionHeatmap({ days, isLoading }: { days: HeatmapDayDetai
   }, [weeks]);
 
   if (isLoading) {
-    return <div className="h-44 w-full animate-pulse rounded-2xl bg-slate-200/50 dark:bg-white/5" />;
+    return <div className="h-64 w-full animate-pulse rounded-2xl bg-slate-200/50 dark:bg-white/5" />;
   }
 
   return (
     <div className="relative">
       <div className="overflow-x-auto pb-1">
-        <div className="inline-flex flex-col gap-1">
-          <div className="ml-7 flex gap-[3px]">
+        <div className="inline-flex flex-col gap-1.5">
+          <div className="ml-9 flex gap-[5px]">
             {weeks.map((_, weekIdx) => (
-              <div key={weekIdx} className="w-[13px] shrink-0 text-[10px] text-slate-400 dark:text-slate-500">
+              <div key={weekIdx} className="w-[18px] shrink-0 text-[11px] text-slate-400 dark:text-slate-500">
                 {monthLabels[weekIdx] ?? ''}
               </div>
             ))}
           </div>
-          <div className="flex gap-[3px]">
-            <div className="mr-1 flex w-6 shrink-0 flex-col gap-[3px]">
+          <div className="flex gap-[5px]">
+            <div className="mr-1.5 flex w-7 shrink-0 flex-col gap-[5px]">
               {WEEKDAY_LABELS_AZ.map((label, i) => (
-                <div key={i} className="h-[13px] text-[9px] leading-[13px] text-slate-400 dark:text-slate-500">
+                <div key={i} className="h-[18px] text-[10px] leading-[18px] text-slate-400 dark:text-slate-500">
                   {label}
                 </div>
               ))}
             </div>
             {weeks.map((week, weekIdx) => (
-              <div key={weekIdx} className="flex flex-col gap-[3px]">
+              <div key={weekIdx} className="flex flex-col gap-[5px]">
                 {week.map((day, dayIdx) =>
                   day ? (
                     <motion.div
@@ -130,12 +130,12 @@ export function ContributionHeatmap({ days, isLoading }: { days: HeatmapDayDetai
                       transition={{ delay: Math.min(1.1, (weekIdx * 7 + dayIdx) * 0.0035), duration: 0.25 }}
                       onMouseEnter={() => setHovered(day)}
                       onMouseLeave={() => setHovered((current) => (current?.iso === day.iso ? null : current))}
-                      className={`h-[13px] w-[13px] cursor-pointer rounded-[3px] transition-transform hover:scale-125 ${
+                      className={`h-[18px] w-[18px] cursor-pointer rounded-[4px] transition-transform hover:scale-125 ${
                         LEVEL_CLASSES[intensityLevel(day.detail?.count ?? 0)]
                       } ${day.isToday ? 'ring-1 ring-offset-1 ring-blue-500 ring-offset-white dark:ring-cyan-400 dark:ring-offset-slate-900' : ''}`}
                     />
                   ) : (
-                    <div key={dayIdx} className="h-[13px] w-[13px]" />
+                    <div key={dayIdx} className="h-[18px] w-[18px]" />
                   ),
                 )}
               </div>
@@ -144,10 +144,10 @@ export function ContributionHeatmap({ days, isLoading }: { days: HeatmapDayDetai
         </div>
       </div>
 
-      <div className="mt-3 ml-7 flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+      <div className="mt-4 ml-9 flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
         <span>{t('dashboard.activityHeatmapLess')}</span>
         {([0, 1, 2, 3, 4] as const).map((level) => (
-          <span key={level} className={`h-3 w-3 rounded-[3px] ${LEVEL_CLASSES[level]}`} />
+          <span key={level} className={`h-[14px] w-[14px] rounded-[4px] ${LEVEL_CLASSES[level]}`} />
         ))}
         <span>{t('dashboard.activityHeatmapMore')}</span>
       </div>

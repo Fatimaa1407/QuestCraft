@@ -21,7 +21,7 @@ function CategoryRow({ categoryName, completed, total }: CategoryProgress) {
           <span className="font-semibold text-blue-600 dark:text-cyan-400">{animatedPercent}%</span>
         </span>
       </div>
-      <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/[0.06]">
+      <div className="h-3.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/[0.06]">
         <motion.div
           className="relative h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
           initial={{ width: 0 }}
@@ -53,7 +53,7 @@ export function CategoryBreakdown({ data, isLoading }: { data: CategoryProgress[
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="space-y-1.5">
               <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-2.5 w-full" />
+              <Skeleton className="h-3.5 w-full" />
             </div>
           ))}
         </div>

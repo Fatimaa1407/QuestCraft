@@ -57,6 +57,10 @@ export interface ChallengeCommentDto {
   username: string;
   avatarUrl: string | null;
   parentCommentId: number | null;
+  frameImageUrl: string | null;
+  titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
 }
 
 export interface ChallengeCommentThreadDto {

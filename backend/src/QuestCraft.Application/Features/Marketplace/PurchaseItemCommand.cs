@@ -56,6 +56,12 @@ public class PurchaseItemCommandHandler : IRequestHandler<PurchaseItemCommand, P
         };
         _context.Purchases.Add(purchase);
 
+        var autoEquipped = MarketplaceEquipHelper.IsEquipable(item.ItemType.Name);
+        if (autoEquipped)
+        {
+            MarketplaceEquipHelper.Equip(profile, item);
+        }
+
         var stats = await _context.UserStatistics.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
         if (stats is not null)
         {
@@ -75,6 +81,6 @@ public class PurchaseItemCommandHandler : IRequestHandler<PurchaseItemCommand, P
 
         return new PurchaseResultDto(
             purchase.Id, item.Id, LocalizationHelper.Pick(item.Name, item.NameEn, _currentUser.IsEnglish),
-            item.ItemType.Name, item.ImageUrl, item.Price, profile.Coins);
+            item.ItemType.Name, item.ImageUrl, item.Price, profile.Coins, autoEquipped);
     }
 }

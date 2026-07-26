@@ -98,6 +98,11 @@ export interface MyRankDto {
   totalUsers: number;
   xp: number;
   level: number;
+  avatarUrl: string | null;
+  frameImageUrl: string | null;
+  titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
 }
 
 export interface DailyLoginRewardDto {

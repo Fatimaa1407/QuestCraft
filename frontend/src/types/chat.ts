@@ -15,4 +15,7 @@ export interface ConversationDto {
   lastMessageAt: string | null;
   unreadCount: number;
   friendFrameImageUrl: string | null;
+  friendTitleText: string | null;
+  friendBadgeImageUrl: string | null;
+  friendBadgeName: string | null;
 }

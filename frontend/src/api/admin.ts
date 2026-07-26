@@ -190,6 +190,7 @@ export interface MarketplaceItemPayload {
   isActive: boolean;
   nameEn: string | null;
   descriptionEn: string | null;
+  isFeatured: boolean;
 }
 export async function createMarketplaceItem(payload: MarketplaceItemPayload) {
   const { data } = await apiClient.post<ApiResponse<MarketplaceItemDto>>('/api/marketplace/items', payload);

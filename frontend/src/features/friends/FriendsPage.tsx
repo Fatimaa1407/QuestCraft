@@ -76,8 +76,14 @@ export function FriendsPage() {
                   <li key={r.userId} className="flex items-center gap-3 rounded-2xl border border-slate-200/70 p-3 dark:border-white/[0.06]">
                     <Avatar username={r.username} avatarUrl={r.avatarUrl} frameImageUrl={r.frameImageUrl} size={36} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{r.username}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Lvl {r.level}</p>
+                      <p className="flex items-center gap-1.5 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
+                        {r.badgeImageUrl && <img src={r.badgeImageUrl} alt="" title={r.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
+                        {r.username}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Lvl {r.level}
+                        {r.titleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{r.titleText}</span>}
+                      </p>
                     </div>
                     {r.friendStatus === 'None' && (
                       <motion.button
@@ -130,8 +136,16 @@ export function FriendsPage() {
                   <li key={req.id} className="flex items-center gap-3 rounded-2xl border border-blue-400/30 bg-blue-500/[0.04] p-3">
                     <Avatar username={req.requesterUsername} avatarUrl={req.requesterAvatarUrl} frameImageUrl={req.requesterFrameImageUrl} size={36} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{req.requesterUsername}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Lvl {req.requesterLevel}</p>
+                      <p className="flex items-center gap-1.5 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
+                        {req.requesterBadgeImageUrl && (
+                          <img src={req.requesterBadgeImageUrl} alt="" title={req.requesterBadgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
+                        )}
+                        {req.requesterUsername}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Lvl {req.requesterLevel}
+                        {req.requesterTitleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{req.requesterTitleText}</span>}
+                      </p>
                     </div>
                     <motion.button
                       {...buttonTap}
@@ -197,9 +211,13 @@ function FriendCard({ friend, onRemove }: { friend: FriendDto; onRemove: () => v
       <GlassCard hoverLift={false} className="flex items-center gap-3 p-4">
         <Avatar username={friend.username} avatarUrl={friend.avatarUrl} frameImageUrl={friend.frameImageUrl} size={44} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{friend.username}</p>
+          <p className="flex items-center gap-1.5 truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+            {friend.badgeImageUrl && <img src={friend.badgeImageUrl} alt="" title={friend.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
+            {friend.username}
+          </p>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Lvl {friend.level} · {friend.xp} XP
+            {friend.titleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{friend.titleText}</span>}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">

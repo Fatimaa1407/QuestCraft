@@ -17,6 +17,11 @@ import type { ChallengeListItemDto } from '../../types/challenge';
 
 type ChallengeStatus = 'Solved' | 'Attempted' | 'NotStarted';
 
+// staggerContainer's default 0.12s-per-child delay is fine for short lists, but a level can hold
+// 20+ challenges — at the default rate the last cards wouldn't start entering for 2+ seconds,
+// reading as "missing" rather than "still animating in". Capped so a full level always settles fast.
+const levelGridStagger = { hidden: {}, show: { transition: { staggerChildren: 0.025, delayChildren: 0.05 } } };
+
 export function ChallengesListPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
@@ -66,9 +71,12 @@ export function ChallengesListPage() {
 
   const categoriesQuery = useQuery({ queryKey: ['categories'], queryFn: getCategories });
   const difficultiesQuery = useQuery({ queryKey: ['difficulties'], queryFn: getDifficulties });
+  // This page groups every challenge by level client-side, so the fetch has to cover the whole
+  // catalogue in one page, not just a normal page-size window — pageSize must stay comfortably
+  // above the total challenge count (261 as of writing) or the higher levels silently disappear.
   const challengesQuery = useQuery({
     queryKey: ['challenges', categoryId, difficultyId, search],
-    queryFn: () => getChallenges({ categoryId, difficultyId, search: search || undefined, page: 1, pageSize: 100 }),
+    queryFn: () => getChallenges({ categoryId, difficultyId, search: search || undefined, page: 1, pageSize: 1000 }),
   });
 
   const mySubmissionsQuery = useQuery({
@@ -217,17 +225,19 @@ export function ChallengesListPage() {
                   i18nNamespace="challenges"
                 />
 
+                {/* Fade/slide only, deliberately no height:0->'auto' animation — Framer Motion measures
+                    the "auto" target height once and can freeze it before the staggered grid below
+                    finishes laying out all rows, clipping later cards under overflow-hidden. */}
                 <AnimatePresence initial={false}>
                   {isExpanded && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.25 }}
-                      className="overflow-hidden"
                     >
                       <motion.div
-                        variants={staggerContainer}
+                        variants={levelGridStagger}
                         initial="hidden"
                         animate="show"
                         className="grid grid-cols-1 gap-6 pb-2 pt-4 sm:grid-cols-2 lg:grid-cols-3"

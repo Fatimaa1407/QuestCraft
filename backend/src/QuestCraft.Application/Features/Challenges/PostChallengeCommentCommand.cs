@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Entities;
@@ -9,7 +10,8 @@ namespace QuestCraft.Application.Features.Challenges;
 
 public record ChallengeCommentDto(
     int Id, string Content, bool IsSpoiler, DateTime CreatedAt,
-    int UserId, string Username, string? AvatarUrl, int? ParentCommentId);
+    int UserId, string Username, string? AvatarUrl, int? ParentCommentId,
+    string? FrameImageUrl = null, string? TitleText = null, string? BadgeImageUrl = null, string? BadgeName = null);
 
 public record PostChallengeCommentCommand(int ChallengeId, string Content, bool IsSpoiler, int? ParentCommentId) : ICommand<ChallengeCommentDto>;
 
@@ -70,12 +72,25 @@ public class PostChallengeCommentCommandHandler : IRequestHandler<PostChallengeC
         _context.ChallengeComments.Add(comment);
         await _context.SaveChangesAsync(cancellationToken);
 
+        var isEnglish = _currentUser.IsEnglish;
         var user = await _context.Users
             .Where(u => u.Id == userId)
-            .Select(u => new { u.Username, u.Profile!.AvatarUrl })
+            .Select(u => new
+            {
+                u.Username,
+                AvatarUrl = u.Profile!.EquippedAvatar != null ? u.Profile.EquippedAvatar.ImageUrl : u.Profile.AvatarUrl,
+                FrameImageUrl = u.Profile.EquippedFrame != null ? u.Profile.EquippedFrame.ImageUrl : null,
+                TitleName = u.Profile.EquippedTitle != null ? u.Profile.EquippedTitle.Name : null,
+                TitleNameEn = u.Profile.EquippedTitle != null ? u.Profile.EquippedTitle.NameEn : null,
+                BadgeImageUrl = u.Profile.EquippedBadge != null ? u.Profile.EquippedBadge.ImageUrl : null,
+                BadgeName = u.Profile.EquippedBadge != null ? u.Profile.EquippedBadge.Name : null,
+                BadgeNameEn = u.Profile.EquippedBadge != null ? u.Profile.EquippedBadge.NameEn : null,
+            })
             .FirstAsync(cancellationToken);
 
         return new ChallengeCommentDto(comment.Id, comment.Content, comment.IsSpoiler, comment.CreatedAt,
-            userId, user.Username, user.AvatarUrl, comment.ParentCommentId);
+            userId, user.Username, user.AvatarUrl, comment.ParentCommentId,
+            user.FrameImageUrl, LocalizationHelper.PickNullable(user.TitleName, user.TitleNameEn, isEnglish),
+            user.BadgeImageUrl, LocalizationHelper.PickNullable(user.BadgeName, user.BadgeNameEn, isEnglish));
     }
 }

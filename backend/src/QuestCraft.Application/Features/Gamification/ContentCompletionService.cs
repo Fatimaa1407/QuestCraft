@@ -40,14 +40,19 @@ public class ContentCompletionService : IContentCompletionService
 
     public async Task<LevelCompletion> GetLevelCompletionAsync(int userId, int level, CancellationToken cancellationToken)
     {
+        // Battle Pool and Daily Puzzle challenges share the same RequiredLevel/IsPublished shape as
+        // regular leveled content but are a separate pool entirely (excluded from GetChallengesQuery
+        // too) — counting them here would inflate a level's total with questions that never actually
+        // appear in that level's practice list.
         var challengesTotal = await _context.Challenges
-            .CountAsync(c => c.IsPublished && c.RequiredLevel == level, cancellationToken);
+            .CountAsync(c => c.IsPublished && c.RequiredLevel == level && !c.IsBattleOnly && !c.IsDailyPuzzle, cancellationToken);
         var quizzesTotal = await _context.Quizzes
             .CountAsync(q => q.IsPublished && q.RequiredLevel == level, cancellationToken);
 
         var challengesCompleted = await _context.ChallengeSubmissions
             .Where(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted
-                && s.Challenge.IsPublished && s.Challenge.RequiredLevel == level)
+                && s.Challenge.IsPublished && s.Challenge.RequiredLevel == level
+                && !s.Challenge.IsBattleOnly && !s.Challenge.IsDailyPuzzle)
             .Select(s => s.ChallengeId)
             .Distinct()
             .CountAsync(cancellationToken);

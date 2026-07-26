@@ -10,7 +10,7 @@ namespace QuestCraft.Application.Features.Admin.Marketplace;
 
 public record CreateMarketplaceItemCommand(
     string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive,
-    string? NameEn = null, string? DescriptionEn = null) : ICommand<MarketplaceItemDto>;
+    string? NameEn = null, string? DescriptionEn = null, bool IsFeatured = false) : ICommand<MarketplaceItemDto>;
 
 public class CreateMarketplaceItemCommandValidator : AbstractValidator<CreateMarketplaceItemCommand>
 {
@@ -47,18 +47,19 @@ public class CreateMarketplaceItemCommandHandler : IRequestHandler<CreateMarketp
             Price = request.Price,
             ImageUrl = request.ImageUrl,
             IsActive = request.IsActive,
+            IsFeatured = request.IsFeatured,
         };
 
         _context.MarketplaceItems.Add(item);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new MarketplaceItemDto(item.Id, item.Name, item.Description, item.ItemTypeId, itemType.Name, item.Price, item.ImageUrl, item.IsActive, false);
+        return new MarketplaceItemDto(item.Id, item.Name, item.Description, item.ItemTypeId, itemType.Name, item.Price, item.ImageUrl, item.IsActive, false, item.IsFeatured);
     }
 }
 
 public record UpdateMarketplaceItemCommand(
     int Id, string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive,
-    string? NameEn = null, string? DescriptionEn = null) : ICommand<MarketplaceItemDto>;
+    string? NameEn = null, string? DescriptionEn = null, bool IsFeatured = false) : ICommand<MarketplaceItemDto>;
 
 public class UpdateMarketplaceItemCommandValidator : AbstractValidator<UpdateMarketplaceItemCommand>
 {
@@ -96,10 +97,11 @@ public class UpdateMarketplaceItemCommandHandler : IRequestHandler<UpdateMarketp
         item.Price = request.Price;
         item.ImageUrl = request.ImageUrl;
         item.IsActive = request.IsActive;
+        item.IsFeatured = request.IsFeatured;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new MarketplaceItemDto(item.Id, item.Name, item.Description, item.ItemTypeId, itemType.Name, item.Price, item.ImageUrl, item.IsActive, false);
+        return new MarketplaceItemDto(item.Id, item.Name, item.Description, item.ItemTypeId, itemType.Name, item.Price, item.ImageUrl, item.IsActive, false, item.IsFeatured);
     }
 }
 

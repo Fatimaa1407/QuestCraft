@@ -13,6 +13,11 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import type { QuizListItemDto } from '../../types/quiz';
 
+// staggerContainer's default 0.12s-per-child delay is fine for short lists, but a level can hold
+// well over a dozen quizzes — at the default rate the last cards wouldn't start entering for 2+
+// seconds, reading as "missing" rather than "still animating in". Capped so a level always settles fast.
+const levelGridStagger = { hidden: {}, show: { transition: { staggerChildren: 0.025, delayChildren: 0.05 } } };
+
 export function QuizListPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
@@ -21,7 +26,9 @@ export function QuizListPage() {
 
   const quizzesQuery = useQuery({
     queryKey: ['quizzes', 'list', search],
-    queryFn: () => getQuizzes({ search: search || undefined, page: 1, pageSize: 100 }),
+    // Same reasoning as ChallengesListPage: this page groups every quiz by level client-side, so
+    // pageSize must cover the whole catalogue (138 quizzes as of writing) or higher levels vanish.
+    queryFn: () => getQuizzes({ search: search || undefined, page: 1, pageSize: 1000 }),
   });
 
   const myAttemptsQuery = useQuery({
@@ -128,17 +135,19 @@ export function QuizListPage() {
                   i18nNamespace="quiz"
                 />
 
+                {/* Fade/slide only, deliberately no height:0->'auto' animation — Framer Motion measures
+                    the "auto" target height once and can freeze it before the staggered grid below
+                    finishes laying out all rows, clipping later cards under overflow-hidden. */}
                 <AnimatePresence initial={false}>
                   {isExpanded && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.25 }}
-                      className="overflow-hidden"
                     >
                       <motion.div
-                        variants={staggerContainer}
+                        variants={levelGridStagger}
                         initial="hidden"
                         animate="show"
                         className="grid grid-cols-1 gap-6 pb-2 pt-4 sm:grid-cols-2 lg:grid-cols-3"

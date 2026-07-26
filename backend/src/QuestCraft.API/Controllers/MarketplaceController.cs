@@ -46,7 +46,7 @@ public class MarketplaceController : ControllerBase
     {
         var command = new UpdateMarketplaceItemCommand(
             id, request.Name, request.Description, request.ItemTypeId, request.Price, request.ImageUrl, request.IsActive,
-            request.NameEn, request.DescriptionEn);
+            request.NameEn, request.DescriptionEn, request.IsFeatured);
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(ApiResponse<MarketplaceItemDto>.Ok(result, "Məhsul yeniləndi."));
     }
@@ -90,8 +90,47 @@ public class MarketplaceController : ControllerBase
         var result = await _mediator.Send(new GetMyPurchasesQuery(), cancellationToken);
         return Ok(ApiResponse<List<MyPurchaseDto>>.Ok(result));
     }
+
+    [HttpPost("items/{id:int}/wishlist")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<bool>>> ToggleWishlist(int id, CancellationToken cancellationToken)
+    {
+        var wishlisted = await _mediator.Send(new ToggleWishlistCommand(id), cancellationToken);
+        return Ok(ApiResponse<bool>.Ok(wishlisted));
+    }
+
+    [HttpGet("wishlist")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<List<MarketplaceItemDto>>>> GetMyWishlist(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetMyWishlistQuery(), cancellationToken);
+        return Ok(ApiResponse<List<MarketplaceItemDto>>.Ok(result));
+    }
+
+    [HttpGet("bundles")]
+    public async Task<ActionResult<ApiResponse<List<MarketplaceBundleDto>>>> GetBundles(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetBundlesQuery(), cancellationToken);
+        return Ok(ApiResponse<List<MarketplaceBundleDto>>.Ok(result));
+    }
+
+    [HttpPost("bundles/{id:int}/purchase")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<BundlePurchaseResultDto>>> PurchaseBundle(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new PurchaseBundleCommand(id), cancellationToken);
+        return Ok(ApiResponse<BundlePurchaseResultDto>.Ok(result, "Bundle alındı."));
+    }
+
+    [HttpPost("mystery-box/open")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<MysteryBoxResultDto>>> OpenMysteryBox(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new OpenMysteryBoxCommand(), cancellationToken);
+        return Ok(ApiResponse<MysteryBoxResultDto>.Ok(result));
+    }
 }
 
 public record UpdateMarketplaceItemRequest(
     string Name, string? Description, int ItemTypeId, int Price, string? ImageUrl, bool IsActive,
-    string? NameEn = null, string? DescriptionEn = null);
+    string? NameEn = null, string? DescriptionEn = null, bool IsFeatured = false);

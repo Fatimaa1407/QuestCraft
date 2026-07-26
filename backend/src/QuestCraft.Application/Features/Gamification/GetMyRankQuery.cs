@@ -1,11 +1,15 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Enums;
 
 namespace QuestCraft.Application.Features.Gamification;
 
-public record MyRankDto(int Rank, int TotalUsers, int Xp, int Level);
+public record MyRankDto(
+    int Rank, int TotalUsers, int Xp, int Level,
+    string? AvatarUrl = null, string? FrameImageUrl = null, string? TitleText = null,
+    string? BadgeImageUrl = null, string? BadgeName = null);
 
 public record GetMyRankQuery(LeaderboardPeriod Period) : IQuery<MyRankDto>;
 
@@ -28,6 +32,24 @@ public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, MyRankDto>
             return new MyRankDto(0, 0, 0, 1);
         }
 
+        var isEnglish = _currentUser.IsEnglish;
+        var cosmetics = await _context.UserProfiles
+            .Where(p => p.UserId == userId)
+            .Select(p => new
+            {
+                AvatarUrl = p.EquippedAvatar != null ? p.EquippedAvatar.ImageUrl : p.AvatarUrl,
+                FrameImageUrl = p.EquippedFrame != null ? p.EquippedFrame.ImageUrl : null,
+                TitleName = p.EquippedTitle != null ? p.EquippedTitle.Name : null,
+                TitleNameEn = p.EquippedTitle != null ? p.EquippedTitle.NameEn : null,
+                BadgeImageUrl = p.EquippedBadge != null ? p.EquippedBadge.ImageUrl : null,
+                BadgeName = p.EquippedBadge != null ? p.EquippedBadge.Name : null,
+                BadgeNameEn = p.EquippedBadge != null ? p.EquippedBadge.NameEn : null,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var titleText = LocalizationHelper.PickNullable(cosmetics?.TitleName, cosmetics?.TitleNameEn, isEnglish);
+        var badgeName = LocalizationHelper.PickNullable(cosmetics?.BadgeName, cosmetics?.BadgeNameEn, isEnglish);
+
         if (request.Period == LeaderboardPeriod.AllTime)
         {
             var profile = await _context.UserProfiles
@@ -41,7 +63,8 @@ public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, MyRankDto>
             var totalUsers = await _context.UserProfiles.CountAsync(cancellationToken);
             var higherCount = await _context.UserProfiles.CountAsync(p => p.Xp > myXp, cancellationToken);
 
-            return new MyRankDto(higherCount + 1, totalUsers, myXp, myLevel);
+            return new MyRankDto(higherCount + 1, totalUsers, myXp, myLevel,
+                cosmetics?.AvatarUrl, cosmetics?.FrameImageUrl, titleText, cosmetics?.BadgeImageUrl, badgeName);
         }
 
         var now = DateTime.UtcNow;
@@ -82,6 +105,7 @@ public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, MyRankDto>
         // (tied for last) rather than being excluded entirely.
         var totalUsers2 = myXpInPeriod > 0 || totalUsersInPeriod == 0 ? totalUsersInPeriod : totalUsersInPeriod + 1;
 
-        return new MyRankDto(higherCountInPeriod + 1, totalUsers2, myXpInPeriod, myLevelInPeriod);
+        return new MyRankDto(higherCountInPeriod + 1, totalUsers2, myXpInPeriod, myLevelInPeriod,
+            cosmetics?.AvatarUrl, cosmetics?.FrameImageUrl, titleText, cosmetics?.BadgeImageUrl, badgeName);
     }
 }

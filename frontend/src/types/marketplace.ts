@@ -13,6 +13,8 @@ export interface MarketplaceItemDto {
   imageUrl: string | null;
   isActive: boolean;
   isOwned: boolean;
+  isFeatured: boolean;
+  isWishlisted: boolean;
 }
 
 export interface PurchaseResultDto {
@@ -23,6 +25,7 @@ export interface PurchaseResultDto {
   imageUrl: string | null;
   pricePaid: number;
   remainingCoins: number;
+  autoEquipped: boolean;
 }
 
 export interface MyPurchaseDto {
@@ -49,3 +52,44 @@ export interface EquippedCosmeticsDto {
 }
 
 export const EQUIPABLE_ITEM_TYPES = ['Avatar', 'ProfileFrame', 'ProfileBanner', 'Title', 'Badge', 'Theme'];
+
+export interface BundleItemDto {
+  marketplaceItemId: number;
+  name: string;
+  imageUrl: string | null;
+  price: number;
+  itemType: string;
+  isOwned: boolean;
+}
+
+export interface MarketplaceBundleDto {
+  id: number;
+  name: string;
+  description: string | null;
+  imageUrl: string | null;
+  bundlePrice: number;
+  individualTotal: number;
+  isOwnedFully: boolean;
+  ownedCount: number;
+  items: BundleItemDto[];
+}
+
+export interface BundlePurchaseResultDto {
+  bundleId: number;
+  bundleName: string;
+  pricePaid: number;
+  remainingCoins: number;
+  grantedItemNames: string[];
+}
+
+export interface MysteryBoxResultDto {
+  nothingLeft: boolean;
+  itemId: number | null;
+  itemName: string | null;
+  itemType: string | null;
+  imageUrl: string | null;
+  rarity: string | null;
+  autoEquipped: boolean;
+  pricePaid: number;
+  remainingCoins: number;
+}

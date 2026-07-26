@@ -9,6 +9,7 @@ import { getApiErrorMessage } from '../../utils/apiError';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { FramedAvatar } from '../../components/ui/FramedAvatar';
 
 function SpoilerContent({ content }: { content: string }) {
   const { t } = useTranslation();
@@ -34,9 +35,16 @@ function CommentRow({ comment, isReply = false }: { comment: ChallengeCommentDto
   return (
     <div className={`flex gap-2.5 ${isReply ? 'ml-6' : ''}`}>
       {isReply && <CornerDownRight size={14} className="mt-1 shrink-0 text-slate-400 dark:text-slate-500" />}
+      <FramedAvatar username={comment.username} avatarUrl={comment.avatarUrl} frameImageUrl={comment.frameImageUrl} size={28} className="mt-0.5 shrink-0" />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
+          {comment.badgeImageUrl && (
+            <img src={comment.badgeImageUrl} alt="" title={comment.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
+          )}
           <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{comment.username}</span>
+          {comment.titleText && (
+            <span className="text-[11px] font-medium text-app-accent dark:text-app-accent-2">{comment.titleText}</span>
+          )}
           <span className="text-[11px] text-slate-400 dark:text-slate-500">{new Date(comment.createdAt).toLocaleString()}</span>
           {comment.isSpoiler && (
             <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">

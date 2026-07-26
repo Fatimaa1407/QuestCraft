@@ -26,6 +26,10 @@ public class GetMarketplaceItemsQueryHandler : IRequestHandler<GetMarketplaceIte
             ? []
             : await _context.Purchases.Where(p => p.UserId == userId).Select(p => p.MarketplaceItemId).ToListAsync(cancellationToken);
 
+        var wishlistedIds = userId is null
+            ? []
+            : await _context.Wishlists.Where(w => w.UserId == userId).Select(w => w.MarketplaceItemId).ToListAsync(cancellationToken);
+
         var query = _context.MarketplaceItems.Include(i => i.ItemType).Where(i => i.IsActive).AsQueryable();
         if (request.ItemTypeId is not null)
         {
@@ -39,7 +43,8 @@ public class GetMarketplaceItemsQueryHandler : IRequestHandler<GetMarketplaceIte
             i.Id,
             LocalizationHelper.Pick(i.Name, i.NameEn, isEnglish),
             LocalizationHelper.PickNullable(i.Description, i.DescriptionEn, isEnglish),
-            i.ItemTypeId, i.ItemType.Name, i.Price, i.ImageUrl, i.IsActive, ownedIds.Contains(i.Id)))
+            i.ItemTypeId, i.ItemType.Name, i.Price, i.ImageUrl, i.IsActive, ownedIds.Contains(i.Id),
+            i.IsFeatured, wishlistedIds.Contains(i.Id)))
             .ToList();
     }
 }

@@ -23,6 +23,9 @@ public static class ApplicationDbContextSeeder
         await SeedDailyPuzzleChallengesAsync(context);
         await SeedMarketplaceItemTypesAsync(context);
         await SeedMarketplaceItemsAsync(context);
+        // Committed immediately so SeedMarketplaceBundlesAsync can look up items by real Id right after.
+        await context.SaveChangesAsync();
+        await SeedMarketplaceBundlesAsync(context);
         await SeedDailyQuestTemplatesAsync(context);
         await SeedAchievementsAsync(context);
         await SeedSystemSettingsAsync(context);
@@ -575,6 +578,34 @@ public static class ApplicationDbContextSeeder
             new MarketplaceItem { Name = "Bənövşəyi Tema", NameEn = "Violet Theme", Description = "Dashboard aksent rənglərini bənövşəyi tonlara dəyişir.", DescriptionEn = "Changes the dashboard accent colors to violet tones.", ItemTypeId = themeTypeId, Price = 80 },
             new MarketplaceItem { Name = "Narıncı Tema", NameEn = "Sunset Theme", Description = "Dashboard aksent rənglərini isti narıncı tonlara dəyişir.", DescriptionEn = "Changes the dashboard accent colors to warm orange tones.", ItemTypeId = themeTypeId, Price = 80 }
         );
+    }
+
+    private static async Task SeedMarketplaceBundlesAsync(ApplicationDbContext context)
+    {
+        if (await context.MarketplaceBundles.AnyAsync())
+        {
+            return;
+        }
+
+        // Built from existing items only (no new art assets) at a visible discount vs buying each
+        // separately — IndividualTotal is computed live from current prices, not hardcoded here.
+        var frame = await context.MarketplaceItems.FirstAsync(i => i.Name == "Qızıl Çərçivə");
+        var theme = await context.MarketplaceItems.FirstAsync(i => i.Name == "Tünd Tema");
+        var badge = await context.MarketplaceItems.FirstAsync(i => i.Name == "İlk Addım Nişanı");
+
+        var cyberBundle = new MarketplaceBundle
+        {
+            Name = "Kibernetik Dəst",
+            NameEn = "Cyber Bundle",
+            Description = "Qızıl Çərçivə, Tünd Tema və İlk Addım Nişanı bir paketdə — ayrı-ayrı almaqdan ucuz.",
+            DescriptionEn = "Golden Frame, Dark Theme and First Step Badge in one pack — cheaper than buying separately.",
+            BundlePrice = 160,
+        };
+        cyberBundle.Items.Add(new MarketplaceBundleItem { MarketplaceItem = frame });
+        cyberBundle.Items.Add(new MarketplaceBundleItem { MarketplaceItem = theme });
+        cyberBundle.Items.Add(new MarketplaceBundleItem { MarketplaceItem = badge });
+
+        context.MarketplaceBundles.Add(cyberBundle);
     }
 
     private static async Task SeedDailyQuestTemplatesAsync(ApplicationDbContext context)

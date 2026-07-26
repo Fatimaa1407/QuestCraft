@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Enums;
@@ -22,6 +23,7 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
     public async Task<List<ConversationDto>> Handle(GetConversationsQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
+        var isEnglish = _currentUser.IsEnglish;
 
         var friendIds = await _context.FriendRequests
             .Where(f => f.Status == FriendRequestStatus.Accepted && (f.RequesterId == userId || f.AddresseeId == userId))
@@ -41,6 +43,11 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
                 p.UserId, p.User.Username,
                 AvatarUrl = p.EquippedAvatar != null ? p.EquippedAvatar.ImageUrl : p.AvatarUrl,
                 FrameImageUrl = p.EquippedFrame != null ? p.EquippedFrame.ImageUrl : null,
+                TitleName = p.EquippedTitle != null ? p.EquippedTitle.Name : null,
+                TitleNameEn = p.EquippedTitle != null ? p.EquippedTitle.NameEn : null,
+                BadgeImageUrl = p.EquippedBadge != null ? p.EquippedBadge.ImageUrl : null,
+                BadgeName = p.EquippedBadge != null ? p.EquippedBadge.Name : null,
+                BadgeNameEn = p.EquippedBadge != null ? p.EquippedBadge.NameEn : null,
             })
             .ToListAsync(cancellationToken);
 
@@ -56,7 +63,9 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             var last = withFriend.OrderByDescending(m => m.CreatedAt).FirstOrDefault();
             var unread = withFriend.Count(m => m.SenderId == f.UserId && !m.IsRead);
 
-            return new ConversationDto(f.UserId, f.Username, f.AvatarUrl, last?.Content, last?.CreatedAt, unread, f.FrameImageUrl);
+            return new ConversationDto(f.UserId, f.Username, f.AvatarUrl, last?.Content, last?.CreatedAt, unread, f.FrameImageUrl,
+                LocalizationHelper.PickNullable(f.TitleName, f.TitleNameEn, isEnglish),
+                f.BadgeImageUrl, LocalizationHelper.PickNullable(f.BadgeName, f.BadgeNameEn, isEnglish));
         })
         .OrderByDescending(c => c.LastMessageAt ?? DateTime.MinValue)
         .ToList();

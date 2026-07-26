@@ -77,15 +77,18 @@ public class GetDashboardAnalyticsQueryHandler : IRequestHandler<GetDashboardAna
             userLevel = 1;
         }
 
+        // Battle Pool and Daily Puzzle challenges are excluded — they're a separate pool, not part of
+        // the leveled practice list a student actually sees under a category (see GetChallengesQuery).
         var totalsByCategory = await _context.Challenges
-            .Where(c => c.IsPublished && c.RequiredLevel <= userLevel)
+            .Where(c => c.IsPublished && c.RequiredLevel <= userLevel && !c.IsBattleOnly && !c.IsDailyPuzzle)
             .GroupBy(c => new { c.CategoryId, c.Category.Name })
             .Select(g => new { g.Key.CategoryId, g.Key.Name, Total = g.Count() })
             .ToListAsync(cancellationToken);
 
         var completedChallenges = await _context.ChallengeSubmissions
             .Where(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted
-                && s.Challenge.IsPublished && s.Challenge.RequiredLevel <= userLevel)
+                && s.Challenge.IsPublished && s.Challenge.RequiredLevel <= userLevel
+                && !s.Challenge.IsBattleOnly && !s.Challenge.IsDailyPuzzle)
             .Select(s => new { s.Challenge.CategoryId, s.ChallengeId })
             .Distinct()
             .ToListAsync(cancellationToken);

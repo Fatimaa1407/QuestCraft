@@ -14,6 +14,7 @@ import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 import type { BattleSummaryDto } from '../../types/battle';
+import { FramedAvatar } from '../../components/ui/FramedAvatar';
 
 function BattleCardSkeleton() {
   return (
@@ -168,11 +169,14 @@ export function BattleLobbyPage() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {openRooms.map((room) => (
               <GlassCard key={room.id} hoverLift={false} className="flex items-center justify-between gap-3 p-4">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{room.challengeTitle}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {room.playerCount}/{room.maxPlayers} {t('battles.players')}
-                  </p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <FramedAvatar username={room.hostUsername} avatarUrl={room.hostAvatarUrl} frameImageUrl={room.hostFrameImageUrl} size={36} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{room.challengeTitle}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {room.playerCount}/{room.maxPlayers} {t('battles.players')}
+                    </p>
+                  </div>
                 </div>
                 <motion.button
                   {...buttonTap}
@@ -201,10 +205,15 @@ function BattleSummaryCard({ battle, onClick }: { battle: BattleSummaryDto; onCl
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${statusStyles[battle.status]}`}>{t(`battles.status.${battle.status}`)}</span>
           <span className="text-xs text-slate-400">{battle.mode === 'Duel' ? '⚔️' : '🏟️'} {t(`battles.mode.${battle.mode}`)}</span>
         </div>
-        <p className="mt-2 truncate text-sm font-medium text-slate-900 dark:text-slate-100">{battle.challengeTitle}</p>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-          {battle.playerCount}/{battle.maxPlayers} {t('battles.players')}
-        </p>
+        <div className="mt-2 flex items-center gap-2.5">
+          <FramedAvatar username={battle.hostUsername} avatarUrl={battle.hostAvatarUrl} frameImageUrl={battle.hostFrameImageUrl} size={28} />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{battle.challengeTitle}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {battle.playerCount}/{battle.maxPlayers} {t('battles.players')}
+            </p>
+          </div>
+        </div>
       </GlassCard>
     </motion.div>
   );

@@ -30,7 +30,10 @@ public class GetMyActiveBattlesQueryHandler : IRequestHandler<GetMyActiveBattles
                 && (b.HostUserId == userId || b.InvitedUserId == userId || b.Participants.Any(p => p.UserId == userId)))
             .OrderByDescending(b => b.CreatedAt)
             .Select(b => new BattleSummaryDto(
-                b.Id, b.Mode.ToString(), b.Status.ToString(), b.Challenge.Title, b.Participants.Count, b.MaxPlayers, b.JoinCode, b.CreatedAt))
+                b.Id, b.Mode.ToString(), b.Status.ToString(), b.Challenge.Title, b.Participants.Count, b.MaxPlayers, b.JoinCode, b.CreatedAt,
+                b.HostUser.Username,
+                b.HostUser.Profile != null ? (b.HostUser.Profile.EquippedAvatar != null ? b.HostUser.Profile.EquippedAvatar.ImageUrl : b.HostUser.Profile.AvatarUrl) : null,
+                b.HostUser.Profile != null && b.HostUser.Profile.EquippedFrame != null ? b.HostUser.Profile.EquippedFrame.ImageUrl : null))
             .ToListAsync(cancellationToken);
     }
 }
@@ -54,6 +57,9 @@ public class GetOpenRoomsQueryHandler : IRequestHandler<GetOpenRoomsQuery, List<
             .OrderByDescending(b => b.CreatedAt)
             .Take(30)
             .Select(b => new BattleSummaryDto(
-                b.Id, b.Mode.ToString(), b.Status.ToString(), b.Challenge.Title, b.Participants.Count, b.MaxPlayers, b.JoinCode, b.CreatedAt))
+                b.Id, b.Mode.ToString(), b.Status.ToString(), b.Challenge.Title, b.Participants.Count, b.MaxPlayers, b.JoinCode, b.CreatedAt,
+                b.HostUser.Username,
+                b.HostUser.Profile != null ? (b.HostUser.Profile.EquippedAvatar != null ? b.HostUser.Profile.EquippedAvatar.ImageUrl : b.HostUser.Profile.AvatarUrl) : null,
+                b.HostUser.Profile != null && b.HostUser.Profile.EquippedFrame != null ? b.HostUser.Profile.EquippedFrame.ImageUrl : null))
             .ToListAsync(cancellationToken);
 }

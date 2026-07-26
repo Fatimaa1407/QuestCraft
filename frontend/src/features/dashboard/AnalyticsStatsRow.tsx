@@ -26,14 +26,14 @@ function Chip({
   return (
     <motion.div
       whileHover={{ y: -2 }}
-      className="flex min-w-[140px] flex-1 items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/60 px-4 py-3 dark:border-white/[0.08] dark:bg-white/[0.03]"
+      className="flex min-w-[130px] flex-1 items-center gap-2.5 rounded-xl border border-slate-200/70 bg-white/60 px-3 py-2 dark:border-white/[0.08] dark:bg-white/[0.03]"
     >
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tint}`}>
-        <Icon size={18} />
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${tint}`}>
+        <Icon size={15} />
       </div>
       <div className="min-w-0">
-        <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="text-lg font-bold text-slate-900 dark:text-white">{value}</p>
+        <p className="truncate text-[10px] leading-tight text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="text-base font-bold leading-tight text-slate-900 dark:text-white">{value}</p>
       </div>
     </motion.div>
   );
@@ -58,7 +58,7 @@ export function AnalyticsStatsRow({
   const animatedSolved = useAnimatedNumber(totalSolved);
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2">
       <Chip
         icon={Flame}
         label={t('dashboard.heatmapCurrentStreak')}

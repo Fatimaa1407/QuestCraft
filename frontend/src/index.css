@@ -88,6 +88,35 @@ body {
   }
 }
 
+/* Always-on premium rarity rings for Legendary/Mythic shop items — unlike .glow-card-border
+   these use fixed colors (not the theme accent vars) so rarity stays visually distinct even
+   when the user has an equipped Theme cosmetic active. */
+.rarity-ring-legendary,
+.rarity-ring-mythic {
+  padding: 1.5px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  background-size: 200% 200%;
+}
+
+.rarity-ring-legendary {
+  background: linear-gradient(120deg, #f59e0b, #fde68a, #f59e0b);
+  animation: glow-shift 3s ease infinite;
+}
+
+.rarity-ring-mythic {
+  background: linear-gradient(120deg, #d946ef, #f472b6, #a855f7, #d946ef);
+  animation: glow-shift 2s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rarity-ring-legendary,
+  .rarity-ring-mythic {
+    animation: none;
+  }
+}
+
 /* Fixed, page-wide film-grain texture — extremely low opacity, purely tactile. */
 .noise-overlay {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");

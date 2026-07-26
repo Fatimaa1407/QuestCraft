@@ -23,6 +23,7 @@ export function MarketplaceAdminPage() {
     { key: 'price', label: t('admin.marketplace.price'), type: 'number', required: true },
     { key: 'imageUrl', label: t('admin.marketplace.imageUrl'), type: 'text' },
     { key: 'isActive', label: t('admin.marketplace.active'), type: 'checkbox' },
+    { key: 'isFeatured', label: t('admin.marketplace.featured'), type: 'checkbox' },
   ];
 
   const buildPayload = (p: Record<string, unknown>): MarketplaceItemPayload => ({
@@ -34,6 +35,7 @@ export function MarketplaceAdminPage() {
     isActive: Boolean(p.isActive),
     nameEn: (p.nameEn as string) || null,
     descriptionEn: (p.descriptionEn as string) || null,
+    isFeatured: Boolean(p.isFeatured),
   });
 
   return (

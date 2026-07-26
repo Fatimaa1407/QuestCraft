@@ -44,6 +44,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<MarketplaceItemType> MarketplaceItemTypes => Set<MarketplaceItemType>();
     public DbSet<MarketplaceItem> MarketplaceItems => Set<MarketplaceItem>();
     public DbSet<Purchase> Purchases => Set<Purchase>();
+    public DbSet<MarketplaceBundle> MarketplaceBundles => Set<MarketplaceBundle>();
+    public DbSet<MarketplaceBundleItem> MarketplaceBundleItems => Set<MarketplaceBundleItem>();
+    public DbSet<Wishlist> Wishlists => Set<Wishlist>();
     public DbSet<ChallengeComment> ChallengeComments => Set<ChallengeComment>();
 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();

@@ -830,6 +830,84 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.ToTable("LeaderboardSnapshots");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceBundle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BundlePrice")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionEn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NameEn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MarketplaceBundles");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceBundleItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BundleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MarketplaceItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MarketplaceItemId");
+
+                    b.HasIndex("BundleId", "MarketplaceItemId")
+                        .IsUnique();
+
+                    b.ToTable("MarketplaceBundleItems");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceItem", b =>
                 {
                     b.Property<int>("Id")
@@ -854,6 +932,9 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFeatured")
                         .HasColumnType("bit");
 
                     b.Property<int>("ItemTypeId")
@@ -1804,6 +1885,39 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.ToTable("UserStatistics");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.Wishlist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MarketplaceItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MarketplaceItemId");
+
+                    b.HasIndex("UserId", "MarketplaceItemId")
+                        .IsUnique();
+
+                    b.ToTable("Wishlists");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.XpTransaction", b =>
                 {
                     b.Property<int>("Id")
@@ -2041,6 +2155,25 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceBundleItem", b =>
+                {
+                    b.HasOne("QuestCraft.Domain.Entities.MarketplaceBundle", "Bundle")
+                        .WithMany("Items")
+                        .HasForeignKey("BundleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuestCraft.Domain.Entities.MarketplaceItem", "MarketplaceItem")
+                        .WithMany()
+                        .HasForeignKey("MarketplaceItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Bundle");
+
+                    b.Navigation("MarketplaceItem");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceItem", b =>
@@ -2318,6 +2451,25 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("QuestCraft.Domain.Entities.Wishlist", b =>
+                {
+                    b.HasOne("QuestCraft.Domain.Entities.MarketplaceItem", "MarketplaceItem")
+                        .WithMany()
+                        .HasForeignKey("MarketplaceItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuestCraft.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MarketplaceItem");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("QuestCraft.Domain.Entities.XpTransaction", b =>
                 {
                     b.HasOne("QuestCraft.Domain.Entities.User", "User")
@@ -2373,6 +2525,11 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("QuestCraft.Domain.Entities.DailyQuestTemplate", b =>
                 {
                     b.Navigation("Instances");
+                });
+
+            modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceBundle", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceItem", b =>

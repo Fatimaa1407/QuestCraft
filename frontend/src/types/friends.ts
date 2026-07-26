@@ -5,6 +5,9 @@ export interface FriendDto {
   level: number;
   xp: number;
   frameImageUrl: string | null;
+  titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
 }
 
 export interface FriendRequestDto {
@@ -15,6 +18,9 @@ export interface FriendRequestDto {
   requesterLevel: number;
   createdAt: string;
   requesterFrameImageUrl: string | null;
+  requesterTitleText: string | null;
+  requesterBadgeImageUrl: string | null;
+  requesterBadgeName: string | null;
 }
 
 export type FriendStatus = 'None' | 'PendingSent' | 'PendingReceived' | 'Friends' | 'Self';
@@ -26,4 +32,7 @@ export interface UserSearchResultDto {
   level: number;
   friendStatus: FriendStatus;
   frameImageUrl: string | null;
+  titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
 }

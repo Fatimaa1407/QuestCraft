@@ -9,11 +9,13 @@ public record MarketplaceItemDto(
     int Price,
     string? ImageUrl,
     bool IsActive,
-    bool IsOwned);
+    bool IsOwned,
+    bool IsFeatured = false,
+    bool IsWishlisted = false);
 
 public record PurchaseResultDto(
     int PurchaseId, int MarketplaceItemId, string ItemName, string ItemType, string? ImageUrl,
-    int PricePaid, int RemainingCoins);
+    int PricePaid, int RemainingCoins, bool AutoEquipped = false);
 
 public record MyPurchaseDto(
     int Id, int MarketplaceItemId, string ItemName, int ItemTypeId, string ItemType, string? ImageUrl,
