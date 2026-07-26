@@ -35,7 +35,7 @@ const MotionNavLink = motion.create(NavLink);
 function tabLinkClass(isActive: boolean) {
   return `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${
     isActive
-      ? 'text-blue-600 dark:text-cyan-400'
+      ? 'text-app-accent dark:text-app-accent-2'
       : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'
   }`;
 }
@@ -148,7 +148,7 @@ function MoreDrawer({ isOpen, onClose, items, onLogout }: MoreDrawerProps) {
                   className={({ isActive }: { isActive: boolean }) =>
                     `flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-cyan-400'
+                        ? 'bg-app-accent/15 text-app-accent dark:bg-app-accent/20 dark:text-app-accent-2'
                         : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'
                     }`
                   }

@@ -210,7 +210,7 @@ export function NotificationBell() {
                   <button
                     type="button"
                     onClick={handleMarkAllRead}
-                    className="flex items-center gap-1 text-xs font-medium text-blue-600 transition hover:text-blue-700 dark:text-cyan-400 dark:hover:text-cyan-300"
+                    className="flex items-center gap-1 text-xs font-medium text-app-accent transition hover:brightness-90 dark:text-app-accent-2"
                   >
                     <CheckCheck size={13} />
                     {t('notifications.markAllRead')}
@@ -247,16 +247,16 @@ export function NotificationBell() {
                             type="button"
                             onClick={() => handleItemClick(notification)}
                             className={`flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 dark:hover:bg-white/5 ${
-                              notification.isRead ? '' : 'bg-blue-50/60 dark:bg-cyan-500/[0.06]'
+                              notification.isRead ? '' : 'bg-app-accent/[0.06]'
                             }`}
                           >
-                            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-app-accent to-app-accent-2 text-white">
                               <Icon size={14} />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="flex items-center gap-1.5">
                                 <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{notification.title}</span>
-                                {!notification.isRead && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-cyan-400" />}
+                                {!notification.isRead && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-app-accent dark:bg-app-accent-2" />}
                               </span>
                               <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{notification.message}</span>
                               <span className="mt-1 block text-[11px] text-slate-400 dark:text-slate-500">{formatRelative(notification.createdAt)}</span>

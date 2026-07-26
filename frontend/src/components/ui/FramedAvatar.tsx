@@ -19,7 +19,7 @@ export function FramedAvatar({ username, avatarUrl, frameImageUrl, size = 36, cl
         <img src={avatarUrl} alt="" className="h-full w-full rounded-full object-cover" />
       ) : (
         <span
-          className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 font-semibold text-white"
+          className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-app-accent to-app-accent-2 font-semibold text-white"
           style={{ fontSize: size * 0.4 }}
         >
           {(username || '?').charAt(0).toUpperCase()}

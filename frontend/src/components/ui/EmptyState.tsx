@@ -9,8 +9,10 @@ export type EmptyStateTint = 'blue' | 'cyan' | 'amber' | 'violet' | 'slate';
 // empty states read as part of the same design system. Adds a neutral `slate` option for generic
 // "nothing here" cases that don't map to one of the app's semantic colors.
 const emptyStateTints: Record<EmptyStateTint, string> = {
-  blue: 'bg-blue-500/10 text-blue-600 shadow-blue-500/20 dark:text-blue-400',
-  cyan: 'bg-cyan-500/10 text-cyan-600 shadow-cyan-500/20 dark:text-cyan-400',
+  // blue/cyan intentionally mirror the equipped Theme's accent pair (same convention as
+  // StatCard's tint map) rather than a fixed brand blue, so empty states pick up theme changes too.
+  blue: 'bg-app-accent/10 text-app-accent shadow-app-accent/20',
+  cyan: 'bg-app-accent-2/10 text-app-accent-2 shadow-app-accent-2/20',
   amber: 'bg-amber-500/10 text-amber-600 shadow-amber-500/20 dark:text-amber-400',
   violet: 'bg-violet-500/10 text-violet-600 shadow-violet-500/20 dark:text-violet-400',
   slate: 'bg-slate-500/10 text-slate-500 shadow-slate-500/10 dark:text-slate-400',
@@ -43,7 +45,7 @@ export function EmptyState({
   className = '',
 }: EmptyStateProps) {
   const actionClasses =
-    'mt-6 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-blue-500/30 transition hover:brightness-110';
+    'mt-6 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-app-accent/30 transition hover:brightness-110';
 
   const content = (
     <>

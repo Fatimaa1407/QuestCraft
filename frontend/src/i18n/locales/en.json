@@ -126,6 +126,7 @@
     "mysteryBoxNothingLeft": "You already own everything!",
     "mysteryBoxNothingLeftHint": "Check back after new items are added.",
     "mysteryBoxWon": "You won!",
+    "themeAppliesHint": "This color now shows up on buttons, navigation, and progress bars.",
     "wishlist": "Wishlist",
     "wishlistEmpty": "No items in your wishlist.",
     "wishlistEmptyHint": "Tap the heart icon on any item to save it here.",

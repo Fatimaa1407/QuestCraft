@@ -60,12 +60,12 @@ export function LevelUpModal({
   }, [isOpen, previousLevel, newLevel]);
 
   const rewardRows = [
-    xpEarned > 0 && { icon: Zap, tint: 'text-blue-500 dark:text-cyan-400', bg: 'bg-blue-500/10', label: t('levelUp.xpEarned', { xp: xpEarned }) },
+    xpEarned > 0 && { icon: Zap, tint: 'text-app-accent dark:text-app-accent-2', bg: 'bg-app-accent/10', label: t('levelUp.xpEarned', { xp: xpEarned }) },
     coinsEarned > 0 && { icon: Award, tint: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-500/10', label: t('levelUp.coinsEarned', { coins: coinsEarned }) },
     newChallengesUnlocked > 0 && {
       icon: Swords,
-      tint: 'text-blue-500 dark:text-cyan-400',
-      bg: 'bg-blue-500/10',
+      tint: 'text-app-accent dark:text-app-accent-2',
+      bg: 'bg-app-accent/10',
       label: t('levelUp.challengesUnlocked', { count: newChallengesUnlocked }),
     },
     newQuizzesUnlocked > 0 && {
@@ -93,7 +93,7 @@ export function LevelUpModal({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 0.55, scale: [1, 1.18, 1] }}
               transition={{ opacity: { duration: 0.6 }, scale: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } }}
-              className="h-[26rem] w-[26rem] rounded-full bg-gradient-to-br from-blue-500/40 via-cyan-400/30 to-amber-400/20 blur-[80px]"
+              className="h-[26rem] w-[26rem] rounded-full bg-gradient-to-br from-app-accent/40 via-app-accent-2/30 to-amber-400/20 blur-[80px]"
             />
           </div>
 
@@ -109,7 +109,7 @@ export function LevelUpModal({
                 initial={{ scale: 0, rotate: -20 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.15, type: 'spring', stiffness: 300, damping: 18 }}
-                className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/30"
+                className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-app-accent to-app-accent-2 text-white shadow-lg shadow-app-accent/30"
               >
                 <Sparkles size={30} />
               </motion.span>
@@ -131,7 +131,7 @@ export function LevelUpModal({
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 1.2 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 20 }}
-                    className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text font-mono text-5xl font-extrabold text-transparent"
+                    className="bg-gradient-to-r from-app-accent to-app-accent-2 bg-clip-text font-mono text-5xl font-extrabold text-transparent"
                   >
                     {displayLevel}
                   </motion.span>
@@ -178,7 +178,7 @@ export function LevelUpModal({
                 transition={{ delay: 0.9 + rewardRows.length * 0.1 + 0.2, duration: 0.4 }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="mt-7 w-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-shadow hover:shadow-xl hover:shadow-cyan-500/30"
+                className="mt-7 w-full rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-app-accent/25 transition-shadow hover:shadow-xl hover:shadow-app-accent-2/30"
               >
                 {t('levelUp.continue')}
               </motion.button>

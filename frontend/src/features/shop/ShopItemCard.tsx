@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Check, Lock, X, Loader2, Heart, type LucideIcon } from 'lucide-react';
 import type { MarketplaceItemDto } from '../../types/marketplace';
 import { getRarity, RARITY_STYLES } from '../../utils/rarity';
+import { THEME_PALETTES, DEFAULT_ACCENT_PALETTE } from '../../utils/themePalettes';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { fadeInUp, cardHover, buttonTap } from '../../utils/motion';
 
@@ -104,7 +105,12 @@ export function ShopItemCard({
           )}
 
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 transition-transform duration-300 group-hover:scale-110 dark:text-cyan-400">
-            {item.imageUrl ? (
+            {item.itemType === 'Theme' ? (
+              // Themes only recolor accent elements app-wide rather than the whole page, so the
+              // effect can be easy to miss — showing the actual resulting colors here (and title
+              // "requires a closer look" isn't enough) makes clear what buying/equipping it changes.
+              <ThemeSwatch name={item.name} />
+            ) : item.imageUrl ? (
               <img src={item.imageUrl} alt="" className="h-full w-full rounded-2xl object-cover" />
             ) : (
               <Icon size={26} />
@@ -179,5 +185,17 @@ export function ShopItemCard({
         </div>
       </GlassCard>
     </motion.div>
+  );
+}
+
+// Split-diagonal preview of the two accent colors a Theme item applies — same lookup
+// `applyAccentPalette` uses, so what's shown here always matches the real effect.
+function ThemeSwatch({ name }: { name: string }) {
+  const palette = THEME_PALETTES[name] ?? DEFAULT_ACCENT_PALETTE;
+  return (
+    <div
+      className="h-full w-full rounded-2xl"
+      style={{ background: `linear-gradient(135deg, ${palette.accent} 50%, ${palette.accent2} 50%)` }}
+    />
   );
 }

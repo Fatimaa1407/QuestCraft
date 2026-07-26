@@ -138,7 +138,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
               onClick={() => setShowDeleted((v) => !v)}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 showDeleted
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-app-accent text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'
               }`}
             >
@@ -149,7 +149,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
             <button
               type="button"
               onClick={openCreate}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-app-accent to-app-accent-2 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-app-accent/25 transition hover:brightness-110"
             >
               <Plus size={14} />
               {addLabel}
@@ -213,7 +213,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
                       <button
                         type="button"
                         onClick={() => restoreMutation.mutate(item.id)}
-                        className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-cyan-400"
+                        className="flex items-center gap-1 text-xs font-medium text-app-accent hover:underline dark:text-app-accent-2"
                       >
                         <RotateCcw size={13} />
                         {t('admin.restore')}
@@ -223,7 +223,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
                         <button
                           type="button"
                           onClick={() => openEdit(item)}
-                          className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-cyan-400"
+                          className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-app-accent dark:text-slate-300 dark:hover:text-app-accent-2"
                         >
                           <Pencil size={13} />
                           {t('admin.edit')}
@@ -278,7 +278,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
                       type="checkbox"
                       checked={Boolean(value)}
                       onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.checked }))}
-                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700"
+                      className="h-4 w-4 rounded border-slate-300 text-app-accent focus:ring-app-accent dark:border-slate-700"
                     />
                     {field.label}
                   </label>
@@ -312,7 +312,7 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-gradient-to-r from-app-accent to-app-accent-2 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-app-accent/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? t('admin.saving') : t('admin.save')}
           </button>

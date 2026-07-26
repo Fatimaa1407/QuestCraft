@@ -12,8 +12,8 @@ const levelSectionStyles: Record<LevelSectionStatus, { icon: typeof Lock; badge:
   },
   Current: {
     icon: Unlock,
-    badge: 'bg-blue-500/10 text-blue-600 dark:text-cyan-400',
-    border: 'border-blue-400/40',
+    badge: 'bg-app-accent/10 text-app-accent dark:text-app-accent-2',
+    border: 'border-app-accent/40',
   },
   Locked: {
     icon: Lock,

@@ -11,6 +11,7 @@ import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound } from '../../utils/sounds';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
 import { RARITY_STYLES, type Rarity } from '../../utils/rarity';
+import { THEME_PALETTES, DEFAULT_ACCENT_PALETTE } from '../../utils/themePalettes';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Confetti } from '../../components/ui/Confetti';
 import { Z_INDEX } from '../../styles/zIndex';
@@ -61,6 +62,7 @@ export function MysteryBox() {
   const rarity: Rarity | null = result?.rarity ? (result.rarity as Rarity) : null;
   const rarityStyle = rarity ? RARITY_STYLES[rarity] : null;
   const animatedCoins = useAnimatedNumber(result ? result.remainingCoins : user?.coins ?? 0);
+  const wonThemePalette = result?.itemType === 'Theme' ? (THEME_PALETTES[result.itemName ?? ''] ?? DEFAULT_ACCENT_PALETTE) : null;
 
   return (
     <>
@@ -140,7 +142,12 @@ export function MysteryBox() {
                         style={{ border: `2px solid ${rarityStyle?.borderColor}` }}
                       >
                         {rarityStyle?.ringClass && <div className={`pointer-events-none absolute inset-0 rounded-3xl ${rarityStyle.ringClass}`} />}
-                        {result.imageUrl ? (
+                        {wonThemePalette ? (
+                          <div
+                            className="relative h-full w-full rounded-[22px]"
+                            style={{ background: `linear-gradient(135deg, ${wonThemePalette.accent} 50%, ${wonThemePalette.accent2} 50%)` }}
+                          />
+                        ) : result.imageUrl ? (
                           <img src={result.imageUrl} alt="" className="relative h-full w-full rounded-[22px] object-cover" />
                         ) : (
                           <Sparkles size={34} className={`relative ${rarityStyle?.text}`} />
@@ -173,6 +180,17 @@ export function MysteryBox() {
                         >
                           <Check size={13} />
                           {t('shop.autoEquipped')}
+                        </motion.p>
+                      )}
+
+                      {wonThemePalette && (
+                        <motion.p
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.55, duration: 0.3 }}
+                          className="mt-2 text-[11px] text-slate-400 dark:text-slate-500"
+                        >
+                          {t('shop.themeAppliesHint')}
                         </motion.p>
                       )}
 

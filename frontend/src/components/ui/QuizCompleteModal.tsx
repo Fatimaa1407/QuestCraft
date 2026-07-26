@@ -24,7 +24,7 @@ export function QuizCompleteModal({
         <p className="text-4xl">🎉</p>
         <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">{t('quiz.completed')}</h2>
 
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-2xl font-bold text-blue-600 dark:text-cyan-400">
+        <p className="mt-4 flex items-center justify-center gap-1.5 text-2xl font-bold text-app-accent dark:text-app-accent-2">
           ⭐ +{xp} XP
         </p>
 
@@ -46,7 +46,7 @@ export function QuizCompleteModal({
 
         <button
           onClick={onContinue}
-          className="mt-6 w-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 transition hover:brightness-110"
+          className="mt-6 w-full rounded-full bg-gradient-to-r from-app-accent to-app-accent-2 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-app-accent/25 transition hover:brightness-110"
         >
           {t('quiz.continue')}
         </button>

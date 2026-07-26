@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Loader2, Lock, Sparkles, Heart, type LucideIcon } from 'lucide-react';
 import type { MarketplaceItemDto } from '../../types/marketplace';
 import { getRarity, RARITY_STYLES } from '../../utils/rarity';
+import { THEME_PALETTES, DEFAULT_ACCENT_PALETTE } from '../../utils/themePalettes';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { buttonTap } from '../../utils/motion';
 
@@ -33,7 +34,12 @@ export function FeaturedItem({ item, icon: Icon, canAfford, isPurchasing, isTogg
 
       <div className="relative z-[2] flex flex-col items-center gap-6 p-8 sm:flex-row">
         <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl bg-blue-500/10 text-blue-600 shadow-lg dark:text-cyan-400">
-          {item.imageUrl ? (
+          {item.itemType === 'Theme' ? (
+            <div
+              className="h-full w-full rounded-3xl"
+              style={{ background: `linear-gradient(135deg, ${(THEME_PALETTES[item.name] ?? DEFAULT_ACCENT_PALETTE).accent} 50%, ${(THEME_PALETTES[item.name] ?? DEFAULT_ACCENT_PALETTE).accent2} 50%)` }}
+            />
+          ) : item.imageUrl ? (
             <img src={item.imageUrl} alt="" className="h-full w-full rounded-3xl object-cover" />
           ) : (
             <Icon size={48} />

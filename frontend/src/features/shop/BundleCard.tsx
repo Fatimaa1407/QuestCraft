@@ -4,6 +4,7 @@ import { Loader2, Package } from 'lucide-react';
 import type { MarketplaceBundleDto } from '../../types/marketplace';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { buttonTap, fadeInUp } from '../../utils/motion';
+import { THEME_PALETTES, DEFAULT_ACCENT_PALETTE } from '../../utils/themePalettes';
 
 interface BundleCardProps {
   bundle: MarketplaceBundleDto;
@@ -44,7 +45,16 @@ export function BundleCard({ bundle, canAfford, isPurchasing, onPurchase }: Bund
               className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-blue-500/10 text-blue-600 shadow-sm dark:border-slate-900 dark:text-cyan-400"
               title={i.name}
             >
-              {i.imageUrl ? <img src={i.imageUrl} alt="" className="h-full w-full object-cover" /> : <Package size={18} />}
+              {i.itemType === 'Theme' ? (
+                <div
+                  className="h-full w-full"
+                  style={{ background: `linear-gradient(135deg, ${(THEME_PALETTES[i.name] ?? DEFAULT_ACCENT_PALETTE).accent} 50%, ${(THEME_PALETTES[i.name] ?? DEFAULT_ACCENT_PALETTE).accent2} 50%)` }}
+                />
+              ) : i.imageUrl ? (
+                <img src={i.imageUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <Package size={18} />
+              )}
             </div>
           ))}
         </div>

@@ -5,6 +5,7 @@ import { PartyPopper, Sparkles, Check } from 'lucide-react';
 import { Z_INDEX } from '../../styles/zIndex';
 import { Confetti } from './Confetti';
 import { getRarity, RARITY_STYLES } from '../../utils/rarity';
+import { THEME_PALETTES, DEFAULT_ACCENT_PALETTE } from '../../utils/themePalettes';
 
 interface PurchaseSuccessModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export function PurchaseSuccessModal({
   const { t } = useTranslation();
   const rarity = getRarity(pricePaid);
   const rarityStyle = RARITY_STYLES[rarity];
+  const themePalette = itemType === 'Theme' ? (THEME_PALETTES[itemName] ?? DEFAULT_ACCENT_PALETTE) : null;
 
   return createPortal(
     <AnimatePresence>
@@ -80,7 +82,12 @@ export function PurchaseSuccessModal({
                 className="mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-3xl shadow-lg"
                 style={{ border: `2px solid ${rarityStyle.borderColor}` }}
               >
-                {imageUrl ? (
+                {themePalette ? (
+                  <div
+                    className="h-full w-full rounded-[22px]"
+                    style={{ background: `linear-gradient(135deg, ${themePalette.accent} 50%, ${themePalette.accent2} 50%)` }}
+                  />
+                ) : imageUrl ? (
                   <img src={imageUrl} alt="" className="h-full w-full rounded-[22px] object-cover" />
                 ) : (
                   <Sparkles size={34} className={rarityStyle.text} />
@@ -113,6 +120,17 @@ export function PurchaseSuccessModal({
                 >
                   <Check size={13} />
                   {t('shop.autoEquipped')}
+                </motion.p>
+              )}
+
+              {themePalette && (
+                <motion.p
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.55, duration: 0.3 }}
+                  className="mt-2 text-[11px] text-slate-400 dark:text-slate-500"
+                >
+                  {t('shop.themeAppliesHint')}
                 </motion.p>
               )}
 
