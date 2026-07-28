@@ -59,6 +59,22 @@ public class MarketplaceController : ControllerBase
         return Ok(ApiResponse<object?>.Ok(null, "Məhsul silindi."));
     }
 
+    [HttpGet("items/deleted")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<List<MarketplaceItemDto>>>> GetDeletedItems(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDeletedMarketplaceItemsQuery(), cancellationToken);
+        return Ok(ApiResponse<List<MarketplaceItemDto>>.Ok(result));
+    }
+
+    [HttpPost("items/{id:int}/restore")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<MarketplaceItemDto>>> RestoreItem(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RestoreMarketplaceItemCommand(id), cancellationToken);
+        return Ok(ApiResponse<MarketplaceItemDto>.Ok(result, "Məhsul bərpa edildi."));
+    }
+
     [HttpPost("items/{id:int}/purchase")]
     [Authorize]
     public async Task<ActionResult<ApiResponse<PurchaseResultDto>>> Purchase(int id, CancellationToken cancellationToken)

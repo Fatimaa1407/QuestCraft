@@ -25,7 +25,7 @@ public class GetQuizForAttemptQueryHandler : IRequestHandler<GetQuizForAttemptQu
     {
         var quiz = await _context.Quizzes
             .Include(q => q.Questions).ThenInclude(qu => qu.Options)
-            .FirstOrDefaultAsync(q => q.Id == request.Id, cancellationToken)
+            .FirstOrDefaultAsync(q => q.Id == request.Id && !q.IsDeleted, cancellationToken)
             ?? throw new NotFoundException(nameof(Quiz), request.Id);
 
         var isAdmin = _currentUser.Role == "Admin";

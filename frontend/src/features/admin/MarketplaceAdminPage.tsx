@@ -1,7 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getItemTypes, getMarketplaceItems } from '../../api/marketplace';
-import { createMarketplaceItem, deleteMarketplaceItem, updateMarketplaceItem, type MarketplaceItemPayload } from '../../api/admin';
+import {
+  createMarketplaceItem, deleteMarketplaceItem, getDeletedMarketplaceItems, restoreMarketplaceItem, updateMarketplaceItem,
+  type MarketplaceItemPayload,
+} from '../../api/admin';
 import { SimpleCrudTable, type CrudFieldConfig } from '../../components/admin/SimpleCrudTable';
 
 export function MarketplaceAdminPage() {
@@ -51,9 +54,11 @@ export function MarketplaceAdminPage() {
       fields={fields}
       api={{
         list: () => getMarketplaceItems(),
+        listDeleted: getDeletedMarketplaceItems,
         create: (p) => createMarketplaceItem(buildPayload(p)),
         update: (id, p) => updateMarketplaceItem(id, buildPayload(p)),
         remove: deleteMarketplaceItem,
+        restore: restoreMarketplaceItem,
       }}
     />
   );

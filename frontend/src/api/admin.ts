@@ -9,9 +9,7 @@ import type {
   AdminUserListItemDto,
   AuditLogDto,
   DailyQuestTemplateAdminDto,
-  ExcelImportResultDto,
   QuizAdminDetailDto,
-  SeasonalEventDto,
 } from '../types/admin';
 import type { QuizListItemDto } from '../types/quiz';
 
@@ -114,6 +112,14 @@ export async function updateQuiz(id: number, payload: QuizPayload) {
 export async function deleteQuiz(id: number) {
   await apiClient.delete(`/api/quizzes/${id}`);
 }
+export async function getDeletedQuizzes() {
+  const { data } = await apiClient.get<ApiResponse<QuizListItemDto[]>>('/api/quizzes/deleted');
+  return data.data ?? [];
+}
+export async function restoreQuiz(id: number) {
+  const { data } = await apiClient.post<ApiResponse<QuizListItemDto>>(`/api/quizzes/${id}/restore`);
+  return data.data;
+}
 
 export interface QuestionOptionInputPayload {
   text: string;
@@ -180,7 +186,7 @@ export async function restoreDifficulty(id: number) {
   return data.data;
 }
 
-// --- Marketplace items (no soft-delete/restore workflow — Delete just deactivates) ---
+// --- Marketplace items ---
 export interface MarketplaceItemPayload {
   name: string;
   description: string | null;
@@ -202,6 +208,14 @@ export async function updateMarketplaceItem(id: number, payload: MarketplaceItem
 }
 export async function deleteMarketplaceItem(id: number) {
   await apiClient.delete(`/api/marketplace/items/${id}`);
+}
+export async function getDeletedMarketplaceItems() {
+  const { data } = await apiClient.get<ApiResponse<MarketplaceItemDto[]>>('/api/marketplace/items/deleted');
+  return data.data ?? [];
+}
+export async function restoreMarketplaceItem(id: number) {
+  const { data } = await apiClient.post<ApiResponse<MarketplaceItemDto>>(`/api/marketplace/items/${id}/restore`);
+  return data.data;
 }
 
 // --- Achievements ---
@@ -293,33 +307,6 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummaryD
   );
 }
 
-// --- Seasonal events (no soft-delete/restore workflow — Delete just deactivates) ---
-export interface SeasonalEventPayload {
-  name: string;
-  nameEn: string | null;
-  description: string | null;
-  descriptionEn: string | null;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-  emoji: string | null;
-}
-export async function getSeasonalEvents() {
-  const { data } = await apiClient.get<ApiResponse<SeasonalEventDto[]>>('/api/seasonal-events');
-  return data.data ?? [];
-}
-export async function createSeasonalEvent(payload: SeasonalEventPayload) {
-  const { data } = await apiClient.post<ApiResponse<SeasonalEventDto>>('/api/seasonal-events', payload);
-  return data.data;
-}
-export async function updateSeasonalEvent(id: number, payload: SeasonalEventPayload) {
-  const { data } = await apiClient.put<ApiResponse<SeasonalEventDto>>(`/api/seasonal-events/${id}`, payload);
-  return data.data;
-}
-export async function deleteSeasonalEvent(id: number) {
-  await apiClient.delete(`/api/seasonal-events/${id}`);
-}
-
 // --- Activity today ---
 export async function getAdminActivityToday() {
   const { data } = await apiClient.get<ApiResponse<AdminActivityItemDto[]>>('/api/admin/activity-today');
@@ -350,48 +337,4 @@ export async function getAuditLogs(page = 1, pageSize = 20) {
     { params: { page, pageSize } },
   );
   return data.data ?? { items: [], page, pageSize, totalCount: 0, totalPages: 0 };
-}
-
-// --- Excel import/export ---
-export async function importChallenges(file: File): Promise<ExcelImportResultDto | null> {
-  const formData = new FormData();
-  formData.append('file', file);
-  const { data } = await apiClient.post<ApiResponse<ExcelImportResultDto>>('/api/admin/excel/import/challenges', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return data.data;
-}
-export async function importTestCases(challengeId: number, file: File): Promise<ExcelImportResultDto | null> {
-  const formData = new FormData();
-  formData.append('file', file);
-  const { data } = await apiClient.post<ApiResponse<ExcelImportResultDto>>(
-    `/api/admin/excel/import/challenges/${challengeId}/test-cases`,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
-  );
-  return data.data;
-}
-export async function importQuizQuestions(quizId: number, file: File): Promise<ExcelImportResultDto | null> {
-  const formData = new FormData();
-  formData.append('file', file);
-  const { data } = await apiClient.post<ApiResponse<ExcelImportResultDto>>(
-    `/api/admin/excel/import/quizzes/${quizId}/questions`,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
-  );
-  return data.data;
-}
-
-export type ExcelExportKind = 'users' | 'challenges' | 'quiz-results' | 'leaderboard' | 'marketplace';
-
-export async function downloadExcelExport(kind: ExcelExportKind, params?: Record<string, string>) {
-  const response = await apiClient.get(`/api/admin/excel/export/${kind}`, { params, responseType: 'blob' });
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${kind}.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
 }

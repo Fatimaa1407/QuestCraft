@@ -1,28 +1,33 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ListChecks, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ListChecks, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { getQuizzes } from '../../api/quizzes';
-import { deleteQuiz } from '../../api/admin';
+import { deleteQuiz, getDeletedQuizzes, restoreQuiz } from '../../api/admin';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp } from '../../utils/motion';
+import { showToast } from '../../app/toastStore';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 export function QuizzesAdminPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const listQuery = useQuery({
-    queryKey: ['admin-quizzes'],
-    queryFn: () => getQuizzes({ pageSize: 100 }).then((r) => r.items),
+    queryKey: ['admin-quizzes', showDeleted ? 'deleted' : 'active'],
+    queryFn: () => (showDeleted ? getDeletedQuizzes() : getQuizzes({ pageSize: 100 }).then((r) => r.items)),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteQuiz,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-quizzes'] }),
-  });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-quizzes'] });
+  const onMutationError = (err: unknown) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' });
+
+  const deleteMutation = useMutation({ mutationFn: deleteQuiz, onSuccess: invalidate, onError: onMutationError });
+  const restoreMutation = useMutation({ mutationFn: restoreQuiz, onSuccess: invalidate, onError: onMutationError });
 
   const handleDelete = (id: number) => {
     if (!window.confirm(t('admin.confirmDelete'))) return;
@@ -36,13 +41,28 @@ export function QuizzesAdminPage() {
     <GlassCard className="p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('admin.sections.quizzes')}</h2>
-        <Link
-          to="/admin/quizzes/new"
-          className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-blue-600/25 transition hover:brightness-110"
-        >
-          <Plus size={14} />
-          {t('admin.add')}
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleted((v) => !v)}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              showDeleted
+                ? 'bg-app-accent text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'
+            }`}
+          >
+            {showDeleted ? t('admin.showingDeleted') : t('admin.showDeleted')}
+          </button>
+          {!showDeleted && (
+            <Link
+              to="/admin/quizzes/new"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-app-accent to-app-accent-2 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-app-accent/25 transition hover:brightness-110"
+            >
+              <Plus size={14} />
+              {t('admin.add')}
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 max-h-[26rem] overflow-auto rounded-lg">
@@ -74,7 +94,12 @@ export function QuizzesAdminPage() {
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-3 py-6">
-                  <EmptyState bare icon={ListChecks} title={t('admin.empty')} action={{ label: t('admin.add'), to: '/admin/quizzes/new' }} />
+                  <EmptyState
+                    bare
+                    icon={ListChecks}
+                    title={t('admin.empty')}
+                    action={showDeleted ? undefined : { label: t('admin.add'), to: '/admin/quizzes/new' }}
+                  />
                 </td>
               </tr>
             ) : (
@@ -101,23 +126,34 @@ export function QuizzesAdminPage() {
                     </span>
                   </td>
                   <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-3">
-                      <Link
-                        to={`/admin/quizzes/${item.id}`}
-                        className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-cyan-400"
-                      >
-                        <Pencil size={13} />
-                        {t('admin.edit')}
-                      </Link>
+                    {showDeleted ? (
                       <button
                         type="button"
-                        onClick={() => handleDelete(item.id)}
-                        className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-red-600 dark:text-slate-300 dark:hover:text-red-400"
+                        onClick={() => restoreMutation.mutate(item.id)}
+                        className="flex items-center gap-1 text-xs font-medium text-app-accent hover:underline dark:text-app-accent-2"
                       >
-                        <Trash2 size={13} />
-                        {t('admin.delete')}
+                        <RotateCcw size={13} />
+                        {t('admin.restore')}
                       </button>
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <Link
+                          to={`/admin/quizzes/${item.id}`}
+                          className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-app-accent dark:text-slate-300 dark:hover:text-app-accent-2"
+                        >
+                          <Pencil size={13} />
+                          {t('admin.edit')}
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id)}
+                          className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-red-600 dark:text-slate-300 dark:hover:text-red-400"
+                        >
+                          <Trash2 size={13} />
+                          {t('admin.delete')}
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

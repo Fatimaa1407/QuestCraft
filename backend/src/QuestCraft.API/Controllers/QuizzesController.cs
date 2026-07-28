@@ -72,6 +72,22 @@ public class QuizzesController : ControllerBase
         return Ok(ApiResponse<object?>.Ok(null, "Quiz silindi."));
     }
 
+    [HttpGet("deleted")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<List<QuizListItemDto>>>> GetDeleted(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDeletedQuizzesQuery(), cancellationToken);
+        return Ok(ApiResponse<List<QuizListItemDto>>.Ok(result));
+    }
+
+    [HttpPost("{id:int}/restore")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<QuizListItemDto>>> Restore(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RestoreQuizCommand(id), cancellationToken);
+        return Ok(ApiResponse<QuizListItemDto>.Ok(result, "Quiz bərpa edildi."));
+    }
+
     [HttpPost("{id:int}/questions")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<int>>> AddQuestion(int id, AddQuestionRequest request, CancellationToken cancellationToken)

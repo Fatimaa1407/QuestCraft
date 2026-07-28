@@ -36,7 +36,7 @@ public class GetQuizzesQueryHandler : IRequestHandler<GetQuizzesQuery, PagedResu
             }
         }
 
-        var query = _context.Quizzes.Include(q => q.Category).Include(q => q.Questions).AsQueryable();
+        var query = _context.Quizzes.Where(q => !q.IsDeleted).Include(q => q.Category).Include(q => q.Questions).AsQueryable();
 
         if (!request.IncludeUnpublished)
         {
