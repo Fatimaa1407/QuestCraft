@@ -554,12 +554,16 @@ public static class ApplicationDbContextSeeder
         const string forestBannerSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgODAwIDIwMCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMTQ1MzJkIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiMxNmEzNGEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyMmM1NWUiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNnKSIvPgo8L3N2Zz4=";
         const string goldenFrameSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmRlNjhhIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNmNTllMGIiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNiNDUzMDkiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8Y2lyY2xlIGN4PSI2NCIgY3k9IjY0IiByPSI1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjciLz4KICA8Y2lyY2xlIGN4PSI2NCIgY3k9IjYiIHI9IjQiIGZpbGw9IiNmZGU2OGEiLz4KICA8Y2lyY2xlIGN4PSI2NCIgY3k9IjEyMiIgcj0iNCIgZmlsbD0iI2I0NTMwOSIvPgogIDxjaXJjbGUgY3g9IjYiIGN5PSI2NCIgcj0iNCIgZmlsbD0iI2Y1OWUwYiIvPgogIDxjaXJjbGUgY3g9IjEyMiIgY3k9IjY0IiByPSI0IiBmaWxsPSIjZjU5ZTBiIi8+Cjwvc3ZnPg==";
         const string firstStepBadgeSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KICA8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMzNGQzOTkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwNTk2NjkiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIzMCIgZmlsbD0idXJsKCNnKSIvPgogIDx0ZXh0IHg9IjMyIiB5PSI0MiIgZm9udC1zaXplPSIyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+RozwvdGV4dD4KPC9zdmc+";
+        const string dragonAvatarSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjN2MzYWVkIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZGIyNzc3Ii8+CiAgPC9saW5lYXJHcmFkaWVudD48L2RlZnM+CiAgPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iNjQiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSI2NCIgeT0iODIiIGZvbnQtc2l6ZT0iNTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfkIk8L3RleHQ+Cjwvc3ZnPgo=";
+        const string neonFrameSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMjJkM2VlIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNhODU1ZjciLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlYzQ4OTkiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8Y2lyY2xlIGN4PSI2NCIgY3k9IjY0IiByPSI1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjciLz4KICA8Y2lyY2xlIGN4PSI2NCIgY3k9IjYiIHI9IjQiIGZpbGw9IiMyMmQzZWUiLz4KICA8Y2lyY2xlIGN4PSI2NCIgY3k9IjEyMiIgcj0iNCIgZmlsbD0iI2VjNDg5OSIvPgogIDxjaXJjbGUgY3g9IjYiIGN5PSI2NCIgcj0iNCIgZmlsbD0iI2E4NTVmNyIvPgogIDxjaXJjbGUgY3g9IjEyMiIgY3k9IjY0IiByPSI0IiBmaWxsPSIjYTg1NWY3Ii8+Cjwvc3ZnPgo=";
+        const string galaxyBannerSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgODAwIDIwMCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUxYjRiIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiM1ODFjODciLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4MzE4NDMiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNnKSIvPgogIDxjaXJjbGUgY3g9IjgwIiBjeT0iNDAiIHI9IjIiIGZpbGw9IiNmZmZmZmYiLz4KICA8Y2lyY2xlIGN4PSIyMjAiIGN5PSI5MCIgcj0iMS41IiBmaWxsPSIjZmZmZmZmIi8+CiAgPGNpcmNsZSBjeD0iNDAwIiBjeT0iMzAiIHI9IjIiIGZpbGw9IiNmZmZmZmYiLz4KICA8Y2lyY2xlIGN4PSI1NjAiIGN5PSIxMjAiIHI9IjEuNSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxjaXJjbGUgY3g9IjcwMCIgY3k9IjYwIiByPSIyIiBmaWxsPSIjZmZmZmZmIi8+Cjwvc3ZnPgo=";
+        const string centuryBadgeSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KICA8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmYmJmMjQiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNkOTc3MDYiLz4KICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICA8Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIzMCIgZmlsbD0idXJsKCNnKSIvPgogIDx0ZXh0IHg9IjMyIiB5PSI0MiIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+SrzwvdGV4dD4KPC9zdmc+Cg==";
 
         context.MarketplaceItems.AddRange(
-            new MarketplaceItem { Name = "Qızıl Çərçivə", ItemTypeId = frameTypeId, Price = 100, ImageUrl = goldenFrameSvg },
-            new MarketplaceItem { Name = "Kod Ustası", ItemTypeId = titleTypeId, Price = 150 },
-            new MarketplaceItem { Name = "Tünd Tema", ItemTypeId = themeTypeId, Price = 80 },
-            new MarketplaceItem { Name = "İlk Addım Nişanı", ItemTypeId = badgeTypeId, Price = 30, ImageUrl = firstStepBadgeSvg },
+            new MarketplaceItem { Name = "Qızıl Çərçivə", NameEn = "Golden Frame", Description = "Parlaq qızıl haşiyə — profilini digərlərindən fərqləndirir.", DescriptionEn = "A shining gold border that makes your profile stand out.", ItemTypeId = frameTypeId, Price = 100, ImageUrl = goldenFrameSvg },
+            new MarketplaceItem { Name = "Kod Ustası", NameEn = "Code Master", Description = "Adının yanında görünən \"Kod Ustası\" rütbəsi.", DescriptionEn = "The \"Code Master\" title shown next to your name.", ItemTypeId = titleTypeId, Price = 150 },
+            new MarketplaceItem { Name = "Tünd Tema", NameEn = "Dark Theme", Description = "Bütün tətbiqin aksent rəngini tünd yaşıl-firuzəyi tonlara dəyişir.", DescriptionEn = "Changes the whole app's accent color to a dark teal palette.", ItemTypeId = themeTypeId, Price = 80 },
+            new MarketplaceItem { Name = "İlk Addım Nişanı", NameEn = "First Step Badge", Description = "Adının yanında görünən ilk nişanın — səyahətinin başlanğıcını qeyd edir.", DescriptionEn = "Your first badge, shown next to your name — marks the start of your journey.", ItemTypeId = badgeTypeId, Price = 30, ImageUrl = firstStepBadgeSvg },
             new MarketplaceItem
             {
                 Name = "Streak Dondurma",
@@ -576,7 +580,12 @@ public static class ApplicationDbContextSeeder
             new MarketplaceItem { Name = "Gündoğuşu Banneri", NameEn = "Sunrise Banner", Description = "İlıq narıncı-çəhrayı gündoğuşu rəngləri.", DescriptionEn = "Warm orange-pink sunrise colors.", ItemTypeId = bannerTypeId, Price = 70, ImageUrl = sunriseBannerSvg },
             new MarketplaceItem { Name = "Meşə Banneri", NameEn = "Forest Banner", Description = "Sərin, canlı meşə yaşılı tonları.", DescriptionEn = "Cool, vivid forest-green tones.", ItemTypeId = bannerTypeId, Price = 70, ImageUrl = forestBannerSvg },
             new MarketplaceItem { Name = "Bənövşəyi Tema", NameEn = "Violet Theme", Description = "Dashboard aksent rənglərini bənövşəyi tonlara dəyişir.", DescriptionEn = "Changes the dashboard accent colors to violet tones.", ItemTypeId = themeTypeId, Price = 80 },
-            new MarketplaceItem { Name = "Narıncı Tema", NameEn = "Sunset Theme", Description = "Dashboard aksent rənglərini isti narıncı tonlara dəyişir.", DescriptionEn = "Changes the dashboard accent colors to warm orange tones.", ItemTypeId = themeTypeId, Price = 80 }
+            new MarketplaceItem { Name = "Narıncı Tema", NameEn = "Sunset Theme", Description = "Dashboard aksent rənglərini isti narıncı tonlara dəyişir.", DescriptionEn = "Changes the dashboard accent colors to warm orange tones.", ItemTypeId = themeTypeId, Price = 80 },
+            new MarketplaceItem { Name = "Ejder Avatarı", NameEn = "Dragon Avatar", Description = "Əfsanəvi ejdaha avatarı — ən çətin çallenge-ləri fəth edənlər üçün.", DescriptionEn = "A legendary dragon avatar for those who conquer the hardest challenges.", ItemTypeId = avatarTypeId, Price = 140, ImageUrl = dragonAvatarSvg },
+            new MarketplaceItem { Name = "Neon Çərçivə", NameEn = "Neon Frame", Description = "Parlayan neon rənglərlə profil şəklini haşiyələyir.", DescriptionEn = "Outlines your profile picture in glowing neon colors.", ItemTypeId = frameTypeId, Price = 130, ImageUrl = neonFrameSvg },
+            new MarketplaceItem { Name = "Qalaktika Banneri", NameEn = "Galaxy Banner", Description = "Profil başlığını ulduzlu qalaktika mənzərəsi ilə bəzəyir.", DescriptionEn = "Decorates your profile header with a starry galaxy scene.", ItemTypeId = bannerTypeId, Price = 75, ImageUrl = galaxyBannerSvg },
+            new MarketplaceItem { Name = "Alqoritm Ustası", NameEn = "Algorithm Master", Description = "Adının yanında görünən \"Alqoritm Ustası\" rütbəsi — irəliləmiş səviyyələri tamamlayanlar üçün.", DescriptionEn = "The \"Algorithm Master\" title shown next to your name — for those who complete the advanced levels.", ItemTypeId = titleTypeId, Price = 200 },
+            new MarketplaceItem { Name = "Yüzlük Nişanı", NameEn = "Century Badge", Description = "Adının yanında görünən qızıl nişan — davamlılığını göstərir.", DescriptionEn = "A gold badge shown next to your name — a mark of persistence.", ItemTypeId = badgeTypeId, Price = 150, ImageUrl = centuryBadgeSvg }
         );
     }
 
@@ -695,6 +704,50 @@ public static class ApplicationDbContextSeeder
                 ConditionValue = 1000,
                 XpReward = 100,
                 CoinReward = 50,
+            },
+            new Achievement
+            {
+                Name = "2500 XP",
+                NameEn = "2500 XP Total",
+                Description = "Cəmi 2500 XP topladın.",
+                DescriptionEn = "You earned 2500 XP.",
+                ConditionType = AchievementConditionType.XpTotal,
+                ConditionValue = 2500,
+                XpReward = 150,
+                CoinReward = 75,
+            },
+            new Achievement
+            {
+                Name = "5000 XP",
+                NameEn = "5000 XP Total",
+                Description = "Cəmi 5000 XP topladın.",
+                DescriptionEn = "You earned 5000 XP.",
+                ConditionType = AchievementConditionType.XpTotal,
+                ConditionValue = 5000,
+                XpReward = 250,
+                CoinReward = 125,
+            },
+            new Achievement
+            {
+                Name = "10000 XP",
+                NameEn = "10000 XP Total",
+                Description = "Cəmi 10000 XP topladın.",
+                DescriptionEn = "You earned 10000 XP.",
+                ConditionType = AchievementConditionType.XpTotal,
+                ConditionValue = 10000,
+                XpReward = 500,
+                CoinReward = 250,
+            },
+            new Achievement
+            {
+                Name = "20000 XP",
+                NameEn = "20000 XP Total",
+                Description = "Cəmi 20000 XP topladın.",
+                DescriptionEn = "You earned 20000 XP.",
+                ConditionType = AchievementConditionType.XpTotal,
+                ConditionValue = 20000,
+                XpReward = 1000,
+                CoinReward = 500,
             },
             new Achievement
             {
