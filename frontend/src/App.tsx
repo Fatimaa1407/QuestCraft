@@ -42,11 +42,9 @@ const BattlePoolAdminPage = lazy(() => import('./features/admin/BattlePoolAdminP
 const ChallengeEditPage = lazy(() => import('./features/admin/ChallengeEditPage').then((m) => ({ default: m.ChallengeEditPage })));
 const QuizzesAdminPage = lazy(() => import('./features/admin/QuizzesAdminPage').then((m) => ({ default: m.QuizzesAdminPage })));
 const QuizEditPage = lazy(() => import('./features/admin/QuizEditPage').then((m) => ({ default: m.QuizEditPage })));
-const ExcelToolsPage = lazy(() => import('./features/admin/ExcelToolsPage').then((m) => ({ default: m.ExcelToolsPage })));
 const AuditLogPage = lazy(() => import('./features/admin/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
 const UsersAdminPage = lazy(() => import('./features/admin/UsersAdminPage').then((m) => ({ default: m.UsersAdminPage })));
 const ActivityTodayAdminPage = lazy(() => import('./features/admin/ActivityTodayAdminPage').then((m) => ({ default: m.ActivityTodayAdminPage })));
-const SeasonalEventsAdminPage = lazy(() => import('./features/admin/SeasonalEventsAdminPage').then((m) => ({ default: m.SeasonalEventsAdminPage })));
 
 function RouteFallback() {
   return (
@@ -100,11 +98,9 @@ function App() {
                     <Route path="/admin/marketplace" element={<MarketplaceAdminPage />} />
                     <Route path="/admin/achievements" element={<AchievementsAdminPage />} />
                     <Route path="/admin/daily-quests" element={<DailyQuestsAdminPage />} />
-                    <Route path="/admin/excel" element={<ExcelToolsPage />} />
                     <Route path="/admin/audit-log" element={<AuditLogPage />} />
                     <Route path="/admin/users" element={<UsersAdminPage />} />
                     <Route path="/admin/activity-today" element={<ActivityTodayAdminPage />} />
-                    <Route path="/admin/seasonal-events" element={<SeasonalEventsAdminPage />} />
                   </Route>
                 </Route>
               </Route>

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Infrastructure.CodeExecution;
-using QuestCraft.Infrastructure.Excel;
 using QuestCraft.Infrastructure.Identity;
 using QuestCraft.Infrastructure.Pdf;
 using QuestCraft.Infrastructure.Persistence;
@@ -23,8 +22,6 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<ICodeExecutionEngine, SubprocessCodeExecutionEngine>();
-        services.AddSingleton<IExcelReader, ClosedXmlExcelReader>();
-        services.AddSingleton<IExcelExportService, ClosedXmlExportService>();
         services.AddSingleton<ICertificatePdfGenerator, CertificatePdfGenerator>();
 
         return services;

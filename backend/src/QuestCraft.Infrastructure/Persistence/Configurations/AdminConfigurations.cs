@@ -28,20 +28,6 @@ public class SystemSettingConfiguration : IEntityTypeConfiguration<SystemSetting
     }
 }
 
-public class ExcelImportLogConfiguration : IEntityTypeConfiguration<ExcelImportLog>
-{
-    public void Configure(EntityTypeBuilder<ExcelImportLog> builder)
-    {
-        builder.Property(l => l.FileName).HasMaxLength(255).IsRequired();
-        builder.Property(l => l.EntityType).HasMaxLength(50).IsRequired();
-
-        builder.HasOne(l => l.User)
-            .WithMany()
-            .HasForeignKey(l => l.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-    }
-}
-
 public class RateLimitLogConfiguration : IEntityTypeConfiguration<RateLimitLog>
 {
     public void Configure(EntityTypeBuilder<RateLimitLog> builder)

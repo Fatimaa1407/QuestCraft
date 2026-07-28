@@ -10,13 +10,11 @@ import {
   ShoppingBag,
   Award,
   ClipboardList,
-  FileSpreadsheet,
   ScrollText,
   Users,
   ClipboardCheck,
   Activity,
   UserPlus,
-  PartyPopper,
   Gamepad2,
 } from 'lucide-react';
 import { GlassCard } from '../../components/ui/GlassCard';
@@ -34,10 +32,8 @@ const sections = [
   { to: '/admin/marketplace', icon: ShoppingBag, titleKey: 'admin.sections.marketplace', descKey: 'admin.sections.marketplaceDesc' },
   { to: '/admin/achievements', icon: Award, titleKey: 'admin.sections.achievements', descKey: 'admin.sections.achievementsDesc' },
   { to: '/admin/daily-quests', icon: ClipboardList, titleKey: 'admin.sections.dailyQuests', descKey: 'admin.sections.dailyQuestsDesc' },
-  { to: '/admin/excel', icon: FileSpreadsheet, titleKey: 'admin.sections.excel', descKey: 'admin.sections.excelDesc' },
   { to: '/admin/audit-log', icon: ScrollText, titleKey: 'admin.sections.auditLog', descKey: 'admin.sections.auditLogDesc' },
   { to: '/admin/activity-today', icon: Activity, titleKey: 'admin.sections.activityToday', descKey: 'admin.sections.activityTodayDesc' },
-  { to: '/admin/seasonal-events', icon: PartyPopper, titleKey: 'admin.sections.seasonalEvents', descKey: 'admin.sections.seasonalEventsDesc' },
   { to: '/admin/battle-pool', icon: Gamepad2, titleKey: 'admin.sections.battlePool', descKey: 'admin.sections.battlePoolDesc' },
 ];
 

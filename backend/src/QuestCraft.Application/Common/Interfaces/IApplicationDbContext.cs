@@ -48,9 +48,7 @@ public interface IApplicationDbContext
 
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<SystemSetting> SystemSettings { get; }
-    DbSet<ExcelImportLog> ExcelImportLogs { get; }
     DbSet<RateLimitLog> RateLimitLogs { get; }
-    DbSet<SeasonalEvent> SeasonalEvents { get; }
     DbSet<FriendRequest> FriendRequests { get; }
     DbSet<ChatMessage> ChatMessages { get; }
     DbSet<Battle> Battles { get; }

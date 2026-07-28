@@ -66,13 +66,6 @@ export interface AuditLogDto {
   ipAddress: string | null;
 }
 
-export interface ExcelImportResultDto {
-  totalRows: number;
-  successRows: number;
-  failedRows: number;
-  errors: string[];
-}
-
 export interface AdminDashboardSummaryDto {
   totalUsers: number;
   totalChallenges: number;
@@ -92,18 +85,6 @@ export interface AdminActivityItemDto {
   score: number | null;
   totalQuestions: number | null;
   timestamp: string;
-}
-
-export interface SeasonalEventDto {
-  id: number;
-  name: string;
-  nameEn: string | null;
-  description: string | null;
-  descriptionEn: string | null;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-  emoji: string | null;
 }
 
 export interface AdminUserListItemDto {

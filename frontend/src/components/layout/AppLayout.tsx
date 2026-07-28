@@ -8,7 +8,6 @@ import { ThemeSwitcher } from '../ui/ThemeSwitcher';
 import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 import { NotificationBell } from '../ui/NotificationBell';
 import { AmbientGlow } from '../ui/AmbientGlow';
-import { SeasonalEventBanner } from '../ui/SeasonalEventBanner';
 import { FramedAvatar } from '../ui/FramedAvatar';
 import { ToastStack } from '../ui/ToastStack';
 import { DailyRewardModal } from '../ui/DailyRewardModal';
@@ -121,7 +120,6 @@ export function AppLayout() {
             <ThemeSwitcher />
           </div>
         </header>
-        <SeasonalEventBanner />
         <main className="relative flex-1 px-5 py-8 pb-24 sm:px-8 sm:pb-8">
           <div className="mx-auto max-w-6xl">
             <AnimatePresence mode="wait">

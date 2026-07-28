@@ -3,7 +3,6 @@ import type { ApiResponse } from '../types/api';
 import type {
   Achievement,
   ClaimDailyQuestResult,
-  CurrentSeasonalEventDto,
   DailyLoginRewardDto,
   DailyQuest,
   DashboardAnalyticsDto,
@@ -88,11 +87,6 @@ export async function getMyRank(period: LeaderboardPeriod = 'AllTime'): Promise<
     params: { period },
   });
   return data.data ?? { rank: 0, totalUsers: 0, xp: 0, level: 1, avatarUrl: null, frameImageUrl: null, titleText: null, badgeImageUrl: null, badgeName: null };
-}
-
-export async function getCurrentSeasonalEvent(): Promise<CurrentSeasonalEventDto | null> {
-  const { data } = await apiClient.get<ApiResponse<CurrentSeasonalEventDto | null>>('/api/seasonal-events/current');
-  return data.data;
 }
 
 export async function claimDailyLoginReward(): Promise<DailyLoginRewardDto | null> {

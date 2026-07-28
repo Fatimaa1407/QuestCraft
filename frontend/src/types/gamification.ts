@@ -85,14 +85,6 @@ export interface StreakDto {
   activeDatesLast30: HeatmapDay[];
 }
 
-export interface CurrentSeasonalEventDto {
-  id: number;
-  name: string;
-  description: string | null;
-  emoji: string | null;
-  endDate: string;
-}
-
 export interface MyRankDto {
   rank: number;
   totalUsers: number;
