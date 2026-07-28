@@ -11,6 +11,8 @@ import { Select } from '../ui/Select';
 import { Skeleton } from '../ui/Skeleton';
 import { EmptyState } from '../ui/EmptyState';
 import { fadeInUp } from '../../utils/motion';
+import { showToast } from '../../app/toastStore';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 // Deliberately loosely-typed: this table drives 5 structurally different admin
 // entities (Category/Difficulty/MarketplaceItem/Achievement/DailyQuestTemplate),
@@ -79,16 +81,22 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: [queryKey] });
+  // Every mutation here can fail for reasons the user needs to actually see — most commonly a
+  // backend business rule (e.g. "can't delete a difficulty that challenges still reference") —
+  // rather than silently doing nothing, which looks like the button is broken.
+  const onMutationError = (err: unknown) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' });
 
-  const createMutation = useMutation({ mutationFn: (payload: Row) => api.create(payload), onSuccess: invalidate });
+  const createMutation = useMutation({ mutationFn: (payload: Row) => api.create(payload), onSuccess: invalidate, onError: onMutationError });
   const updateMutation = useMutation({
     mutationFn: (payload: Row) => api.update(editingId!, payload),
     onSuccess: invalidate,
+    onError: onMutationError,
   });
-  const deleteMutation = useMutation({ mutationFn: (id: number) => api.remove(id), onSuccess: invalidate });
+  const deleteMutation = useMutation({ mutationFn: (id: number) => api.remove(id), onSuccess: invalidate, onError: onMutationError });
   const restoreMutation = useMutation({
     mutationFn: (id: number) => api.restore!(id),
     onSuccess: invalidate,
+    onError: onMutationError,
   });
 
   useEffect(() => {

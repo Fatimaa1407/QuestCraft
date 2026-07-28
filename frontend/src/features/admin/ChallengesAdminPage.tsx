@@ -10,6 +10,8 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp } from '../../utils/motion';
+import { showToast } from '../../app/toastStore';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 export function ChallengesAdminPage() {
   const { t } = useTranslation();
@@ -22,8 +24,9 @@ export function ChallengesAdminPage() {
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-challenges'] });
-  const deleteMutation = useMutation({ mutationFn: deleteChallenge, onSuccess: invalidate });
-  const restoreMutation = useMutation({ mutationFn: restoreChallenge, onSuccess: invalidate });
+  const onMutationError = (err: unknown) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' });
+  const deleteMutation = useMutation({ mutationFn: deleteChallenge, onSuccess: invalidate, onError: onMutationError });
+  const restoreMutation = useMutation({ mutationFn: restoreChallenge, onSuccess: invalidate, onError: onMutationError });
 
   const handleDelete = (id: number) => {
     if (!window.confirm(t('admin.confirmDelete'))) return;

@@ -8,6 +8,8 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
+import { showToast } from '../../app/toastStore';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 export function BattlePoolAdminPage() {
   const { t } = useTranslation();
@@ -18,6 +20,7 @@ export function BattlePoolAdminPage() {
   const deleteMutation = useMutation({
     mutationFn: deleteChallenge,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-battle-pool'] }),
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' }),
   });
 
   const handleDelete = (id: number) => {

@@ -9,6 +9,8 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
+import { showToast } from '../../app/toastStore';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 export function UsersAdminPage() {
   const { t } = useTranslation();
@@ -23,8 +25,9 @@ export function UsersAdminPage() {
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-  const roleMutation = useMutation({ mutationFn: ({ id, role }: { id: number; role: string }) => updateUserRole(id, role), onSuccess: invalidate });
-  const activeMutation = useMutation({ mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) => updateUserActive(id, isActive), onSuccess: invalidate });
+  const onMutationError = (err: unknown) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' });
+  const roleMutation = useMutation({ mutationFn: ({ id, role }: { id: number; role: string }) => updateUserRole(id, role), onSuccess: invalidate, onError: onMutationError });
+  const activeMutation = useMutation({ mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) => updateUserActive(id, isActive), onSuccess: invalidate, onError: onMutationError });
 
   const data = usersQuery.data;
   const items = data?.items ?? [];
