@@ -10,6 +10,7 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { FramedAvatar } from '../../components/ui/FramedAvatar';
+import { UserProfileModal } from '../../components/ui/UserProfileModal';
 
 function SpoilerContent({ content }: { content: string }) {
   const { t } = useTranslation();
@@ -31,17 +32,21 @@ function SpoilerContent({ content }: { content: string }) {
   );
 }
 
-function CommentRow({ comment, isReply = false }: { comment: ChallengeCommentDto; isReply?: boolean }) {
+function CommentRow({ comment, isReply = false, onViewProfile }: { comment: ChallengeCommentDto; isReply?: boolean; onViewProfile: (userId: number) => void }) {
   return (
     <div className={`flex gap-2.5 ${isReply ? 'ml-6' : ''}`}>
       {isReply && <CornerDownRight size={14} className="mt-1 shrink-0 text-slate-400 dark:text-slate-500" />}
-      <FramedAvatar username={comment.username} avatarUrl={comment.avatarUrl} frameImageUrl={comment.frameImageUrl} size={28} className="mt-0.5 shrink-0" />
+      <button type="button" onClick={() => onViewProfile(comment.userId)} className="contents">
+        <FramedAvatar username={comment.username} avatarUrl={comment.avatarUrl} frameImageUrl={comment.frameImageUrl} size={28} className="mt-0.5 shrink-0" />
+      </button>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           {comment.badgeImageUrl && (
             <img src={comment.badgeImageUrl} alt="" title={comment.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
           )}
-          <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{comment.username}</span>
+          <button type="button" onClick={() => onViewProfile(comment.userId)} className="text-sm font-medium text-slate-800 hover:underline dark:text-slate-100">
+            {comment.username}
+          </button>
           {comment.titleText && (
             <span className="text-[11px] font-medium text-app-accent dark:text-app-accent-2">{comment.titleText}</span>
           )}
@@ -67,6 +72,7 @@ export function ChallengeDiscussion({ challengeId }: { challengeId: number }) {
   const [content, setContent] = useState('');
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [replyTo, setReplyTo] = useState<{ id: number; username: string } | null>(null);
+  const [viewingUserId, setViewingUserId] = useState<number | null>(null);
 
   const commentsQuery = useQuery({
     queryKey: ['challenge', 'comments', challengeId],
@@ -143,7 +149,7 @@ export function ChallengeDiscussion({ challengeId }: { challengeId: number }) {
         ) : (
           commentsQuery.data.map((thread) => (
             <div key={thread.comment.id} className="space-y-2 border-t border-slate-200/70 pt-3 first:border-t-0 first:pt-0 dark:border-white/[0.06]">
-              <CommentRow comment={thread.comment} />
+              <CommentRow comment={thread.comment} onViewProfile={setViewingUserId} />
               <button
                 type="button"
                 onClick={() => setReplyTo({ id: thread.comment.id, username: thread.comment.username })}
@@ -152,12 +158,14 @@ export function ChallengeDiscussion({ challengeId }: { challengeId: number }) {
                 {t('challenges.discussionReply')}
               </button>
               {thread.replies.map((reply) => (
-                <CommentRow key={reply.id} comment={reply} isReply />
+                <CommentRow key={reply.id} comment={reply} isReply onViewProfile={setViewingUserId} />
               ))}
             </div>
           ))
         )}
       </div>
+
+      <UserProfileModal userId={viewingUserId} onClose={() => setViewingUserId(null)} />
     </GlassCard>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
@@ -11,6 +12,7 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { FramedAvatar } from '../../components/ui/FramedAvatar';
+import { UserProfileModal } from '../../components/ui/UserProfileModal';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 const periods: LeaderboardPeriod[] = ['Daily', 'Weekly', 'Monthly', 'AllTime'];
@@ -48,6 +50,7 @@ const podiumStyle: Record<
 export function LeaderboardPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const [viewingUserId, setViewingUserId] = useState<number | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const periodParam = searchParams.get('period');
@@ -131,7 +134,7 @@ export function LeaderboardPage() {
             <motion.div variants={staggerContainer} className="grid grid-cols-1 items-end gap-6 sm:grid-cols-3">
               {[top3[1], top3[0], top3[2]].map((entry, i) =>
                 entry ? (
-                  <PodiumCard key={entry.userId} entry={entry} isMe={entry.userId === user?.id} big={i === 1} order={i} />
+                  <PodiumCard key={entry.userId} entry={entry} isMe={entry.userId === user?.id} big={i === 1} order={i} onView={() => setViewingUserId(entry.userId)} />
                 ) : (
                   <div key={i} />
                 ),
@@ -143,7 +146,7 @@ export function LeaderboardPage() {
             <motion.div variants={fadeInUp}>
               <GlassCard hoverLift={false} className="divide-y divide-slate-200/70 p-4 dark:divide-white/[0.06]">
                 {rest.map((entry, i) => (
-                  <LeaderboardRow key={entry.userId} entry={entry} isMe={entry.userId === user?.id} index={i} />
+                  <LeaderboardRow key={entry.userId} entry={entry} isMe={entry.userId === user?.id} index={i} onView={() => setViewingUserId(entry.userId)} />
                 ))}
               </GlassCard>
             </motion.div>
@@ -168,6 +171,7 @@ export function LeaderboardPage() {
                   }}
                   isMe
                   index={0}
+                  onView={() => setViewingUserId(user.id)}
                 />
                 <p className="mt-1 text-center text-xs text-slate-400 dark:text-slate-500">
                   {t('leaderboard.outOfTotal', { total: myRank.totalUsers })}
@@ -177,11 +181,13 @@ export function LeaderboardPage() {
           )}
         </>
       )}
+
+      <UserProfileModal userId={viewingUserId} onClose={() => setViewingUserId(null)} />
     </motion.div>
   );
 }
 
-function PodiumCard({ entry, isMe, big, order }: { entry: LeaderboardEntry; isMe: boolean; big: boolean; order: number }) {
+function PodiumCard({ entry, isMe, big, order, onView }: { entry: LeaderboardEntry; isMe: boolean; big: boolean; order: number; onView: () => void }) {
   const { t } = useTranslation();
   const style = podiumStyle[entry.rank] ?? podiumStyle[3];
   const Icon = style.icon;
@@ -201,18 +207,20 @@ function PodiumCard({ entry, isMe, big, order }: { entry: LeaderboardEntry; isMe
       >
         <span className={`text-xs font-bold uppercase tracking-widest ${style.label}`}>#{entry.rank}</span>
 
-        <div className={`relative mt-3 flex items-center justify-center rounded-full font-bold text-white ${style.ring}`}>
-          <FramedAvatar username={entry.username} avatarUrl={entry.avatarUrl} frameImageUrl={entry.frameImageUrl} size={entry.rank === 1 ? 96 : 80} />
-          <span className={`absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full shadow-lg ${style.badge}`}>
-            <Icon size={16} />
-          </span>
-        </div>
+        <button type="button" onClick={onView} className="contents">
+          <div className={`relative mt-3 flex items-center justify-center rounded-full font-bold text-white ${style.ring}`}>
+            <FramedAvatar username={entry.username} avatarUrl={entry.avatarUrl} frameImageUrl={entry.frameImageUrl} size={entry.rank === 1 ? 96 : 80} />
+            <span className={`absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full shadow-lg ${style.badge}`}>
+              <Icon size={16} />
+            </span>
+          </div>
 
-        <p className="mt-4 flex items-center justify-center gap-1 truncate text-base font-semibold text-slate-900 dark:text-slate-100">
-          {entry.badgeImageUrl && <img src={entry.badgeImageUrl} alt="" title={entry.badgeName ?? undefined} className="h-4 w-4 shrink-0 rounded-full" />}
-          {entry.username}
-          {isMe && <span className="ml-1 text-xs font-normal text-app-accent dark:text-app-accent-2">({t('leaderboard.you')})</span>}
-        </p>
+          <p className="mt-4 flex items-center justify-center gap-1 truncate text-base font-semibold text-slate-900 hover:underline dark:text-slate-100">
+            {entry.badgeImageUrl && <img src={entry.badgeImageUrl} alt="" title={entry.badgeName ?? undefined} className="h-4 w-4 shrink-0 rounded-full" />}
+            {entry.username}
+            {isMe && <span className="ml-1 text-xs font-normal text-app-accent dark:text-app-accent-2">({t('leaderboard.you')})</span>}
+          </p>
+        </button>
         {entry.titleText && <p className="text-[11px] font-medium text-app-accent dark:text-app-accent-2">{entry.titleText}</p>}
         <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Lvl {entry.level}</p>
         <p className="mt-2 flex items-center gap-1 text-lg font-bold text-app-accent dark:text-app-accent-2">
@@ -238,7 +246,7 @@ function PodiumSkeleton({ big }: { big: boolean }) {
   );
 }
 
-function LeaderboardRow({ entry, isMe, index }: { entry: LeaderboardEntry; isMe: boolean; index: number }) {
+function LeaderboardRow({ entry, isMe, index, onView }: { entry: LeaderboardEntry; isMe: boolean; index: number; onView: () => void }) {
   const { t } = useTranslation();
   return (
     <motion.div
@@ -250,15 +258,17 @@ function LeaderboardRow({ entry, isMe, index }: { entry: LeaderboardEntry; isMe:
       <span className="w-6 shrink-0 text-center text-sm font-semibold text-slate-400 dark:text-slate-500">
         {entry.rank}
       </span>
-      <FramedAvatar username={entry.username} avatarUrl={entry.avatarUrl} frameImageUrl={entry.frameImageUrl} size={36} />
-      <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-1 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
-          {entry.badgeImageUrl && <img src={entry.badgeImageUrl} alt="" title={entry.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
-          {entry.username}
-          {isMe && <span className="text-xs font-normal text-app-accent dark:text-app-accent-2">({t('leaderboard.you')})</span>}
+      <button type="button" onClick={onView} className="flex min-w-0 flex-1 items-center gap-4 text-left">
+        <FramedAvatar username={entry.username} avatarUrl={entry.avatarUrl} frameImageUrl={entry.frameImageUrl} size={36} />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1 truncate text-sm font-medium text-slate-900 hover:underline dark:text-slate-100">
+            {entry.badgeImageUrl && <img src={entry.badgeImageUrl} alt="" title={entry.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
+            {entry.username}
+            {isMe && <span className="text-xs font-normal text-app-accent dark:text-app-accent-2">({t('leaderboard.you')})</span>}
+          </span>
+          {entry.titleText && <span className="block truncate text-[11px] text-app-accent dark:text-app-accent-2">{entry.titleText}</span>}
         </span>
-        {entry.titleText && <span className="block truncate text-[11px] text-app-accent dark:text-app-accent-2">{entry.titleText}</span>}
-      </span>
+      </button>
       <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">Lvl {entry.level}</span>
       <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-app-accent dark:text-app-accent-2">
         <Zap size={13} />

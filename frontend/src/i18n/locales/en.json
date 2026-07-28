@@ -272,7 +272,11 @@
     "certificateSubtitle": "You reached level 10 — download your certificate as a PDF.",
     "certificateDownload": "Download certificate",
     "certificateDownloading": "Preparing...",
-    "certificateError": "Couldn't download the certificate."
+    "certificateError": "Couldn't download the certificate.",
+    "viewProfile": "View profile",
+    "noBio": "This user hasn't written anything about themselves yet.",
+    "memberSince": "Member since {{date}}",
+    "loadError": "Couldn't load the profile."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -472,6 +476,7 @@
     "save": "Save",
     "saving": "Saving...",
     "confirmDelete": "Are you sure you want to delete this?",
+    "actionError": "Action failed.",
     "backToPanel": "Back to Admin Panel",
     "add": "Add",
     "dashboard": {
@@ -498,14 +503,10 @@
       "achievementsDesc": "Achievement conditions and rewards",
       "dailyQuests": "Daily Quests",
       "dailyQuestsDesc": "Daily quest templates",
-      "excel": "Excel Tools",
-      "excelDesc": "Bulk import/export",
       "auditLog": "Audit Log",
       "auditLogDesc": "Admin action history",
       "activityToday": "Today's Activity",
       "activityTodayDesc": "Challenges and quizzes submitted today",
-      "seasonalEvents": "Seasonal Events",
-      "seasonalEventsDesc": "Holiday/season-themed announcements",
       "battlePool": "Battle Pool",
       "battlePoolDesc": "Hidden challenges for Code Battle"
     },
@@ -585,18 +586,6 @@
       "deactivate": "Deactivate",
       "never": "Never"
     },
-    "seasonalEvents": {
-      "title": "Seasonal Events",
-      "add": "New event",
-      "name": "Name",
-      "nameEn": "Name (EN)",
-      "description": "Description",
-      "descriptionEn": "Description (EN)",
-      "emoji": "Emoji",
-      "startDate": "Start date (YYYY-MM-DD)",
-      "endDate": "End date (YYYY-MM-DD)",
-      "active": "Active"
-    },
     "activityToday": {
       "title": "Today's Activity",
       "subtitle": "Challenges and quizzes submitted by all users today.",
@@ -605,23 +594,6 @@
       "columnResult": "Result",
       "columnTime": "Time",
       "empty": "No activity yet today."
-    },
-    "excel": {
-      "importChallenges": "Import — Challenges",
-      "importTestCases": "Import — Test Cases",
-      "importQuestions": "Import — Quiz Questions",
-      "exportTitle": "Export",
-      "chooseFile": "Choose file",
-      "noFileChosen": "No file chosen",
-      "challengeId": "Challenge ID",
-      "quizId": "Quiz ID",
-      "exportKinds": {
-        "users": "Users",
-        "challenges": "Challenges",
-        "quiz-results": "Quiz Results",
-        "leaderboard": "Leaderboard",
-        "marketplace": "Marketplace"
-      }
     }
   },
   "notifications": {

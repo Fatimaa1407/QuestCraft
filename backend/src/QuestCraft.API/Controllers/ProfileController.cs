@@ -39,6 +39,13 @@ public class ProfileController : ControllerBase
         return Ok(ApiResponse<EquippedCosmeticsDto>.Ok(result));
     }
 
+    [HttpGet("{userId:int}")]
+    public async Task<ActionResult<ApiResponse<PublicProfileDto>>> GetById(int userId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetUserProfileByIdQuery(userId), cancellationToken);
+        return Ok(ApiResponse<PublicProfileDto>.Ok(result));
+    }
+
     [HttpGet("goals")]
     public async Task<ActionResult<ApiResponse<PersonalGoalsProgressDto>>> GetGoals(CancellationToken cancellationToken)
     {

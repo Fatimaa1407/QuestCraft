@@ -272,7 +272,11 @@
     "certificateSubtitle": "10-cu səviyyəyə çatdın — sertifikatını PDF olaraq yüklə.",
     "certificateDownload": "Sertifikatı yüklə",
     "certificateDownloading": "Hazırlanır...",
-    "certificateError": "Sertifikat yüklənə bilmədi."
+    "certificateError": "Sertifikat yüklənə bilmədi.",
+    "viewProfile": "Profilə bax",
+    "noBio": "Bu istifadəçi hələ özü haqqında bir şey yazmayıb.",
+    "memberSince": "{{date}} tarixindən üzvdür",
+    "loadError": "Profil yüklənə bilmədi."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -472,6 +476,7 @@
     "save": "Yadda saxla",
     "saving": "Yadda saxlanılır...",
     "confirmDelete": "Silmək istədiyinizə əminsiniz?",
+    "actionError": "Əməliyyat uğursuz oldu.",
     "backToPanel": "Admin Panelə qayıt",
     "add": "Əlavə et",
     "dashboard": {
@@ -498,14 +503,10 @@
       "achievementsDesc": "Nailiyyət şərtləri və mükafatları",
       "dailyQuests": "Gündəlik Tapşırıqlar",
       "dailyQuestsDesc": "Gündəlik tapşırıq şablonları",
-      "excel": "Excel Alətləri",
-      "excelDesc": "Toplu idxal/ixrac",
       "auditLog": "Audit Jurnalı",
       "auditLogDesc": "Admin əməliyyatları tarixçəsi",
       "activityToday": "Bugünkü Fəaliyyət",
       "activityTodayDesc": "Bugün göndərilən tapşırıq və quizlər",
-      "seasonalEvents": "Mövsümi Hadisələr",
-      "seasonalEventsDesc": "Bayram/mövsüm temalı elanlar",
       "battlePool": "Battle Pool",
       "battlePoolDesc": "Code Battle üçün gizli tapşırıqlar"
     },
@@ -585,18 +586,6 @@
       "deactivate": "Deaktiv et",
       "never": "Heç vaxt"
     },
-    "seasonalEvents": {
-      "title": "Mövsümi Hadisələr",
-      "add": "Yeni hadisə",
-      "name": "Ad",
-      "nameEn": "Ad (EN)",
-      "description": "Təsvir",
-      "descriptionEn": "Təsvir (EN)",
-      "emoji": "Emoji",
-      "startDate": "Başlanğıc tarixi (YYYY-AA-GG)",
-      "endDate": "Bitmə tarixi (YYYY-AA-GG)",
-      "active": "Aktiv"
-    },
     "activityToday": {
       "title": "Bugünkü Fəaliyyət",
       "subtitle": "Bugün bütün istifadəçilər tərəfindən göndərilən tapşırıq və quizlər.",
@@ -605,23 +594,6 @@
       "columnResult": "Nəticə",
       "columnTime": "Vaxt",
       "empty": "Bu gün hələ heç bir fəaliyyət olmayıb."
-    },
-    "excel": {
-      "importChallenges": "İdxal — Challenge-lər",
-      "importTestCases": "İdxal — Test halları",
-      "importQuestions": "İdxal — Quiz sualları",
-      "exportTitle": "İxrac",
-      "chooseFile": "Fayl seç",
-      "noFileChosen": "Fayl seçilməyib",
-      "challengeId": "Challenge ID",
-      "quizId": "Quiz ID",
-      "exportKinds": {
-        "users": "İstifadəçilər",
-        "challenges": "Challenge-lər",
-        "quiz-results": "Quiz nəticələri",
-        "leaderboard": "Liderlik lövhəsi",
-        "marketplace": "Mağaza"
-      }
     }
   },
   "notifications": {

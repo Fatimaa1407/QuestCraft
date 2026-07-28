@@ -41,6 +41,7 @@ export interface BattleSummaryDto {
   maxPlayers: number;
   joinCode: string | null;
   createdAt: string;
+  hostUserId: number;
   hostUsername: string;
   hostAvatarUrl: string | null;
   hostFrameImageUrl: string | null;

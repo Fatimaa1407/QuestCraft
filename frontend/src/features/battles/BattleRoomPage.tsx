@@ -14,6 +14,7 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Confetti } from '../../components/ui/Confetti';
 import { FramedAvatar as Avatar } from '../../components/ui/FramedAvatar';
+import { UserProfileModal } from '../../components/ui/UserProfileModal';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playErrorSound, playFanfareSound } from '../../utils/sounds';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
@@ -48,6 +49,7 @@ export function BattleRoomPage() {
   const [code, setCode] = useState('');
   const [actionError, setActionError] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
+  const [viewingUserId, setViewingUserId] = useState<number | null>(null);
   const seededRef = useRef(false);
 
   useEffect(() => {
@@ -207,10 +209,15 @@ export function BattleRoomPage() {
               </p>
               <div className="space-y-2">
                 {battle.participants.map((p) => (
-                  <div key={p.userId} className="flex items-center gap-3 rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
+                  <button
+                    type="button"
+                    key={p.userId}
+                    onClick={() => setViewingUserId(p.userId)}
+                    className="flex w-full items-center gap-3 rounded-xl border border-slate-200/70 p-2.5 text-left dark:border-white/[0.06]"
+                  >
                     <Avatar username={p.username} avatarUrl={p.avatarUrl} frameImageUrl={p.frameImageUrl} size={32} />
                     <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                      <span className="flex items-center gap-1.5 text-sm font-medium text-slate-800 hover:underline dark:text-slate-100">
                         {p.badgeImageUrl && <img src={p.badgeImageUrl} alt="" title={p.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
                         {p.username}
                         {p.userId === battle.hostUserId && (
@@ -219,7 +226,7 @@ export function BattleRoomPage() {
                       </span>
                       {p.titleText && <span className="block truncate text-[10px] text-app-accent dark:text-app-accent-2">{p.titleText}</span>}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </GlassCard>
@@ -305,7 +312,7 @@ export function BattleRoomPage() {
                       .slice()
                       .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
                       .map((p) => (
-                        <RankRow key={p.userId} participant={p} />
+                        <RankRow key={p.userId} participant={p} onViewProfile={() => setViewingUserId(p.userId)} />
                       ))}
                   </div>
                 </>
@@ -330,12 +337,12 @@ export function BattleRoomPage() {
             <div className="space-y-2">
               {battle.participants.map((p) => (
                 <div key={p.userId} className="rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
-                  <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => setViewingUserId(p.userId)} className="flex w-full items-center gap-2 text-left">
                     <Avatar username={p.username} avatarUrl={p.avatarUrl} frameImageUrl={p.frameImageUrl} size={24} />
                     {p.badgeImageUrl && <img src={p.badgeImageUrl} alt="" title={p.badgeName ?? undefined} className="h-3 w-3 shrink-0 rounded-full" />}
-                    <span className="truncate text-xs font-medium text-slate-800 dark:text-slate-100">{p.username}</span>
+                    <span className="truncate text-xs font-medium text-slate-800 hover:underline dark:text-slate-100">{p.username}</span>
                     {p.rank === 1 && <Crown size={13} className="ml-auto text-amber-500" />}
-                  </div>
+                  </button>
                   <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/[0.06]">
                     <motion.div
                       className={`h-full rounded-full ${p.hasFinished ? 'bg-emerald-500' : 'bg-gradient-to-r from-app-accent to-app-accent-2'}`}
@@ -349,18 +356,22 @@ export function BattleRoomPage() {
           </GlassCard>
         )}
       </motion.div>
+
+      <UserProfileModal userId={viewingUserId} onClose={() => setViewingUserId(null)} />
     </motion.div>
   );
 }
 
-function RankRow({ participant }: { participant: BattleParticipantDto }) {
+function RankRow({ participant, onViewProfile }: { participant: BattleParticipantDto; onViewProfile: () => void }) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-3 rounded-xl border border-slate-200/70 p-2.5 dark:border-white/[0.06]">
       <span className="w-5 text-center text-sm font-bold text-slate-400">{participant.rank ?? '-'}</span>
-      <Avatar username={participant.username} avatarUrl={participant.avatarUrl} frameImageUrl={participant.frameImageUrl} size={28} />
-      {participant.badgeImageUrl && <img src={participant.badgeImageUrl} alt="" title={participant.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
-      <span className="flex-1 truncate text-sm font-medium text-slate-800 dark:text-slate-100">{participant.username}</span>
+      <button type="button" onClick={onViewProfile} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+        <Avatar username={participant.username} avatarUrl={participant.avatarUrl} frameImageUrl={participant.frameImageUrl} size={28} />
+        {participant.badgeImageUrl && <img src={participant.badgeImageUrl} alt="" title={participant.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
+        <span className="flex-1 truncate text-sm font-medium text-slate-800 hover:underline dark:text-slate-100">{participant.username}</span>
+      </button>
       <span className="text-xs text-slate-500 dark:text-slate-400">
         {participant.hasFinished
           ? t('battles.solved')

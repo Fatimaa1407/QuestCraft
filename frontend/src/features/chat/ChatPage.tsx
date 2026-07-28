@@ -10,6 +10,7 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { FramedAvatar as Avatar } from '../../components/ui/FramedAvatar';
+import { UserProfileModal } from '../../components/ui/UserProfileModal';
 import { useRelativeTime } from '../../utils/useRelativeTime';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
@@ -22,6 +23,7 @@ export function ChatPage() {
   const queryClient = useQueryClient();
   const formatRelative = useRelativeTime();
   const [draft, setDraft] = useState('');
+  const [viewingUserId, setViewingUserId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const conversationsQuery = useQuery({ queryKey: ['chat', 'conversations'], queryFn: getConversations });
@@ -100,7 +102,22 @@ export function ChatPage() {
                     activeUserId === conv.friendUserId ? 'bg-blue-500/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'
                   }`}
                 >
-                  <Avatar username={conv.friendUsername} avatarUrl={conv.friendAvatarUrl} frameImageUrl={conv.friendFrameImageUrl} size={40} />
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewingUserId(conv.friendUserId);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.stopPropagation();
+                        setViewingUserId(conv.friendUserId);
+                      }
+                    }}
+                  >
+                    <Avatar username={conv.friendUsername} avatarUrl={conv.friendAvatarUrl} frameImageUrl={conv.friendFrameImageUrl} size={40} />
+                  </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
@@ -133,18 +150,25 @@ export function ChatPage() {
                 <button type="button" onClick={() => navigate('/chat')} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 sm:hidden">
                   <ArrowLeft size={18} />
                 </button>
-                {activeFriend && <Avatar username={activeFriend.friendUsername} avatarUrl={activeFriend.friendAvatarUrl} frameImageUrl={activeFriend.friendFrameImageUrl} size={32} />}
-                <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    {activeFriend?.friendBadgeImageUrl && (
-                      <img src={activeFriend.friendBadgeImageUrl} alt="" title={activeFriend.friendBadgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
+                <button
+                  type="button"
+                  disabled={!activeFriend}
+                  onClick={() => activeFriend && setViewingUserId(activeFriend.friendUserId)}
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-default"
+                >
+                  {activeFriend && <Avatar username={activeFriend.friendUsername} avatarUrl={activeFriend.friendAvatarUrl} frameImageUrl={activeFriend.friendFrameImageUrl} size={32} />}
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {activeFriend?.friendBadgeImageUrl && (
+                        <img src={activeFriend.friendBadgeImageUrl} alt="" title={activeFriend.friendBadgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
+                      )}
+                      {activeFriend?.friendUsername ?? '...'}
+                    </p>
+                    {activeFriend?.friendTitleText && (
+                      <p className="text-[11px] font-medium text-app-accent dark:text-app-accent-2">{activeFriend.friendTitleText}</p>
                     )}
-                    {activeFriend?.friendUsername ?? '...'}
-                  </p>
-                  {activeFriend?.friendTitleText && (
-                    <p className="text-[11px] font-medium text-app-accent dark:text-app-accent-2">{activeFriend.friendTitleText}</p>
-                  )}
-                </div>
+                  </div>
+                </button>
               </div>
 
               <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto p-4" style={{ maxHeight: '50vh' }}>
@@ -195,6 +219,8 @@ export function ChatPage() {
           )}
         </GlassCard>
       </motion.div>
+
+      <UserProfileModal userId={viewingUserId} onClose={() => setViewingUserId(null)} />
     </motion.div>
   );
 }

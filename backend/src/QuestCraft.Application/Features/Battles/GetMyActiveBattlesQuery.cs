@@ -31,6 +31,7 @@ public class GetMyActiveBattlesQueryHandler : IRequestHandler<GetMyActiveBattles
             .OrderByDescending(b => b.CreatedAt)
             .Select(b => new BattleSummaryDto(
                 b.Id, b.Mode.ToString(), b.Status.ToString(), b.Challenge.Title, b.Participants.Count, b.MaxPlayers, b.JoinCode, b.CreatedAt,
+                b.HostUserId,
                 b.HostUser.Username,
                 b.HostUser.Profile != null ? (b.HostUser.Profile.EquippedAvatar != null ? b.HostUser.Profile.EquippedAvatar.ImageUrl : b.HostUser.Profile.AvatarUrl) : null,
                 b.HostUser.Profile != null && b.HostUser.Profile.EquippedFrame != null ? b.HostUser.Profile.EquippedFrame.ImageUrl : null))
@@ -58,6 +59,7 @@ public class GetOpenRoomsQueryHandler : IRequestHandler<GetOpenRoomsQuery, List<
             .Take(30)
             .Select(b => new BattleSummaryDto(
                 b.Id, b.Mode.ToString(), b.Status.ToString(), b.Challenge.Title, b.Participants.Count, b.MaxPlayers, b.JoinCode, b.CreatedAt,
+                b.HostUserId,
                 b.HostUser.Username,
                 b.HostUser.Profile != null ? (b.HostUser.Profile.EquippedAvatar != null ? b.HostUser.Profile.EquippedAvatar.ImageUrl : b.HostUser.Profile.AvatarUrl) : null,
                 b.HostUser.Profile != null && b.HostUser.Profile.EquippedFrame != null ? b.HostUser.Profile.EquippedFrame.ImageUrl : null))

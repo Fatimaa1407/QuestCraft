@@ -10,12 +10,14 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { FramedAvatar as Avatar } from '../../components/ui/FramedAvatar';
+import { UserProfileModal } from '../../components/ui/UserProfileModal';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 
 export function FriendsPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [viewingUserId, setViewingUserId] = useState<number | null>(null);
 
   const friendsQuery = useQuery({ queryKey: ['friends', 'list'], queryFn: getFriends });
   const requestsQuery = useQuery({ queryKey: ['friends', 'requests'], queryFn: getIncomingFriendRequests });
@@ -74,17 +76,23 @@ export function FriendsPage() {
               <ul className="space-y-2.5">
                 {results.map((r) => (
                   <li key={r.userId} className="flex items-center gap-3 rounded-2xl border border-slate-200/70 p-3 dark:border-white/[0.06]">
-                    <Avatar username={r.username} avatarUrl={r.avatarUrl} frameImageUrl={r.frameImageUrl} size={36} />
-                    <div className="min-w-0 flex-1">
-                      <p className="flex items-center gap-1.5 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
-                        {r.badgeImageUrl && <img src={r.badgeImageUrl} alt="" title={r.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
-                        {r.username}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Lvl {r.level}
-                        {r.titleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{r.titleText}</span>}
-                      </p>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setViewingUserId(r.userId)}
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                    >
+                      <Avatar username={r.username} avatarUrl={r.avatarUrl} frameImageUrl={r.frameImageUrl} size={36} />
+                      <div className="min-w-0 flex-1">
+                        <p className="flex items-center gap-1.5 truncate text-sm font-medium text-slate-900 hover:underline dark:text-slate-100">
+                          {r.badgeImageUrl && <img src={r.badgeImageUrl} alt="" title={r.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
+                          {r.username}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Lvl {r.level}
+                          {r.titleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{r.titleText}</span>}
+                        </p>
+                      </div>
+                    </button>
                     {r.friendStatus === 'None' && (
                       <motion.button
                         {...buttonTap}
@@ -134,19 +142,25 @@ export function FriendsPage() {
               <ul className="space-y-2.5">
                 {requests.map((req) => (
                   <li key={req.id} className="flex items-center gap-3 rounded-2xl border border-blue-400/30 bg-blue-500/[0.04] p-3">
-                    <Avatar username={req.requesterUsername} avatarUrl={req.requesterAvatarUrl} frameImageUrl={req.requesterFrameImageUrl} size={36} />
-                    <div className="min-w-0 flex-1">
-                      <p className="flex items-center gap-1.5 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
-                        {req.requesterBadgeImageUrl && (
-                          <img src={req.requesterBadgeImageUrl} alt="" title={req.requesterBadgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
-                        )}
-                        {req.requesterUsername}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Lvl {req.requesterLevel}
-                        {req.requesterTitleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{req.requesterTitleText}</span>}
-                      </p>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setViewingUserId(req.requesterId)}
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                    >
+                      <Avatar username={req.requesterUsername} avatarUrl={req.requesterAvatarUrl} frameImageUrl={req.requesterFrameImageUrl} size={36} />
+                      <div className="min-w-0 flex-1">
+                        <p className="flex items-center gap-1.5 truncate text-sm font-medium text-slate-900 hover:underline dark:text-slate-100">
+                          {req.requesterBadgeImageUrl && (
+                            <img src={req.requesterBadgeImageUrl} alt="" title={req.requesterBadgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />
+                          )}
+                          {req.requesterUsername}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Lvl {req.requesterLevel}
+                          {req.requesterTitleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{req.requesterTitleText}</span>}
+                        </p>
+                      </div>
+                    </button>
                     <motion.button
                       {...buttonTap}
                       onClick={() => respondMutation.mutate({ id: req.id, accept: true })}
@@ -195,31 +209,35 @@ export function FriendsPage() {
         ) : (
           <motion.div variants={staggerContainer} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {friends.map((friend) => (
-              <FriendCard key={friend.userId} friend={friend} onRemove={() => removeMutation.mutate(friend.userId)} />
+              <FriendCard key={friend.userId} friend={friend} onRemove={() => removeMutation.mutate(friend.userId)} onViewProfile={() => setViewingUserId(friend.userId)} />
             ))}
           </motion.div>
         )}
       </motion.div>
+
+      <UserProfileModal userId={viewingUserId} onClose={() => setViewingUserId(null)} />
     </motion.div>
   );
 }
 
-function FriendCard({ friend, onRemove }: { friend: FriendDto; onRemove: () => void }) {
+function FriendCard({ friend, onRemove, onViewProfile }: { friend: FriendDto; onRemove: () => void; onViewProfile: () => void }) {
   const { t } = useTranslation();
   return (
     <motion.div variants={fadeInUp}>
       <GlassCard hoverLift={false} className="flex items-center gap-3 p-4">
-        <Avatar username={friend.username} avatarUrl={friend.avatarUrl} frameImageUrl={friend.frameImageUrl} size={44} />
-        <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1.5 truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
-            {friend.badgeImageUrl && <img src={friend.badgeImageUrl} alt="" title={friend.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
-            {friend.username}
-          </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Lvl {friend.level} · {friend.xp} XP
-            {friend.titleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{friend.titleText}</span>}
-          </p>
-        </div>
+        <button type="button" onClick={onViewProfile} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+          <Avatar username={friend.username} avatarUrl={friend.avatarUrl} frameImageUrl={friend.frameImageUrl} size={44} />
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1.5 truncate text-sm font-semibold text-slate-900 hover:underline dark:text-slate-100">
+              {friend.badgeImageUrl && <img src={friend.badgeImageUrl} alt="" title={friend.badgeName ?? undefined} className="h-3.5 w-3.5 shrink-0 rounded-full" />}
+              {friend.username}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Lvl {friend.level} · {friend.xp} XP
+              {friend.titleText && <span className="ml-1.5 font-medium text-app-accent dark:text-app-accent-2">{friend.titleText}</span>}
+            </p>
+          </div>
+        </button>
         <div className="flex shrink-0 items-center gap-1.5">
           <Link
             to={`/chat/${friend.userId}`}

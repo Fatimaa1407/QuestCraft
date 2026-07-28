@@ -15,6 +15,7 @@ import { getApiErrorMessage } from '../../utils/apiError';
 import { fadeInUp, staggerContainer, buttonTap } from '../../utils/motion';
 import type { BattleSummaryDto } from '../../types/battle';
 import { FramedAvatar } from '../../components/ui/FramedAvatar';
+import { UserProfileModal } from '../../components/ui/UserProfileModal';
 
 function BattleCardSkeleton() {
   return (
@@ -44,6 +45,7 @@ export function BattleLobbyPage() {
   const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [viewingUserId, setViewingUserId] = useState<number | null>(null);
 
   const myBattlesQuery = useQuery({ queryKey: ['battles', 'mine'], queryFn: getMyBattles, refetchInterval: 10000 });
   const openRoomsQuery = useQuery({ queryKey: ['battles', 'open-rooms'], queryFn: getOpenRooms, refetchInterval: 10000 });
@@ -147,7 +149,7 @@ export function BattleLobbyPage() {
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {myBattles.map((b) => (
-              <BattleSummaryCard key={b.id} battle={b} onClick={() => navigate(`/battles/${b.id}`)} />
+              <BattleSummaryCard key={b.id} battle={b} onClick={() => navigate(`/battles/${b.id}`)} onViewHost={() => setViewingUserId(b.hostUserId)} />
             ))}
           </div>
         )}
@@ -169,7 +171,7 @@ export function BattleLobbyPage() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {openRooms.map((room) => (
               <GlassCard key={room.id} hoverLift={false} className="flex items-center justify-between gap-3 p-4">
-                <div className="flex min-w-0 items-center gap-3">
+                <button type="button" onClick={() => setViewingUserId(room.hostUserId)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
                   <FramedAvatar username={room.hostUsername} avatarUrl={room.hostAvatarUrl} frameImageUrl={room.hostFrameImageUrl} size={36} />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{room.challengeTitle}</p>
@@ -177,7 +179,7 @@ export function BattleLobbyPage() {
                       {room.playerCount}/{room.maxPlayers} {t('battles.players')}
                     </p>
                   </div>
-                </div>
+                </button>
                 <motion.button
                   {...buttonTap}
                   disabled={joinRoomMutation.isPending || room.playerCount >= room.maxPlayers}
@@ -192,11 +194,13 @@ export function BattleLobbyPage() {
           </div>
         )}
       </motion.div>
+
+      <UserProfileModal userId={viewingUserId} onClose={() => setViewingUserId(null)} />
     </motion.div>
   );
 }
 
-function BattleSummaryCard({ battle, onClick }: { battle: BattleSummaryDto; onClick: () => void }) {
+function BattleSummaryCard({ battle, onClick, onViewHost }: { battle: BattleSummaryDto; onClick: () => void; onViewHost: () => void }) {
   const { t } = useTranslation();
   return (
     <motion.div variants={fadeInUp}>
@@ -206,7 +210,16 @@ function BattleSummaryCard({ battle, onClick }: { battle: BattleSummaryDto; onCl
           <span className="text-xs text-slate-400">{battle.mode === 'Duel' ? '⚔️' : '🏟️'} {t(`battles.mode.${battle.mode}`)}</span>
         </div>
         <div className="mt-2 flex items-center gap-2.5">
-          <FramedAvatar username={battle.hostUsername} avatarUrl={battle.hostAvatarUrl} frameImageUrl={battle.hostFrameImageUrl} size={28} />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewHost();
+            }}
+            className="contents"
+          >
+            <FramedAvatar username={battle.hostUsername} avatarUrl={battle.hostAvatarUrl} frameImageUrl={battle.hostFrameImageUrl} size={28} />
+          </button>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{battle.challengeTitle}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">

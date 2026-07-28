@@ -12,4 +12,4 @@ public record BattleDto(
 
 public record BattleSummaryDto(
     int Id, string Mode, string Status, string ChallengeTitle, int PlayerCount, int MaxPlayers, string? JoinCode, DateTime CreatedAt,
-    string HostUsername, string? HostAvatarUrl, string? HostFrameImageUrl);
+    int HostUserId, string HostUsername, string? HostAvatarUrl, string? HostFrameImageUrl);
