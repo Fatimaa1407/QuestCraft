@@ -6,6 +6,7 @@ const rules: Array<{ key: string; test: (password: string) => boolean }> = [
   { key: 'uppercase', test: (p) => /[A-Z]/.test(p) },
   { key: 'lowercase', test: (p) => /[a-z]/.test(p) },
   { key: 'digit', test: (p) => /[0-9]/.test(p) },
+  { key: 'specialChar', test: (p) => /[^a-zA-Z0-9]/.test(p) },
 ];
 
 export function PasswordStrengthChecklist({ password }: { password: string }) {

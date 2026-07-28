@@ -39,7 +39,8 @@
         "minLength": "Ən azı 8 simvol",
         "uppercase": "Bir böyük hərf",
         "lowercase": "Bir kiçik hərf",
-        "digit": "Bir rəqəm"
+        "digit": "Bir rəqəm",
+        "specialChar": "Bir xüsusi simvol (!@#$...)"
       },
       "confirmPasswordLabel": "Şifrəni təsdiqlə",
       "submit": "Qeydiyyatdan keç",

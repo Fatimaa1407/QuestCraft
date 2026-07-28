@@ -33,6 +33,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .MinimumLength(8).WithMessage("Şifrə ən azı 8 simvol olmalıdır.")
             .Matches("[A-Z]").WithMessage("Şifrə ən azı bir böyük hərf ehtiva etməlidir.")
             .Matches("[a-z]").WithMessage("Şifrə ən azı bir kiçik hərf ehtiva etməlidir.")
-            .Matches("[0-9]").WithMessage("Şifrə ən azı bir rəqəm ehtiva etməlidir.");
+            .Matches("[0-9]").WithMessage("Şifrə ən azı bir rəqəm ehtiva etməlidir.")
+            .Matches("[^a-zA-Z0-9]").WithMessage("Şifrə ən azı bir xüsusi simvol ehtiva etməlidir.");
     }
 }
