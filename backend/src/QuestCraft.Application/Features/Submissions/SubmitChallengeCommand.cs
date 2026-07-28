@@ -191,9 +191,13 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.EarnXp, xpEarned, cancellationToken);
         }
 
-        if (isFirstAcceptedSolve && profile is not null)
+        if (profile is not null)
         {
-            // Flush first so the completion count below sees this submission.
+            // Recomputed on every submission, not just a first-time solve — a level's completion
+            // percentage can also change for reasons unrelated to this submission (RequiredLevel
+            // reassigned, a counting-rule fix, etc.), and a first-solve-only trigger would leave a
+            // user permanently stuck once they've already solved everything in their level at least
+            // once, with nothing left to newly-solve to ever re-trigger the check.
             await _context.SaveChangesAsync(cancellationToken);
             profile.Level = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
         }

@@ -35,16 +35,32 @@ public class GetLevelProgressQueryHandler : IRequestHandler<GetLevelProgressQuer
     {
         var userId = _currentUser.UserId ?? throw new UnauthorizedException("İstifadəçi tanınmadı.");
 
-        var level = await _context.UserProfiles
-            .Where(p => p.UserId == userId)
-            .Select(p => p.Level)
-            .FirstOrDefaultAsync(cancellationToken);
+        var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+        var level = profile?.Level ?? 1;
         if (level == 0)
         {
             level = 1;
         }
 
         var completion = await _completionService.GetLevelCompletionAsync(userId, level, cancellationToken);
+
+        // Self-healing safety net: the stored Level is normally advanced as a side effect of
+        // submitting a challenge/quiz (see SubmitChallengeCommand/SubmitQuizAttemptCommand), but if
+        // it ever drifts behind the user's actual completion — e.g. a content re-categorization
+        // changes what counts toward a level after the user already finished it, with no new
+        // submission left to re-trigger the check — just viewing this panel corrects it here too,
+        // so a stale Level can never persist indefinitely without the user needing to act first.
+        if (completion.IsComplete && profile is not null)
+        {
+            var unlockedLevel = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
+            if (unlockedLevel > level)
+            {
+                profile.Level = unlockedLevel;
+                await _context.SaveChangesAsync(cancellationToken);
+                level = unlockedLevel;
+                completion = await _completionService.GetLevelCompletionAsync(userId, level, cancellationToken);
+            }
+        }
 
         return new LevelProgressDto(
             level,

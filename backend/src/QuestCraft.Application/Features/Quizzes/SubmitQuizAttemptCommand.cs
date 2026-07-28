@@ -170,9 +170,11 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
             await _dailyQuestService.UpdateProgressAsync(userId, DailyQuestTargetType.EarnXp, xpEarned, cancellationToken);
         }
 
-        if (isFirstAttempt && profile is not null)
+        if (profile is not null)
         {
-            // Flush first so the completion count below sees this attempt.
+            // Recomputed on every attempt, not just a first-time one — see the matching comment in
+            // SubmitChallengeCommand for why a first-attempt-only trigger can leave a user
+            // permanently stuck at their current level.
             await _context.SaveChangesAsync(cancellationToken);
             profile.Level = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
         }
