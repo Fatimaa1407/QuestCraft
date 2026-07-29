@@ -11,6 +11,7 @@ public class BattleConfiguration : IEntityTypeConfiguration<Battle>
         builder.Property(b => b.Mode).HasConversion<string>().HasMaxLength(20);
         builder.Property(b => b.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasIndex(b => b.JoinCode).IsUnique().HasFilter("[JoinCode] IS NOT NULL");
+        builder.Property(b => b.Version).IsConcurrencyToken();
 
         builder.HasOne(b => b.HostUser)
             .WithMany()

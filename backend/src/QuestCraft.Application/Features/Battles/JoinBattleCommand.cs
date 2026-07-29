@@ -75,7 +75,21 @@ public class JoinBattleCommandHandler : IRequestHandler<JoinBattleCommand, Battl
             battle.StartedAt = DateTime.UtcNow;
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
+        // EF's relationship fixup already linked the new row into battle.Participants (both entities
+        // are tracked), so this count includes it — writing it back to the Battle row itself is what
+        // forces an UPDATE statement here, which is what lets Battle.Version actually catch two people
+        // racing for the last open slot (a bare participant INSERT never touches the Battle row).
+        battle.ParticipantCount = battle.Participants.Count;
+        battle.Version++;
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConflictException("Döyüş otağı doludur.");
+        }
 
         var user = await _context.Users.Include(u => u.Profile).FirstAsync(u => u.Id == userId, cancellationToken);
         participant.User = user;

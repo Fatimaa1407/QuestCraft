@@ -777,6 +777,17 @@ public static class ApplicationDbContextSeeder
                 ConditionValue = 5,
                 XpReward = 80,
                 CoinReward = 40,
+            },
+            new Achievement
+            {
+                Name = "İlk Qələbə",
+                NameEn = "First Victory",
+                Description = "Bir döyüşü qazandın.",
+                DescriptionEn = "You won a battle.",
+                ConditionType = AchievementConditionType.BattleWins,
+                ConditionValue = 1,
+                XpReward = 50,
+                CoinReward = 25,
             }
         );
     }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using QuestCraft.Domain.Entities;
 
@@ -7,6 +8,10 @@ namespace QuestCraft.Application.Common.Interfaces;
 public interface IApplicationDbContext
 {
     DatabaseFacade Database { get; }
+
+    // Exposed narrowly for optimistic-concurrency reconciliation (see SubmitBattleSolutionCommand) —
+    // lets a handler discard a losing entity's pending change without a second round-trip.
+    EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
 
     DbSet<Role> Roles { get; }
     DbSet<User> Users { get; }

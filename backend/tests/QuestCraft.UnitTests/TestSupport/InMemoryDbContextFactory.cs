@@ -13,4 +13,15 @@ public static class InMemoryDbContextFactory
             .Options;
         return new ApplicationDbContext(options);
     }
+
+    // Two separate context instances sharing one named database — for tests that need to simulate
+    // two concurrent requests racing against the same rows (each real HTTP request gets its own
+    // scoped DbContext in production, so a single shared context wouldn't model the race at all).
+    public static ApplicationDbContext CreateSharedInstance(string name)
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(name)
+            .Options;
+        return new ApplicationDbContext(options);
+    }
 }

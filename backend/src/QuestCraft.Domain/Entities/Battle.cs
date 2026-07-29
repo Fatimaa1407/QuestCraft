@@ -27,6 +27,19 @@ public class Battle : BaseEntity
     public DateTime? StartedAt { get; set; }
     public DateTime? EndedAt { get; set; }
 
+    // Denormalized copy of Participants.Count, written on every join. Joining a Room battle only
+    // inserts a BattleParticipant row and never otherwise touches the Battle row itself, so without
+    // this the Version concurrency token below would never engage for a same-slot join race.
+    public int ParticipantCount { get; set; } = 1;
+
+    // Optimistic-concurrency token: guards against two participants simultaneously joining the last
+    // open slot, and against two simultaneous full solves both computing themselves as Rank 1. A
+    // plain, manually-incremented counter rather than a DB-generated rowversion column, so the same
+    // check behaves identically on SQL Server, SQLite (integration tests) and the InMemory provider
+    // (unit tests) — none of which need to auto-generate it, callers just bump it whenever they touch
+    // the row in a way another concurrent request must not silently clobber.
+    public int Version { get; set; }
+
     public ICollection<BattleParticipant> Participants { get; set; } = new List<BattleParticipant>();
 }
 

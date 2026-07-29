@@ -9,4 +9,5 @@ public enum AchievementConditionType
     SpeedSolve,
     QuizzesCompleted,
     DailyPuzzleDaysSolved,
+    BattleWins,
 }

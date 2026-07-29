@@ -64,6 +64,11 @@ public class AchievementEvaluator : IAchievementEvaluator
                 .CountAsync(cancellationToken)
             : 0;
 
+        var battleWins = candidates.Any(a => a.ConditionType == AchievementConditionType.BattleWins)
+            ? await _context.BattleParticipants
+                .CountAsync(p => p.UserId == userId && p.Rank == 1 && p.Battle.Status == BattleStatus.Finished, cancellationToken)
+            : 0;
+
         var unlocked = new List<Achievement>();
 
         foreach (var achievement in candidates)
@@ -77,6 +82,7 @@ public class AchievementEvaluator : IAchievementEvaluator
                 AchievementConditionType.QuizzesCompleted => stats?.TotalQuizzesCompleted >= achievement.ConditionValue,
                 AchievementConditionType.SpeedSolve => speedSolveCount >= achievement.ConditionValue,
                 AchievementConditionType.DailyPuzzleDaysSolved => dailyPuzzleDaysSolved >= achievement.ConditionValue,
+                AchievementConditionType.BattleWins => battleWins >= achievement.ConditionValue,
                 _ => false,
             };
 

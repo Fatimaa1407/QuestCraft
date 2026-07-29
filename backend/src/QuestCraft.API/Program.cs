@@ -74,6 +74,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<IRealtimeNotifier, SignalRNotifier>();
 builder.Services.AddScoped<IBattleHubNotifier, SignalRBattleNotifier>();
 builder.Services.AddHostedService<QuestCraft.API.Services.WeeklyRecapBackgroundService>();
+builder.Services.AddHostedService<QuestCraft.API.Services.BattleTimeoutBackgroundService>();
 
 builder.Services.AddMemoryCache();
 
