@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using QuestCraft.Application.Common.Models;
 using QuestCraft.Application.Features.Submissions;
 
@@ -19,6 +20,7 @@ public class SubmissionsController : ControllerBase
     }
 
     [HttpPost("run")]
+    [EnableRateLimiting("codeExecution")]
     public async Task<ActionResult<ApiResponse<RunResultDto>>> Run(RunRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new RunChallengeQuery(request.ChallengeId, request.SourceCode), cancellationToken);
@@ -26,6 +28,7 @@ public class SubmissionsController : ControllerBase
     }
 
     [HttpPost("submit")]
+    [EnableRateLimiting("codeExecution")]
     public async Task<ActionResult<ApiResponse<SubmissionResultDto>>> Submit(SubmitRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new SubmitChallengeCommand(request.ChallengeId, request.SourceCode, request.SolveTimeMs), cancellationToken);

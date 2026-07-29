@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using QuestCraft.Application.Common.Models;
 using QuestCraft.Application.Features.Friends;
 
@@ -40,6 +41,7 @@ public class FriendsController : ControllerBase
     }
 
     [HttpPost("requests")]
+    [EnableRateLimiting("friendRequest")]
     public async Task<IActionResult> SendRequest(SendFriendRequestRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new SendFriendRequestCommand(request.AddresseeUserId), cancellationToken);

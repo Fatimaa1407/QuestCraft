@@ -60,8 +60,12 @@ public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, MyRankDto>
             var myXp = profile?.Xp ?? 0;
             var myLevel = profile?.Level ?? 1;
 
-            var totalUsers = await _context.UserProfiles.CountAsync(cancellationToken);
-            var higherCount = await _context.UserProfiles.CountAsync(p => p.Xp > myXp, cancellationToken);
+            var totalUsers = await _context.UserProfiles.CountAsync(p => p.User.IsActive, cancellationToken);
+            // Same tie-break as GetLeaderboardQuery's OrderByDescending(Xp).ThenBy(UserId) — otherwise
+            // two users tied on Xp could see a "my rank" number that disagrees with where they'd
+            // actually land in the visible list.
+            var higherCount = await _context.UserProfiles.CountAsync(
+                p => p.User.IsActive && (p.Xp > myXp || (p.Xp == myXp && p.UserId < userId)), cancellationToken);
 
             return new MyRankDto(higherCount + 1, totalUsers, myXp, myLevel,
                 cosmetics?.AvatarUrl, cosmetics?.FrameImageUrl, titleText, cosmetics?.BadgeImageUrl, badgeName);
@@ -95,11 +99,12 @@ public class GetMyRankQueryHandler : IRequestHandler<GetMyRankQuery, MyRankDto>
             .Distinct()
             .CountAsync(cancellationToken);
 
+        // Same tie-break as GetLeaderboardQuery's period path (OrderByDescending(Xp).ThenBy(UserId)).
         var higherCountInPeriod = await _context.XpTransactions
             .Where(x => x.EarnedAt >= periodStart)
             .GroupBy(x => x.UserId)
             .Select(g => new { UserId = g.Key, Xp = g.Sum(x => x.Amount) })
-            .CountAsync(g => g.Xp > myXpInPeriod, cancellationToken);
+            .CountAsync(g => g.Xp > myXpInPeriod || (g.Xp == myXpInPeriod && g.UserId < userId), cancellationToken);
 
         // If the user has no Xp activity in the period, they still count as one of the ranked users
         // (tied for last) rather than being excluded entirely.

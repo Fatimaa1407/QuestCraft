@@ -88,6 +88,28 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             }
         }
 
+        // Optimistic-concurrency tokens, bumped centrally here rather than by each individual handler
+        // that modifies these entities — a new call site can't forget it, since there's nothing to
+        // remember. EF's concurrency check compares the *original* tracked value (from when the row
+        // was loaded) against the database, so incrementing the in-memory value here right before
+        // SaveChanges still produces the correct WHERE-clause/SET-clause pair.
+        foreach (var entry in ChangeTracker.Entries<UserProfile>())
+        {
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.Version++;
+            }
+        }
+        foreach (var entry in ChangeTracker.Entries<Battle>())
+        {
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.Version++;
+            }
+        }
+
         return base.SaveChangesAsync(cancellationToken);
     }
+
+    public void ClearChangeTracking() => ChangeTracker.Clear();
 }

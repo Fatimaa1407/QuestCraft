@@ -24,6 +24,13 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                 nullable: false,
                 defaultValue: 0);
 
+            migrationBuilder.AddColumn<int>(
+                name: "Version",
+                table: "UserProfiles",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
             // Backfill from the real participant count for any battles that already exist, rather than
             // leaving them all at the column default of 0.
             migrationBuilder.Sql(@"
@@ -42,6 +49,10 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
             migrationBuilder.DropColumn(
                 name: "Version",
                 table: "Battles");
+
+            migrationBuilder.DropColumn(
+                name: "Version",
+                table: "UserProfiles");
         }
     }
 }

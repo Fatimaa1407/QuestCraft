@@ -64,6 +64,10 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, List<Us
                 { Status: FriendRequestStatus.Accepted } => "Friends",
                 { Status: FriendRequestStatus.Pending } when relation.RequesterId == userId => "PendingSent",
                 { Status: FriendRequestStatus.Pending } => "PendingReceived",
+                // A prior Declined request permanently blocks re-sending (SendFriendRequestCommand's
+                // duplicate check treats it the same as Accepted/Pending) — surface that here too, or
+                // the UI would show a working "Add Friend" button that always fails.
+                { Status: FriendRequestStatus.Declined } => "Declined",
                 _ => "None",
             };
             return new UserSearchResultDto(c.UserId, c.Username, c.AvatarUrl, c.Level, status, c.FrameImageUrl,

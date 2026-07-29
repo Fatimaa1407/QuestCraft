@@ -9,7 +9,12 @@ using QuestCraft.Domain.Enums;
 
 namespace QuestCraft.Application.Features.Battles;
 
-public record BattleSubmissionResultDto(bool AllPassed, int PassedTestCases, int TotalTestCases, string? CompileErrorMessage, BattleDto Battle);
+// MyXp/MyCoins/MyLevel reflect the calling user's own profile after this submission — unchanged if
+// they didn't just win, updated if they did — so the frontend can sync its header the same way every
+// other reward-granting response (challenge/quiz submit, daily quest claim) already does.
+public record BattleSubmissionResultDto(
+    bool AllPassed, int PassedTestCases, int TotalTestCases, string? CompileErrorMessage, BattleDto Battle,
+    int MyXp, int MyCoins, int MyLevel);
 
 public record SubmitBattleSolutionCommand(int BattleId, string SourceCode) : ICommand<BattleSubmissionResultDto>;
 
@@ -105,7 +110,6 @@ public class SubmitBattleSolutionCommandHandler : IRequestHandler<SubmitBattleSo
                 battleJustEnded = true;
                 battle.Status = BattleStatus.Finished;
                 battle.EndedAt = DateTime.UtcNow;
-                battle.Version++;
             }
         }
 
@@ -157,6 +161,9 @@ public class SubmitBattleSolutionCommandHandler : IRequestHandler<SubmitBattleSo
         var dto = BattleMapper.ToDto(battle, _currentUser.IsEnglish);
         await _battleHubNotifier.NotifyBattleUpdated(battle.Id, dto, cancellationToken);
 
-        return new BattleSubmissionResultDto(allPassed, passedCount, testCaseInputs.Count, execution.CompileErrorMessage, dto);
+        var myProfile = participant.User.Profile;
+        return new BattleSubmissionResultDto(
+            allPassed, passedCount, testCaseInputs.Count, execution.CompileErrorMessage, dto,
+            myProfile?.Xp ?? 0, myProfile?.Coins ?? 0, myProfile?.Level ?? 1);
     }
 }

@@ -51,17 +51,30 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             })
             .ToListAsync(cancellationToken);
 
-        var messages = await _context.ChatMessages
+        // Aggregated in SQL (grouped by conversation partner) rather than pulling every message ever
+        // exchanged with every friend into memory just to pick the last one and count unread — that
+        // approach doesn't scale with conversation history length.
+        var lastByFriend = await _context.ChatMessages
             .Where(m => (m.SenderId == userId && friendIds.Contains(m.RecipientId))
                 || (m.RecipientId == userId && friendIds.Contains(m.SenderId)))
-            .Select(m => new { m.SenderId, m.RecipientId, m.Content, m.CreatedAt, m.IsRead })
-            .ToListAsync(cancellationToken);
+            .GroupBy(m => m.SenderId == userId ? m.RecipientId : m.SenderId)
+            .Select(g => new
+            {
+                FriendId = g.Key,
+                Last = g.OrderByDescending(m => m.CreatedAt).Select(m => new { m.Content, m.CreatedAt }).First(),
+            })
+            .ToDictionaryAsync(x => x.FriendId, x => x.Last, cancellationToken);
+
+        var unreadByFriend = await _context.ChatMessages
+            .Where(m => m.RecipientId == userId && friendIds.Contains(m.SenderId) && !m.IsRead)
+            .GroupBy(m => m.SenderId)
+            .Select(g => new { FriendId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.FriendId, x => x.Count, cancellationToken);
 
         var conversations = friends.Select(f =>
         {
-            var withFriend = messages.Where(m => m.SenderId == f.UserId || m.RecipientId == f.UserId).ToList();
-            var last = withFriend.OrderByDescending(m => m.CreatedAt).FirstOrDefault();
-            var unread = withFriend.Count(m => m.SenderId == f.UserId && !m.IsRead);
+            lastByFriend.TryGetValue(f.UserId, out var last);
+            unreadByFriend.TryGetValue(f.UserId, out var unread);
 
             return new ConversationDto(f.UserId, f.Username, f.AvatarUrl, last?.Content, last?.CreatedAt, unread, f.FrameImageUrl,
                 LocalizationHelper.PickNullable(f.TitleName, f.TitleNameEn, isEnglish),

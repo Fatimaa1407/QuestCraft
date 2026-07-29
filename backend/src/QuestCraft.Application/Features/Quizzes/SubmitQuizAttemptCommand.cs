@@ -18,6 +18,12 @@ public class SubmitQuizAttemptCommandValidator : AbstractValidator<SubmitQuizAtt
     {
         RuleFor(x => x.QuizId).GreaterThan(0);
         RuleFor(x => x.Answers).NotEmpty().WithMessage("Ən azı bir cavab göndərilməlidir.");
+        // The handler builds a QuestionId->SelectedOptionId dictionary — a client bypassing the UI
+        // (direct API call) that sends two answers for the same question would otherwise crash it
+        // with an unhandled ArgumentException instead of a clean validation error.
+        RuleFor(x => x.Answers)
+            .Must(answers => answers.Select(a => a.QuestionId).Distinct().Count() == answers.Count)
+            .WithMessage("Hər sual üçün yalnız bir cavab göndərilə bilər.");
     }
 }
 

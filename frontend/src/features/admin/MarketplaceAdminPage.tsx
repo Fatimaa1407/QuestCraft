@@ -6,12 +6,32 @@ import {
   type MarketplaceItemPayload,
 } from '../../api/admin';
 import { SimpleCrudTable, type CrudFieldConfig } from '../../components/admin/SimpleCrudTable';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { QueryErrorState } from '../../components/ui/QueryErrorState';
 
 export function MarketplaceAdminPage() {
   const { t } = useTranslation();
   const itemTypesQuery = useQuery({ queryKey: ['marketplace', 'item-types'], queryFn: getItemTypes });
 
-  if (!itemTypesQuery.data) return null;
+  if (itemTypesQuery.isError) {
+    return (
+      <GlassCard className="p-6">
+        <QueryErrorState bare onRetry={() => itemTypesQuery.refetch()} />
+      </GlassCard>
+    );
+  }
+
+  if (!itemTypesQuery.data) {
+    return (
+      <GlassCard className="space-y-3 p-6">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </GlassCard>
+    );
+  }
 
   const fields: CrudFieldConfig[] = [
     { key: 'name', label: t('admin.marketplace.name'), type: 'text', required: true, withEn: true, enLabel: t('admin.marketplace.nameEn') },

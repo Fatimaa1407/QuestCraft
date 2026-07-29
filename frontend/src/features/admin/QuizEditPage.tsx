@@ -22,6 +22,8 @@ import { TextField } from '../../components/ui/TextField';
 import { Textarea } from '../../components/ui/Textarea';
 import { Select } from '../../components/ui/Select';
 import { Modal } from '../../components/ui/Modal';
+import { showToast } from '../../app/toastStore';
+import { getApiErrorMessage } from '../../utils/apiError';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 const emptyQuiz: QuizPayload = { title: '', categoryId: null, xpReward: 45, isPublished: true, requiredLevel: 1, titleEn: '', tags: '' };
@@ -79,6 +81,7 @@ export function QuizEditPage() {
         queryClient.invalidateQueries({ queryKey: ['admin-quiz', quizId] });
       }
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' }),
   });
 
   const handleSubmit = (event: FormEvent) => {
@@ -90,12 +93,15 @@ export function QuizEditPage() {
 
   const invalidateQuiz = () => queryClient.invalidateQueries({ queryKey: ['admin-quiz', quizId] });
 
+  const onMutationError = (err: unknown) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' });
+
   const addQuestionMutation = useMutation({
     mutationFn: () => addQuestion(quizId!, questionForm),
     onSuccess: () => {
       invalidateQuiz();
       setQuestionModalOpen(false);
     },
+    onError: onMutationError,
   });
   const updateQuestionMutation = useMutation({
     mutationFn: () => updateQuestion(editingQuestionId!, questionForm),
@@ -103,8 +109,9 @@ export function QuizEditPage() {
       invalidateQuiz();
       setQuestionModalOpen(false);
     },
+    onError: onMutationError,
   });
-  const deleteQuestionMutation = useMutation({ mutationFn: deleteQuestion, onSuccess: invalidateQuiz });
+  const deleteQuestionMutation = useMutation({ mutationFn: deleteQuestion, onSuccess: invalidateQuiz, onError: onMutationError });
 
   const openAddQuestion = () => {
     setEditingQuestionId(null);

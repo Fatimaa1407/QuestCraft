@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -5,6 +6,7 @@ import { Gift, Sparkles } from 'lucide-react';
 import { Z_INDEX } from '../../styles/zIndex';
 import { Confetti } from './Confetti';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
+import { playFanfareSound, playLevelUpSound } from '../../utils/sounds';
 
 interface DailyRewardModalProps {
   isOpen: boolean;
@@ -21,6 +23,15 @@ export function DailyRewardModal({ isOpen, coinsAwarded, xpAwarded, isMysteryBon
   const { t } = useTranslation();
   const animatedCoins = useAnimatedNumber(isOpen ? coinsAwarded : 0);
   const animatedXp = useAnimatedNumber(isOpen ? xpAwarded : 0);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (isMysteryBonus) {
+      playLevelUpSound();
+    } else {
+      playFanfareSound();
+    }
+  }, [isOpen, isMysteryBonus]);
 
   return createPortal(
     <AnimatePresence>

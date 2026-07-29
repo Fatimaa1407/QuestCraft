@@ -23,7 +23,7 @@ export interface FriendRequestDto {
   requesterBadgeName: string | null;
 }
 
-export type FriendStatus = 'None' | 'PendingSent' | 'PendingReceived' | 'Friends' | 'Self';
+export type FriendStatus = 'None' | 'PendingSent' | 'PendingReceived' | 'Friends' | 'Declined' | 'Self';
 
 export interface UserSearchResultDto {
   userId: number;

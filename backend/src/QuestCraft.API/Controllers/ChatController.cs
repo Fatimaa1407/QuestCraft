@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using QuestCraft.Application.Common.Models;
 using QuestCraft.Application.Features.Chat;
 
@@ -34,6 +35,7 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost("{userId:int}")]
+    [EnableRateLimiting("chatMessage")]
     public async Task<ActionResult<ApiResponse<ChatMessageDto>>> SendMessage(int userId, SendChatMessageRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new SendChatMessageCommand(userId, request.Content), cancellationToken);

@@ -54,7 +54,12 @@ public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, L
         {
             var allTime = await _context.UserProfiles
                 .Include(p => p.User)
-                .OrderByDescending(p => p.Xp)
+                .Where(p => p.User.IsActive)
+                // UserId as a deterministic tie-break — otherwise SQL Server's order among equal-Xp
+                // rows isn't guaranteed stable, so ties could visibly "swap places" between the 30s
+                // cache refreshes even with no actual Xp change, and this rank must also stay
+                // consistent with GetMyRankQuery's own-rank computation, which uses the same tie-break.
+                .OrderByDescending(p => p.Xp).ThenBy(p => p.UserId)
                 .Take(request.Top)
                 .Select(p => new
                 {
@@ -89,7 +94,7 @@ public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, L
             .Where(x => x.EarnedAt >= periodStart)
             .GroupBy(x => x.UserId)
             .Select(g => new { UserId = g.Key, Xp = g.Sum(x => x.Amount) })
-            .OrderByDescending(g => g.Xp)
+            .OrderByDescending(g => g.Xp).ThenBy(g => g.UserId)
             .Take(request.Top)
             .ToListAsync(cancellationToken);
 
@@ -100,7 +105,7 @@ public class GetLeaderboardQueryHandler : IRequestHandler<GetLeaderboardQuery, L
             .Include(p => p.EquippedFrame)
             .Include(p => p.EquippedTitle)
             .Include(p => p.EquippedBadge)
-            .Where(p => userIds.Contains(p.UserId))
+            .Where(p => userIds.Contains(p.UserId) && p.User.IsActive)
             .ToDictionaryAsync(p => p.UserId, cancellationToken);
 
         return grouped

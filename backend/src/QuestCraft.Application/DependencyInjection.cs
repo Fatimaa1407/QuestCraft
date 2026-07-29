@@ -16,6 +16,8 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        // Wraps outside TransactionBehavior so a retry gets a genuinely fresh transaction each time.
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ConcurrencyRetryBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditLoggingBehavior<,>));
 

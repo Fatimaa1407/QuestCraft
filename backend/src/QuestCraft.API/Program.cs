@@ -93,6 +93,46 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 
+    // Partitioned per authenticated user (not IP) — chat/friend-request spam is an account-abuse
+    // problem, and IP-partitioning would also unfairly throttle everyone behind the same school/NAT.
+    options.AddPolicy("chatMessage", httpContext =>
+    {
+        var key = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 20,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+        });
+    });
+
+    options.AddPolicy("friendRequest", httpContext =>
+    {
+        var key = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+        });
+    });
+
+    // Each request here spawns a `dotnet build` plus one `dotnet run` per test case — real work, not
+    // just a DB write — so this bounds how much compute a single account can burn per minute.
+    options.AddPolicy("codeExecution", httpContext =>
+    {
+        var key = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 15,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+        });
+    });
+
     options.OnRejected = async (rejectedContext, cancellationToken) =>
     {
         rejectedContext.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;

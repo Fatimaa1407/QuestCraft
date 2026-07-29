@@ -1724,6 +1724,10 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
                     b.Property<int>("Xp")
                         .HasColumnType("int");
 

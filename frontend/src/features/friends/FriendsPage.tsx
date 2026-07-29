@@ -122,6 +122,12 @@ export function FriendsPage() {
                         {t('friends.alreadyFriends')}
                       </span>
                     )}
+                    {r.friendStatus === 'Declined' && (
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400" title={t('friends.declinedHint')}>
+                        <UserX size={13} />
+                        {t('friends.declined')}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

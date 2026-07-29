@@ -9,6 +9,7 @@ import { deleteChallenge, getDeletedChallenges, restoreChallenge } from '../../a
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { QueryErrorState } from '../../components/ui/QueryErrorState';
 import { fadeInUp } from '../../utils/motion';
 import { showToast } from '../../app/toastStore';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -90,6 +91,12 @@ export function ChallengesAdminPage() {
                   </td>
                 </tr>
               ))
+            ) : listQuery.isError ? (
+              <tr>
+                <td colSpan={6} className="px-3 py-6">
+                  <QueryErrorState bare onRetry={() => listQuery.refetch()} />
+                </td>
+              </tr>
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-3 py-6">

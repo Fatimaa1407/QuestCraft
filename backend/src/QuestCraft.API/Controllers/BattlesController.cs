@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using QuestCraft.Application.Common.Models;
 using QuestCraft.Application.Features.Battles;
 
@@ -82,6 +83,7 @@ public class BattlesController : ControllerBase
     }
 
     [HttpPost("{id:int}/submit")]
+    [EnableRateLimiting("codeExecution")]
     public async Task<ActionResult<ApiResponse<BattleSubmissionResultDto>>> Submit(int id, SubmitBattleRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new SubmitBattleSolutionCommand(id, request.SourceCode), cancellationToken);

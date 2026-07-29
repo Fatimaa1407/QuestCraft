@@ -18,6 +18,8 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { TextField } from '../../components/ui/TextField';
 import { Textarea } from '../../components/ui/Textarea';
 import { Select } from '../../components/ui/Select';
+import { showToast } from '../../app/toastStore';
+import { getApiErrorMessage } from '../../utils/apiError';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 
 const emptyForm: ChallengePayload = {
@@ -76,6 +78,7 @@ export function ChallengeEditPage() {
         queryClient.invalidateQueries({ queryKey: ['admin-challenge', challengeId] });
       }
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' }),
   });
 
   const handleSubmit = (event: FormEvent) => {
@@ -235,11 +238,13 @@ function TestCaseManager({
       invalidate();
       setNewCase({ input: '', expectedOutput: '', isHidden: false, weight: 1 });
     },
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: ({ id, isHidden }: { id: number; isHidden: boolean }) => deleteTestCase(id, isHidden),
     onSuccess: invalidate,
+    onError: (err) => showToast({ title: getApiErrorMessage(err, t('admin.actionError')), emoji: '⚠️' }),
   });
 
   const allCases = [

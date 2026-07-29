@@ -53,4 +53,7 @@ export interface BattleSubmissionResultDto {
   totalTestCases: number;
   compileErrorMessage: string | null;
   battle: BattleDto;
+  myXp: number;
+  myCoins: number;
+  myLevel: number;
 }

@@ -26,6 +26,7 @@ export function BattleRoomPage() {
   const { id } = useParams<{ id: string }>();
   const battleId = Number(id);
   const currentUser = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
   const theme = useThemeStore((s) => s.theme);
   const queryClient = useQueryClient();
 
@@ -87,6 +88,7 @@ export function BattleRoomPage() {
       setActionError(null);
       if (!result) return;
       queryClient.setQueryData(['battle', battleId], result.battle);
+      updateUser({ xp: result.myXp, coins: result.myCoins, level: result.myLevel });
       if (result.allPassed) {
         playFanfareSound();
       } else {

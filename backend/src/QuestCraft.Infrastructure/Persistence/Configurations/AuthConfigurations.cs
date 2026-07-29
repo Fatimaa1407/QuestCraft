@@ -52,6 +52,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
     public void Configure(EntityTypeBuilder<UserProfile> builder)
     {
         builder.HasIndex(p => p.UserId).IsUnique();
+        builder.Property(p => p.Version).IsConcurrencyToken();
 
         builder.HasOne(p => p.User)
             .WithOne(u => u.Profile)

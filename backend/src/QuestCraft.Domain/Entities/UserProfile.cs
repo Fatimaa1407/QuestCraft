@@ -40,4 +40,14 @@ public class UserProfile : BaseEntity
     public int? DailyGoalChallenges { get; set; }
     public int? DailyGoalXp { get; set; }
     public int? DailyGoalBattles { get; set; }
+
+    // Optimistic-concurrency token, auto-incremented in ApplicationDbContext.SaveChangesAsync for
+    // every Modified UserProfile (not manually touched by individual handlers — easy to forget, and
+    // this way nothing new added later can accidentally skip it). Every Xp/Coins-granting handler
+    // (challenge/quiz solve, purchase, daily quest claim, achievement unlock, battle win, ...) reads
+    // this profile then writes back to it — without a concurrency token, two simultaneous grants both
+    // read the same starting balance and the second write silently clobbers the first (a real,
+    // exploitable double-XP/double-spend bug several handlers had). ConcurrencyRetryBehavior catches
+    // the resulting DbUpdateConcurrencyException and retries the whole command against fresh data.
+    public int Version { get; set; }
 }

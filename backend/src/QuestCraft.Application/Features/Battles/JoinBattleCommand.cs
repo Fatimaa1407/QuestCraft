@@ -80,7 +80,6 @@ public class JoinBattleCommandHandler : IRequestHandler<JoinBattleCommand, Battl
         // forces an UPDATE statement here, which is what lets Battle.Version actually catch two people
         // racing for the last open slot (a bare participant INSERT never touches the Battle row).
         battle.ParticipantCount = battle.Participants.Count;
-        battle.Version++;
 
         try
         {

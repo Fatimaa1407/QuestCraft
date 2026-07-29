@@ -13,15 +13,6 @@ namespace QuestCraft.Infrastructure.CodeExecution;
 /// </summary>
 public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
 {
-    // Best-effort deny-list: catches obviously dangerous APIs without pretending to be a full sandbox.
-    private static readonly string[] BannedTokens =
-    [
-        "System.IO.File", "System.IO.Directory", "System.IO.FileStream",
-        "System.Diagnostics.Process", "System.Net.", "System.Net.Http",
-        "Environment.Exit", "Environment.GetEnvironmentVariable", "DllImport",
-        "unsafe ", "System.Reflection.Emit", "AppDomain", "System.Runtime.InteropServices",
-    ];
-
     public async Task<CodeExecutionResult> ExecuteAsync(
         string sourceCode,
         IReadOnlyList<TestCaseInput> testCases,
@@ -29,12 +20,16 @@ public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
         int memoryLimitMb,
         CancellationToken cancellationToken)
     {
-        var bannedToken = BannedTokens.FirstOrDefault(sourceCode.Contains);
-        if (bannedToken is not null)
+        // Resolves every identifier through Roslyn's semantic model rather than a raw substring
+        // search, so aliasing (`using IO = System.IO;`) or building a banned name via string
+        // concatenation no longer bypasses it — see SafeApiAnalyzer's doc comment for what this
+        // still doesn't cover.
+        var bannedApi = SafeApiAnalyzer.FindBannedApiUsage(sourceCode);
+        if (bannedApi is not null)
         {
             return new CodeExecutionResult(
                 SubmissionVerdict.CompileError, 0, 0,
-                $"Qadağan edilmiş API istifadə olunub: \"{bannedToken}\". Bu platforma yalnız stdin/stdout ilə işləyən sadə konsol proqramlarına icazə verir.",
+                $"Qadağan edilmiş API istifadə olunub: \"{bannedApi}\". Bu platforma yalnız stdin/stdout ilə işləyən sadə konsol proqramlarına icazə verir.",
                 []);
         }
 
@@ -73,7 +68,7 @@ public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var run = await RunProcessAsync("dotnet", $"\"{dllPath}\"", outDir, testCase.Input, timeLimitMs, memoryLimitMb, cancellationToken);
+                var run = await RunProcessAsync("dotnet", $"\"{dllPath}\"", outDir, testCase.Input, timeLimitMs, memoryLimitMb, cancellationToken, isolateEnvironment: true);
                 maxExecutionTimeMs = Math.Max(maxExecutionTimeMs, run.ElapsedMs);
                 maxMemoryKb = Math.Max(maxMemoryKb, run.PeakMemoryKb);
 
@@ -183,9 +178,15 @@ public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
 
     private record ProcessRunResult(int ExitCode, string Stdout, string Stderr, bool TimedOut, bool MemoryExceeded, int ElapsedMs, int PeakMemoryKb);
 
+    // Env vars a child process needs merely to launch and locate the .NET runtime on Windows — not
+    // secrets, unlike the connection string/JWT signing key this API process itself reads from its
+    // own environment per the "no secrets in appsettings.json" convention (see JwtSettings/Program.cs).
+    private static readonly string[] MinimalEnvironmentPassthrough =
+        ["PATH", "SystemRoot", "windir", "DOTNET_ROOT", "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432", "TEMP", "TMP"];
+
     private static async Task<ProcessRunResult> RunProcessAsync(
         string fileName, string arguments, string workingDirectory, string? stdin,
-        int timeLimitMs, int memoryLimitMb, CancellationToken cancellationToken)
+        int timeLimitMs, int memoryLimitMb, CancellationToken cancellationToken, bool isolateEnvironment = false)
     {
         using var process = new Process
         {
@@ -204,6 +205,25 @@ public class SubprocessCodeExecutionEngine : ICodeExecutionEngine
                 CreateNoWindow = true,
             },
         };
+
+        // The submitted program is what actually runs here (as opposed to the build step above, where
+        // only the trusted compiler processes the source text) — strip the API process's own
+        // environment so a submission that finds some way to read env vars never sees the DB
+        // connection string / JWT secret this process was started with, regardless of whether
+        // SafeApiAnalyzer already caught the specific API used to read them.
+        if (isolateEnvironment)
+        {
+            process.StartInfo.EnvironmentVariables.Clear();
+            foreach (var name in MinimalEnvironmentPassthrough)
+            {
+                var value = Environment.GetEnvironmentVariable(name);
+                if (value is not null)
+                {
+                    process.StartInfo.EnvironmentVariables[name] = value;
+                }
+            }
+        }
+
         process.StartInfo.EnvironmentVariables["DOTNET_NOLOGO"] = "1";
         process.StartInfo.EnvironmentVariables["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
 

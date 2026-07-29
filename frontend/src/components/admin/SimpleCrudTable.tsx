@@ -10,6 +10,7 @@ import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
 import { Skeleton } from '../ui/Skeleton';
 import { EmptyState } from '../ui/EmptyState';
+import { QueryErrorState } from '../ui/QueryErrorState';
 import { fadeInUp } from '../../utils/motion';
 import { showToast } from '../../app/toastStore';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -192,6 +193,12 @@ export function SimpleCrudTable({ queryKey, title, addLabel, columns, fields, ap
                   </td>
                 </tr>
               ))
+            ) : listQuery.isError ? (
+              <tr>
+                <td colSpan={columns.length + 1} className="px-3 py-6">
+                  <QueryErrorState bare onRetry={() => listQuery.refetch()} />
+                </td>
+              </tr>
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={columns.length + 1} className="px-3 py-6">

@@ -13,6 +13,10 @@ public interface IApplicationDbContext
     // lets a handler discard a losing entity's pending change without a second round-trip.
     EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
 
+    // Detaches every tracked entity — used by ConcurrencyRetryBehavior between retry attempts so the
+    // re-run handler re-reads current database state instead of reusing stale/conflicted instances.
+    void ClearChangeTracking();
+
     DbSet<Role> Roles { get; }
     DbSet<User> Users { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
