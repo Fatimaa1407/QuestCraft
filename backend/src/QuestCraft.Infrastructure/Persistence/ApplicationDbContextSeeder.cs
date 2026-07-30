@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuestCraft.Application.Common.Interfaces;
+using QuestCraft.Application.Features.Gamification;
 using QuestCraft.Domain.Entities;
 using QuestCraft.Domain.Enums;
 
@@ -23,6 +24,7 @@ public static class ApplicationDbContextSeeder
         await SeedDailyPuzzleChallengesAsync(context);
         await SeedMarketplaceItemTypesAsync(context);
         await SeedMarketplaceItemsAsync(context);
+        await SeedGameCompletionRewardItemsAsync(context);
         // Committed immediately so SeedMarketplaceBundlesAsync can look up items by real Id right after.
         await context.SaveChangesAsync();
         await SeedMarketplaceBundlesAsync(context);
@@ -586,6 +588,50 @@ public static class ApplicationDbContextSeeder
             new MarketplaceItem { Name = "Qalaktika Banneri", NameEn = "Galaxy Banner", Description = "Profil başlığını ulduzlu qalaktika mənzərəsi ilə bəzəyir.", DescriptionEn = "Decorates your profile header with a starry galaxy scene.", ItemTypeId = bannerTypeId, Price = 75, ImageUrl = galaxyBannerSvg },
             new MarketplaceItem { Name = "Alqoritm Ustası", NameEn = "Algorithm Master", Description = "Adının yanında görünən \"Alqoritm Ustası\" rütbəsi — irəliləmiş səviyyələri tamamlayanlar üçün.", DescriptionEn = "The \"Algorithm Master\" title shown next to your name — for those who complete the advanced levels.", ItemTypeId = titleTypeId, Price = 200 },
             new MarketplaceItem { Name = "Yüzlük Nişanı", NameEn = "Century Badge", Description = "Adının yanında görünən qızıl nişan — davamlılığını göstərir.", DescriptionEn = "A gold badge shown next to your name — a mark of persistence.", ItemTypeId = badgeTypeId, Price = 150, ImageUrl = centuryBadgeSvg }
+        );
+    }
+
+    // Reward-only cosmetics granted exclusively by GameCompletionService the first time a user finishes
+    // every challenge and quiz at the game's current max level — never purchasable (IsActive = false
+    // keeps them out of GetMarketplaceItemsQuery's shop listing) and never gated by SeedMarketplaceItemsAsync's
+    // "table already has rows" check, so this keeps applying on top of an already-seeded database.
+    private static async Task SeedGameCompletionRewardItemsAsync(ApplicationDbContext context)
+    {
+        var titleName = GameCompletionService.TitleItemName;
+        var badgeName = GameCompletionService.BadgeItemName;
+
+        if (await context.MarketplaceItems.AnyAsync(i => i.Name == titleName || i.Name == badgeName))
+        {
+            return;
+        }
+
+        var titleTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Title").Select(t => t.Id).FirstAsync();
+        var badgeTypeId = await context.MarketplaceItemTypes.Where(t => t.Name == "Badge").Select(t => t.Id).FirstAsync();
+
+        const string questMasterBadgeSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KICA8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZGU2OGEiLz48c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2Y1OWUwYiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2I0NTMwOSIvPgogIDwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPgogIDxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjMwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHRleHQgeD0iMzIiIHk9IjQyIiBmb250LXNpemU9IjI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4mIzEyODA4MTs8L3RleHQ+Cjwvc3ZnPg==";
+
+        context.MarketplaceItems.AddRange(
+            new MarketplaceItem
+            {
+                Name = titleName,
+                NameEn = titleName,
+                Description = "QuestCraft-dakı bütün səviyyələri 100% tamamlayanlara verilən xüsusi rütbə.",
+                DescriptionEn = "A special title awarded for completing 100% of every QuestCraft level.",
+                ItemTypeId = titleTypeId,
+                Price = 0,
+                IsActive = false,
+            },
+            new MarketplaceItem
+            {
+                Name = badgeName,
+                NameEn = badgeName,
+                Description = "Bütün QuestCraft məzmununu tamamladığını göstərən daimi qızıl nişan.",
+                DescriptionEn = "A permanent gold badge marking that you've completed all QuestCraft content.",
+                ItemTypeId = badgeTypeId,
+                Price = 0,
+                IsActive = false,
+                ImageUrl = questMasterBadgeSvg,
+            }
         );
     }
 

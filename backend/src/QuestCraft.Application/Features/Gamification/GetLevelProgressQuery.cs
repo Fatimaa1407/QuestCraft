@@ -7,13 +7,14 @@ namespace QuestCraft.Application.Features.Gamification;
 
 public record LevelProgressDto(
     int Level,
+    int MaxLevel,
     int ChallengesCompleted,
     int ChallengesTotal,
     int QuizzesCompleted,
     int QuizzesTotal,
     int OverallCompleted,
     int OverallTotal,
-    bool IsMaxLevel);
+    bool IsGameComplete);
 
 public record GetLevelProgressQuery : IQuery<LevelProgressDto>;
 
@@ -42,6 +43,7 @@ public class GetLevelProgressQueryHandler : IRequestHandler<GetLevelProgressQuer
             level = 1;
         }
 
+        var maxLevel = await _completionService.GetMaxAvailableLevelAsync(cancellationToken);
         var completion = await _completionService.GetLevelCompletionAsync(userId, level, cancellationToken);
 
         // Self-healing safety net: the stored Level is normally advanced as a side effect of
@@ -50,7 +52,9 @@ public class GetLevelProgressQueryHandler : IRequestHandler<GetLevelProgressQuer
         // changes what counts toward a level after the user already finished it, with no new
         // submission left to re-trigger the check — just viewing this panel corrects it here too,
         // so a stale Level can never persist indefinitely without the user needing to act first.
-        if (completion.IsComplete && profile is not null)
+        // Capped at maxLevel so a fully-finished final level is never advanced past it — see
+        // GameCompletionService for the one-time reward that fires instead of a further level-up.
+        if (completion.IsComplete && profile is not null && level < maxLevel)
         {
             var unlockedLevel = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
             if (unlockedLevel > level)
@@ -62,14 +66,17 @@ public class GetLevelProgressQueryHandler : IRequestHandler<GetLevelProgressQuer
             }
         }
 
+        var isGameComplete = level >= maxLevel && completion.IsComplete;
+
         return new LevelProgressDto(
             level,
+            maxLevel,
             completion.ChallengesCompleted,
             completion.ChallengesTotal,
             completion.QuizzesCompleted,
             completion.QuizzesTotal,
             completion.TotalCompleted,
             completion.TotalItems,
-            completion.TotalItems == 0);
+            isGameComplete);
     }
 }

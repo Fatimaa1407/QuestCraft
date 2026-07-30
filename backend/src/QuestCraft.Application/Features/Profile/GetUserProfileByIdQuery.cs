@@ -46,6 +46,7 @@ public class GetUserProfileByIdQueryHandler : IRequestHandler<GetUserProfileById
             TitleText: profile.EquippedTitle is null ? null : LocalizationHelper.Pick(profile.EquippedTitle.Name, profile.EquippedTitle.NameEn, isEnglish),
             BadgeImageUrl: profile.EquippedBadge?.ImageUrl,
             BadgeName: profile.EquippedBadge is null ? null : LocalizationHelper.Pick(profile.EquippedBadge.Name, profile.EquippedBadge.NameEn, isEnglish),
-            JoinedAt: profile.User.CreatedAt);
+            JoinedAt: profile.User.CreatedAt,
+            IsGameComplete: profile.GameCompletedAt is not null);
     }
 }

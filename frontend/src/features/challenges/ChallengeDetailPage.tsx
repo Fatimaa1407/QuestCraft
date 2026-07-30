@@ -17,6 +17,7 @@ import { Confetti } from '../../components/ui/Confetti';
 import { FloatingXp } from '../../components/ui/FloatingXp';
 import { ChallengeCompleteModal } from '../../components/ui/ChallengeCompleteModal';
 import { LevelUpModal } from '../../components/ui/LevelUpModal';
+import { GameCompleteModal } from '../../components/ui/GameCompleteModal';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { SuccessSweep } from '../../components/ui/SuccessSweep';
 import { playFanfareSound } from '../../utils/sounds';
@@ -65,6 +66,7 @@ export function ChallengeDetailPage() {
   const [submitResult, setSubmitResult] = useState<SubmissionResultDto | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [levelUpInfo, setLevelUpInfo] = useState<SubmissionResultDto | null>(null);
+  const [gameCompleteInfo, setGameCompleteInfo] = useState<SubmissionResultDto | null>(null);
   const [celebrate, setCelebrate] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
@@ -157,7 +159,9 @@ export function ChallengeDetailPage() {
           totalTestCases={submitResult.totalTestCases}
           onContinue={() => {
             setShowCompleteModal(false);
-            if (submitResult.level > submitResult.previousLevel) {
+            if (submitResult.gameCompletion) {
+              setGameCompleteInfo(submitResult);
+            } else if (submitResult.level > submitResult.previousLevel) {
               setLevelUpInfo(submitResult);
             }
           }}
@@ -316,6 +320,25 @@ export function ChallengeDetailPage() {
           onContinue={() => {
             setLevelUpInfo(null);
             navigate('/challenges');
+          }}
+        />
+      )}
+
+      {gameCompleteInfo?.gameCompletion && (
+        <GameCompleteModal
+          isOpen
+          maxLevel={gameCompleteInfo.gameCompletion.maxLevel}
+          bonusCoins={gameCompleteInfo.gameCompletion.bonusCoins}
+          titleText={gameCompleteInfo.gameCompletion.titleText}
+          badgeImageUrl={gameCompleteInfo.gameCompletion.badgeImageUrl}
+          badgeName={gameCompleteInfo.gameCompletion.badgeName}
+          onGoDashboard={() => {
+            setGameCompleteInfo(null);
+            navigate('/');
+          }}
+          onViewProfile={() => {
+            setGameCompleteInfo(null);
+            navigate('/profile');
           }}
         />
       )}

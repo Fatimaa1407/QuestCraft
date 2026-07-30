@@ -32,13 +32,22 @@ export interface Achievement {
 
 export interface LevelProgress {
   level: number;
+  maxLevel: number;
   challengesCompleted: number;
   challengesTotal: number;
   quizzesCompleted: number;
   quizzesTotal: number;
   overallCompleted: number;
   overallTotal: number;
-  isMaxLevel: boolean;
+  isGameComplete: boolean;
+}
+
+export interface GameCompletionRewardDto {
+  maxLevel: number;
+  bonusCoins: number;
+  titleText: string | null;
+  badgeImageUrl: string | null;
+  badgeName: string | null;
 }
 
 export type LeaderboardPeriod = 'Daily' | 'Weekly' | 'Monthly' | 'AllTime';

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck, CalendarDays, UserPlus, UserCheck, BellOff } from 'lucide-react';
+import { Bell, Sparkles, Gift, TrendingUp, ShoppingBag, Info, CheckCheck, CalendarDays, UserPlus, UserCheck, BellOff, Trophy } from 'lucide-react';
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/notifications';
 import { getMyEquippedCosmetics } from '../../api/marketplace';
 import { useAuthStore } from '../../app/authStore';
@@ -56,6 +56,7 @@ const iconByType: Record<NotificationType, typeof Sparkles> = {
   WeeklyRecap: CalendarDays,
   FriendRequest: UserPlus,
   FriendRequestAccepted: UserCheck,
+  GameCompleted: Trophy,
 };
 
 const PANEL_WIDTH = 320;

@@ -1,3 +1,5 @@
+using QuestCraft.Application.Features.Gamification;
+
 namespace QuestCraft.Application.Features.Quizzes;
 
 public record QuizAnswerInput(int QuestionId, int? SelectedOptionId);
@@ -16,6 +18,7 @@ public record QuizAttemptResultDto(
     int Level,
     int PreviousLevel,
     int NewChallengesUnlocked,
-    int NewQuizzesUnlocked);
+    int NewQuizzesUnlocked,
+    GameCompletionRewardDto? GameCompletion);
 
 public record QuizAttemptListItemDto(int Id, int QuizId, string QuizTitle, int Score, int TotalQuestions, int XpEarned, DateTime CompletedAt);

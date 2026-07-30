@@ -1,3 +1,5 @@
+import type { GameCompletionRewardDto } from './gamification';
+
 export type SubmissionVerdict = 'Pending' | 'Accepted' | 'WrongAnswer' | 'TimeLimitExceeded' | 'RuntimeError' | 'CompileError';
 
 export interface SubmissionListItem {
@@ -67,4 +69,5 @@ export interface SubmissionResultDto {
   previousLevel: number;
   newChallengesUnlocked: number;
   newQuizzesUnlocked: number;
+  gameCompletion: GameCompletionRewardDto | null;
 }

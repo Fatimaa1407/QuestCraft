@@ -13,6 +13,7 @@ import { Confetti } from '../../components/ui/Confetti';
 import { FloatingXp } from '../../components/ui/FloatingXp';
 import { QuizCompleteModal } from '../../components/ui/QuizCompleteModal';
 import { LevelUpModal } from '../../components/ui/LevelUpModal';
+import { GameCompleteModal } from '../../components/ui/GameCompleteModal';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { playSuccessSound, playErrorSound, playFanfareSound } from '../../utils/sounds';
@@ -41,6 +42,7 @@ export function QuizAttemptPage() {
   const [showModal, setShowModal] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
+  const [showGameCompleteModal, setShowGameCompleteModal] = useState(false);
   const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const submitMutation = useMutation({
@@ -138,7 +140,9 @@ export function QuizAttemptPage() {
             totalQuestions={result.totalQuestions}
             onContinue={() => {
               setShowModal(false);
-              if (result.level > result.previousLevel) {
+              if (result.gameCompletion) {
+                setShowGameCompleteModal(true);
+              } else if (result.level > result.previousLevel) {
                 setShowLevelUpModal(true);
               }
             }}
@@ -157,6 +161,25 @@ export function QuizAttemptPage() {
             onContinue={() => {
               setShowLevelUpModal(false);
               navigate('/challenges');
+            }}
+          />
+        )}
+
+        {showGameCompleteModal && result.gameCompletion && (
+          <GameCompleteModal
+            isOpen
+            maxLevel={result.gameCompletion.maxLevel}
+            bonusCoins={result.gameCompletion.bonusCoins}
+            titleText={result.gameCompletion.titleText}
+            badgeImageUrl={result.gameCompletion.badgeImageUrl}
+            badgeName={result.gameCompletion.badgeName}
+            onGoDashboard={() => {
+              setShowGameCompleteModal(false);
+              navigate('/');
+            }}
+            onViewProfile={() => {
+              setShowGameCompleteModal(false);
+              navigate('/profile');
             }}
           />
         )}

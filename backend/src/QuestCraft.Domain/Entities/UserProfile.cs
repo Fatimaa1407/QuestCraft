@@ -35,6 +35,12 @@ public class UserProfile : BaseEntity
     // to decide claim eligibility, mirrors Streak.LastActivityDate's nullable-DateOnly pattern.
     public DateOnly? LastLoginRewardClaimedAt { get; set; }
 
+    // Stamped once, permanently, the first time a user finishes every challenge and quiz at the
+    // game's current max level (see IContentCompletionService.GetMaxAvailableLevelAsync). Doubles as
+    // the idempotency guard for GameCompletionService's one-time coin/title/badge grant — never
+    // cleared even if higher-level content is published later, so "100% Completed" stays permanent.
+    public DateTime? GameCompletedAt { get; set; }
+
     // User-configured daily targets; null means the user hasn't set that goal. Progress against these
     // is computed statelessly from today's ChallengeSubmission/XpTransaction/BattleParticipant rows.
     public int? DailyGoalChallenges { get; set; }

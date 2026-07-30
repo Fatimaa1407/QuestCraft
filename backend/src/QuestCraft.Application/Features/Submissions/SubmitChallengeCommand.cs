@@ -30,6 +30,7 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
     private readonly IDailyQuestService _dailyQuestService;
     private readonly IAchievementEvaluator _achievementEvaluator;
     private readonly IContentCompletionService _completionService;
+    private readonly IGameCompletionService _gameCompletionService;
     private readonly IRealtimeNotifier _realtimeNotifier;
 
     public SubmitChallengeCommandHandler(
@@ -39,6 +40,7 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
         IDailyQuestService dailyQuestService,
         IAchievementEvaluator achievementEvaluator,
         IContentCompletionService completionService,
+        IGameCompletionService gameCompletionService,
         IRealtimeNotifier realtimeNotifier)
     {
         _context = context;
@@ -47,6 +49,7 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
         _dailyQuestService = dailyQuestService;
         _achievementEvaluator = achievementEvaluator;
         _completionService = completionService;
+        _gameCompletionService = gameCompletionService;
         _realtimeNotifier = realtimeNotifier;
     }
 
@@ -222,10 +225,13 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
         }
 
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
+        var gameCompletion = profile is not null
+            ? await _gameCompletionService.TryGrantCompletionRewardAsync(userId, cancellationToken)
+            : null;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        if ((profile is not null && profile.Level > previousLevel) || newAchievements.Count > 0)
+        if ((profile is not null && profile.Level > previousLevel) || newAchievements.Count > 0 || gameCompletion is not null)
         {
             await _realtimeNotifier.NotifyNewNotification(userId, cancellationToken);
         }
@@ -252,7 +258,8 @@ public class SubmitChallengeCommandHandler : IRequestHandler<SubmitChallengeComm
             profile?.Level ?? 1,
             previousLevel,
             newChallengesUnlocked,
-            newQuizzesUnlocked);
+            newQuizzesUnlocked,
+            gameCompletion);
     }
 
     private static string GetInput(Challenge challenge, int testCaseId) =>

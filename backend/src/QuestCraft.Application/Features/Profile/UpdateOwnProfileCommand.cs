@@ -40,6 +40,6 @@ public class UpdateOwnProfileCommandHandler : IRequestHandler<UpdateOwnProfileCo
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new MyProfileDto(profile.Bio, profile.AvatarUrl);
+        return new MyProfileDto(profile.Bio, profile.AvatarUrl, profile.GameCompletedAt is not null);
     }
 }

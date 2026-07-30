@@ -1,3 +1,5 @@
+import type { GameCompletionRewardDto } from './gamification';
+
 export interface QuizAttemptListItem {
   id: number;
   quizId: number;
@@ -66,4 +68,5 @@ export interface QuizAttemptResultDto {
   previousLevel: number;
   newChallengesUnlocked: number;
   newQuizzesUnlocked: number;
+  gameCompletion: GameCompletionRewardDto | null;
 }

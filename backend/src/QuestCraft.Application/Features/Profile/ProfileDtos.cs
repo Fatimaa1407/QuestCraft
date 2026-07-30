@@ -1,6 +1,6 @@
 namespace QuestCraft.Application.Features.Profile;
 
-public record MyProfileDto(string? Bio, string? AvatarUrl);
+public record MyProfileDto(string? Bio, string? AvatarUrl, bool IsGameComplete);
 
 public record PublicProfileDto(
     int UserId,
@@ -14,7 +14,8 @@ public record PublicProfileDto(
     string? TitleText,
     string? BadgeImageUrl,
     string? BadgeName,
-    DateTime JoinedAt);
+    DateTime JoinedAt,
+    bool IsGameComplete);
 
 public record EquippedCosmeticsDto(
     string? AvatarUrl,

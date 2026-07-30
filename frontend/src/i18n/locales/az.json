@@ -255,6 +255,7 @@
     "pinError": "Əməliyyat uğursuz oldu."
   },
   "profile": {
+    "gameComplete": "100% Tamamlandı",
     "equippedTitle": "Taxılmış Əşyalar",
     "inventoryTitle": "İnventar (Digər Sahib Olunan Əşyalar)",
     "changeInShop": "Mağazada dəyiş",
@@ -414,7 +415,7 @@
     "levelProgressQuizzes": "Quiz-lər",
     "levelProgressOverall": "Ümumi Proqres",
     "levelProgressUnlockHint": "Level {{level}} açılması üçün bu {{total}} tapşırığın hamısını tamamla.",
-    "levelProgressMax": "Bu levelin bütün məzmununu tamamlamısan! Yeni məzmun gözlə.",
+    "levelProgressGameComplete": "Bütün mövcud QuestCraft məzmununu tamamladın! Yeni çağırışlar gələcək yeniləmələrdə əlavə olunacaq.",
     "comingSoon": "Challenge, Quiz və Marketplace səhifələri növbəti mərhələlərdə əlavə olunacaq.",
     "dailyQuests": "Gündəlik Tapşırıqlar",
     "noQuests": "Bugün üçün tapşırıq yoxdur.",
@@ -633,6 +634,17 @@
     "challengesUnlocked": "{{count}} Yeni Çağırış Açıldı",
     "quizzesUnlocked": "{{count}} Yeni Test Açıldı",
     "continue": "Davam et"
+  },
+  "gameComplete": {
+    "title": "🎉 Təbriklər!",
+    "subtitle": "Bütün QuestCraft məzmununu tamamladın.",
+    "progressLabel": "Proqres",
+    "maxLevelReached": "Maksimum Səviyyəyə Çatdın: {{level}}",
+    "titleUnlocked": "\"{{title}}\" rütbəsi açıldı",
+    "bonusCoins": "+{{coins}} bonus Coin",
+    "badgeUnlocked": "\"{{badge}}\" nişanı açıldı",
+    "viewProfile": "Profilə bax",
+    "goDashboard": "Dashboarda keç"
   },
   "dailyReward": {
     "title": "Gündəlik Mükafat!",

@@ -23,14 +23,18 @@ public interface IContentCompletionService
     Task<LevelCompletion> GetLevelCompletionAsync(int userId, int level, CancellationToken cancellationToken);
 
     /// <summary>The highest level a user has unlocked: 1 + however many consecutive levels (starting at 1)
-    /// they've 100% completed. Stops at the first incomplete or empty (no content yet) level.</summary>
+    /// they've 100% completed, capped at <see cref="GetMaxAvailableLevelAsync"/> — a user can never be
+    /// advanced past the highest level that actually has published content.</summary>
     Task<int> CalculateUnlockedLevelAsync(int userId, CancellationToken cancellationToken);
+
+    /// <summary>The highest RequiredLevel among any published challenge or quiz — the game's current content
+    /// ceiling. Never hardcoded: as soon as an admin publishes higher-level content, this (and therefore
+    /// everywhere that caps against it) picks it up automatically. Defaults to 1 if nothing is published yet.</summary>
+    Task<int> GetMaxAvailableLevelAsync(CancellationToken cancellationToken);
 }
 
 public class ContentCompletionService : IContentCompletionService
 {
-    private const int MaxLevelSearchDepth = 100;
-
     private readonly IApplicationDbContext _context;
 
     public ContentCompletionService(IApplicationDbContext context)
@@ -68,8 +72,10 @@ public class ContentCompletionService : IContentCompletionService
 
     public async Task<int> CalculateUnlockedLevelAsync(int userId, CancellationToken cancellationToken)
     {
+        var maxAvailableLevel = await GetMaxAvailableLevelAsync(cancellationToken);
+
         var level = 1;
-        while (level < MaxLevelSearchDepth)
+        while (level < maxAvailableLevel)
         {
             var completion = await GetLevelCompletionAsync(userId, level, cancellationToken);
             if (!completion.IsComplete)
@@ -81,5 +87,20 @@ public class ContentCompletionService : IContentCompletionService
         }
 
         return level;
+    }
+
+    public async Task<int> GetMaxAvailableLevelAsync(CancellationToken cancellationToken)
+    {
+        var maxChallengeLevel = await _context.Challenges
+            .Where(c => c.IsPublished && !c.IsBattleOnly && !c.IsDailyPuzzle)
+            .Select(c => (int?)c.RequiredLevel)
+            .MaxAsync(cancellationToken) ?? 1;
+
+        var maxQuizLevel = await _context.Quizzes
+            .Where(q => q.IsPublished)
+            .Select(q => (int?)q.RequiredLevel)
+            .MaxAsync(cancellationToken) ?? 1;
+
+        return Math.Max(1, Math.Max(maxChallengeLevel, maxQuizLevel));
     }
 }

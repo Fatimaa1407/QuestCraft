@@ -26,6 +26,6 @@ public class GetMyProfileQueryHandler : IRequestHandler<GetMyProfileQuery, MyPro
         var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken)
             ?? throw new NotFoundException(nameof(UserProfile), userId);
 
-        return new MyProfileDto(profile.Bio, profile.AvatarUrl);
+        return new MyProfileDto(profile.Bio, profile.AvatarUrl, profile.GameCompletedAt is not null);
     }
 }

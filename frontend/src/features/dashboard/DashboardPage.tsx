@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Lock, TrendingUp, CalendarDays } from 'lucide-react';
+import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Lock, TrendingUp, CalendarDays, Trophy } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
 import {
@@ -285,11 +285,20 @@ function LevelProgressPanel({ data, isLoading }: { data: LevelProgress | null | 
           <Skeleton className="h-2 w-full" />
           <Skeleton className="h-2 w-full" />
         </div>
-      ) : data.isMaxLevel ? (
-        <p className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-          <CheckCircle2 size={15} />
-          {t('dashboard.levelProgressMax')}
-        </p>
+      ) : data.isGameComplete ? (
+        <div className="space-y-4">
+          <div className="flex items-start gap-2.5 rounded-xl bg-amber-500/10 px-3.5 py-3 text-sm text-amber-700 dark:text-amber-300">
+            <Trophy size={16} className="mt-0.5 shrink-0" />
+            <p className="leading-relaxed">{t('dashboard.levelProgressGameComplete')}</p>
+          </div>
+          <div>
+            <div className="mb-1.5 flex items-center justify-between text-xs">
+              <span className="font-medium text-slate-700 dark:text-slate-200">{t('dashboard.levelProgressOverall')}</span>
+              <span className="font-semibold text-slate-900 dark:text-white">100%</span>
+            </div>
+            <ProgressBar completed={1} total={1} colorClass="bg-gradient-to-r from-amber-400 to-amber-600" />
+          </div>
+        </div>
       ) : (
         <div className="space-y-4">
           <div>

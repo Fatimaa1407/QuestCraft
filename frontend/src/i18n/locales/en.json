@@ -255,6 +255,7 @@
     "pinError": "Action failed."
   },
   "profile": {
+    "gameComplete": "100% Completed",
     "equippedTitle": "Equipped Items",
     "inventoryTitle": "Inventory (Other Owned Items)",
     "changeInShop": "Change in Shop",
@@ -414,7 +415,7 @@
     "levelProgressQuizzes": "Quizzes",
     "levelProgressOverall": "Overall Progress",
     "levelProgressUnlockHint": "Finish all {{total}} items to unlock Level {{level}}.",
-    "levelProgressMax": "You've completed everything in this level! New content coming soon.",
+    "levelProgressGameComplete": "You've completed all currently available QuestCraft content! New challenges will appear in future updates.",
     "comingSoon": "Challenge, Quiz and Marketplace pages will be added in upcoming phases.",
     "dailyQuests": "Daily Quests",
     "noQuests": "No quests for today.",
@@ -633,6 +634,17 @@
     "challengesUnlocked": "{{count}} New Challenges Unlocked",
     "quizzesUnlocked": "{{count}} New Quiz Unlocked",
     "continue": "Continue"
+  },
+  "gameComplete": {
+    "title": "🎉 Congratulations!",
+    "subtitle": "You have completed all QuestCraft content.",
+    "progressLabel": "Progress",
+    "maxLevelReached": "Maximum Level Reached: {{level}}",
+    "titleUnlocked": "\"{{title}}\" title unlocked",
+    "bonusCoins": "+{{coins}} bonus Coins",
+    "badgeUnlocked": "\"{{badge}}\" badge unlocked",
+    "viewProfile": "View Profile",
+    "goDashboard": "Go to Dashboard"
   },
   "dailyReward": {
     "title": "Daily Reward!",

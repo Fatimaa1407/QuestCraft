@@ -7,7 +7,8 @@ export type NotificationType =
   | 'LevelUp'
   | 'WeeklyRecap'
   | 'FriendRequest'
-  | 'FriendRequestAccepted';
+  | 'FriendRequestAccepted'
+  | 'GameCompleted';
 
 export interface AppNotification {
   id: number;

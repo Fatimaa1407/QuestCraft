@@ -34,6 +34,7 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
     private readonly IDailyQuestService _dailyQuestService;
     private readonly IAchievementEvaluator _achievementEvaluator;
     private readonly IContentCompletionService _completionService;
+    private readonly IGameCompletionService _gameCompletionService;
     private readonly IRealtimeNotifier _realtimeNotifier;
 
     public SubmitQuizAttemptCommandHandler(
@@ -42,6 +43,7 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
         IDailyQuestService dailyQuestService,
         IAchievementEvaluator achievementEvaluator,
         IContentCompletionService completionService,
+        IGameCompletionService gameCompletionService,
         IRealtimeNotifier realtimeNotifier)
     {
         _context = context;
@@ -49,6 +51,7 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
         _dailyQuestService = dailyQuestService;
         _achievementEvaluator = achievementEvaluator;
         _completionService = completionService;
+        _gameCompletionService = gameCompletionService;
         _realtimeNotifier = realtimeNotifier;
     }
 
@@ -205,10 +208,13 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
         }
 
         var newAchievements = await _achievementEvaluator.EvaluateAsync(userId, cancellationToken);
+        var gameCompletion = profile is not null
+            ? await _gameCompletionService.TryGrantCompletionRewardAsync(userId, cancellationToken)
+            : null;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        if ((profile is not null && profile.Level > previousLevel) || newAchievements.Count > 0)
+        if ((profile is not null && profile.Level > previousLevel) || newAchievements.Count > 0 || gameCompletion is not null)
         {
             await _realtimeNotifier.NotifyNewNotification(userId, cancellationToken);
         }
@@ -216,6 +222,6 @@ public class SubmitQuizAttemptCommandHandler : IRequestHandler<SubmitQuizAttempt
         return new QuizAttemptResultDto(
             attempt.Id, score, quiz.Questions.Count, xpEarned, questionResults, newAchievements.Select(a => a.Name).ToList(),
             profile?.Xp ?? 0, profile?.Coins ?? 0, profile?.Level ?? 1,
-            previousLevel, newChallengesUnlocked, newQuizzesUnlocked);
+            previousLevel, newChallengesUnlocked, newQuizzesUnlocked, gameCompletion);
     }
 }

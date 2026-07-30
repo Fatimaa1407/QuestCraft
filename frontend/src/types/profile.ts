@@ -1,6 +1,7 @@
 export interface MyProfile {
   bio: string | null;
   avatarUrl: string | null;
+  isGameComplete: boolean;
 }
 
 export interface PublicProfile {
@@ -16,4 +17,5 @@ export interface PublicProfile {
   badgeImageUrl: string | null;
   badgeName: string | null;
   joinedAt: string;
+  isGameComplete: boolean;
 }

@@ -1,3 +1,5 @@
+using QuestCraft.Application.Features.Gamification;
+
 namespace QuestCraft.Application.Features.Submissions;
 
 public record RunTestResultDto(bool Passed, string Input, string ExpectedOutput, string ActualOutput, int ExecutionTimeMs);
@@ -24,6 +26,7 @@ public record SubmissionResultDto(
     int Level,
     int PreviousLevel,
     int NewChallengesUnlocked,
-    int NewQuizzesUnlocked);
+    int NewQuizzesUnlocked,
+    GameCompletionRewardDto? GameCompletion);
 
 public record SubmissionListItemDto(int Id, int ChallengeId, string ChallengeTitle, string Verdict, DateTime SubmittedAt, int ExecutionTimeMs);

@@ -153,6 +153,12 @@ export function ProfilePage() {
                 <span className="rounded-full bg-app-accent/10 px-3 py-1 text-xs font-semibold text-app-accent dark:text-app-accent-2">
                   {user?.role}
                 </span>
+                {profileQuery.data?.isGameComplete && (
+                  <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-3 py-1 text-xs font-semibold text-white shadow-sm shadow-amber-500/30">
+                    <Trophy size={13} />
+                    {t('profile.gameComplete')}
+                  </span>
+                )}
                 {equipped?.badgeName && (
                   <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
                     {equipped.badgeImageUrl ? (

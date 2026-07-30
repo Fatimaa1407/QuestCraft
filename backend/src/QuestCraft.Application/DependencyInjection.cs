@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IAchievementEvaluator, AchievementEvaluator>();
         services.AddScoped<IDailyQuestService, DailyQuestService>();
         services.AddScoped<IContentCompletionService, ContentCompletionService>();
+        services.AddScoped<IGameCompletionService, GameCompletionService>();
 
         return services;
     }

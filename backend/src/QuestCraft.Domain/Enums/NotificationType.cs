@@ -11,4 +11,5 @@ public enum NotificationType
     WeeklyRecap,
     FriendRequest,
     FriendRequestAccepted,
+    GameCompleted,
 }
