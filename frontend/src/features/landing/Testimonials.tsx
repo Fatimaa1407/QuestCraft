@@ -28,8 +28,8 @@ export function Testimonials() {
           variants={cascadeItemDelayed(TESTIMONIALS_START)}
           className="max-w-[640px]"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-400">{t('landing.testimonials.eyebrow')}</span>
-          <h2 className="mt-3.5 text-[1.9rem] font-extrabold tracking-tight text-white sm:text-[2.5rem]" style={{ textWrap: 'balance' }}>
+          <span className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-600 dark:text-cyan-400">{t('landing.testimonials.eyebrow')}</span>
+          <h2 className="mt-3.5 text-[1.9rem] font-extrabold tracking-tight text-slate-900 sm:text-[2.5rem] dark:text-white" style={{ textWrap: 'balance' }}>
             {t('landing.testimonials.title')}
           </h2>
         </motion.div>
@@ -44,9 +44,9 @@ export function Testimonials() {
             <motion.div key={key} variants={cascadeItem}>
               <GlassCard className="flex h-full flex-col gap-3.5 p-6">
                 <Stars />
-                <p className="text-[13.5px] leading-relaxed text-slate-200">&ldquo;{t(`landing.testimonials.${key}Quote`)}&rdquo;</p>
+                <p className="text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-200">&ldquo;{t(`landing.testimonials.${key}Quote`)}&rdquo;</p>
                 <div className="font-mono text-[11px] tracking-wide text-slate-500">{t(`landing.testimonials.${key}Meta`)}</div>
-                <div className="mt-auto flex items-center gap-2.5 border-t border-white/[0.08] pt-3.5">
+                <div className="mt-auto flex items-center gap-2.5 border-t border-slate-900/[0.08] pt-3.5 dark:border-white/[0.08]">
                   <motion.span
                     whileHover={{ scale: 1.12 }}
                     transition={cardHoverTransition}
@@ -55,7 +55,7 @@ export function Testimonials() {
                     {t(`landing.testimonials.${key}Name`).charAt(0)}
                   </motion.span>
                   <div>
-                    <div className="text-[13px] font-semibold text-white">{t(`landing.testimonials.${key}Name`)}</div>
+                    <div className="text-[13px] font-semibold text-slate-900 dark:text-white">{t(`landing.testimonials.${key}Name`)}</div>
                     <div className="font-mono text-[11.5px] text-slate-500">{t(`landing.testimonials.${key}Role`)}</div>
                   </div>
                 </div>

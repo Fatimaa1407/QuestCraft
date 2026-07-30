@@ -34,7 +34,7 @@ export function EditorMock({ className = '' }: { className?: string }) {
 export function StatsMock({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`animate-float rounded-xl border border-white/10 bg-white/10 p-4 shadow-2xl shadow-black/40 backdrop-blur ${className}`}
+      className={`animate-float rounded-xl border border-white/10 bg-slate-900/90 p-4 shadow-2xl shadow-black/40 backdrop-blur ${className}`}
       style={floatStyle('0deg', '2s')}
     >
       <div className="flex items-center justify-between">
@@ -65,7 +65,7 @@ export function LeaderboardMock({ className = '' }: { className?: string }) {
 
   return (
     <div
-      className={`animate-float rounded-xl border border-white/10 bg-white/10 p-4 shadow-2xl shadow-black/40 backdrop-blur ${className}`}
+      className={`animate-float rounded-xl border border-white/10 bg-slate-900/90 p-4 shadow-2xl shadow-black/40 backdrop-blur ${className}`}
       style={floatStyle('0deg', '3.5s')}
     >
       <p className="mb-2 text-[10px] font-medium text-slate-400">🏆 Leaderboard</p>

@@ -50,12 +50,12 @@ const snippets: Array<{ lang: string; lines: string[]; top: string; left: string
 
 export function CodeBackdrop() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden text-slate-900 dark:text-white">
       <div
-        className="absolute inset-0 opacity-[0.07]"
+        className="absolute inset-0 opacity-[0.05] dark:opacity-[0.07]"
         style={{
           backgroundImage:
-            'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
+            'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }}
       />
@@ -68,7 +68,7 @@ export function CodeBackdrop() {
       {snippets.map((snippet, index) => (
         <pre
           key={index}
-          className={`animate-float absolute select-none whitespace-pre rounded-lg border border-white/10 bg-black/20 px-3 py-2 font-mono text-[11px] leading-relaxed text-white ${snippet.opacity}`}
+          className={`animate-float absolute select-none whitespace-pre rounded-lg border border-slate-900/10 bg-slate-900/[0.06] px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-900 dark:border-white/10 dark:bg-black/20 dark:text-white ${snippet.opacity}`}
           style={
             {
               top: snippet.top,

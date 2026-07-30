@@ -11,8 +11,6 @@ import { FaqSection } from './FaqSection';
 import { CtaBanner } from './CtaBanner';
 import { LandingFooter } from './LandingFooter';
 
-// Deliberate single-theme (dark) canvas, matching AuthLayout's pre-auth pages —
-// a flat developer-platform surface that doesn't need to track the light/dark toggle.
 export function LandingPage() {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
@@ -29,12 +27,12 @@ export function LandingPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative min-h-svh overflow-x-hidden bg-[linear-gradient(160deg,#0b1220_0%,#0d1526_46%,#080c16_100%)] text-slate-50">
+      <div className="relative min-h-svh overflow-x-hidden bg-app-bg text-slate-900 dark:bg-[linear-gradient(160deg,#0b1220_0%,#0d1526_46%,#080c16_100%)] dark:text-slate-50">
         <motion.div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
+          className="pointer-events-none absolute inset-0 text-slate-900 opacity-[0.035] dark:text-white dark:opacity-[0.05]"
           style={{
             backgroundImage:
-              'linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)',
+              'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
             backgroundSize: '48px 48px',
             y: gridY,
           }}
@@ -49,7 +47,7 @@ export function LandingPage() {
 
         <a
           href="#main"
-          className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition-transform focus:translate-y-0"
+          className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-transform focus:translate-y-0 dark:bg-white dark:text-slate-900"
         >
           {t('landing.nav.skipLink')}
         </a>

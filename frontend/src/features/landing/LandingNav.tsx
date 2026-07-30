@@ -37,24 +37,26 @@ export function LandingNav() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300 ${
-        scrolled ? 'border-white/[0.08] bg-[#080c16]/80 shadow-[0_10px_34px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl' : 'border-transparent bg-transparent'
+        scrolled
+          ? 'border-slate-200/70 bg-app-bg/80 shadow-[0_10px_34px_-24px_rgba(0,0,0,0.15)] backdrop-blur-xl dark:border-white/[0.08] dark:bg-[#080c16]/80 dark:shadow-[0_10px_34px_-24px_rgba(0,0,0,0.7)]'
+          : 'border-transparent bg-transparent'
       }`}
     >
       <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Link to="/welcome" className="flex items-center gap-2.5 text-[17px] font-bold tracking-tight text-white">
+        <Link to="/welcome" className="flex items-center gap-2.5 text-[17px] font-bold tracking-tight text-slate-900 dark:text-white">
           <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-gradient-to-br from-blue-500 to-cyan-400 text-[#051019]">
             <Code2 size={18} />
           </span>
           QuestCraft
         </Link>
 
-        <nav className="hidden items-center gap-7 text-[14.5px] text-slate-400 lg:flex" aria-label={t('landing.nav.ariaLabel')}>
+        <nav className="hidden items-center gap-7 text-[14.5px] text-slate-600 lg:flex dark:text-slate-400" aria-label={t('landing.nav.ariaLabel')}>
           {links.map((link) => (
             <a
               key={link.id}
               href={`#${link.id}`}
-              className={`relative py-1 transition-colors after:absolute after:inset-x-0 after:-bottom-[3px] after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-gradient-to-r after:from-blue-500 after:to-cyan-400 after:transition-transform after:duration-300 hover:text-white hover:after:scale-x-100 ${
-                activeId === link.id ? 'text-white after:scale-x-100' : ''
+              className={`relative py-1 transition-colors after:absolute after:inset-x-0 after:-bottom-[3px] after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-gradient-to-r after:from-blue-500 after:to-cyan-400 after:transition-transform after:duration-300 hover:text-slate-900 hover:after:scale-x-100 dark:hover:text-white ${
+                activeId === link.id ? 'text-slate-900 after:scale-x-100 dark:text-white' : ''
               }`}
             >
               {link.label}
@@ -67,7 +69,7 @@ export function LandingNav() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} transition={{ duration: 0.25, ease: 'easeOut' }}>
               <Link
                 to="/login"
-                className="block rounded-lg border border-white/[0.14] bg-white/[0.04] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/[0.08]"
+                className="block rounded-lg border border-slate-900/15 bg-slate-900/[0.04] px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-900/[0.08] dark:border-white/[0.14] dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/[0.08]"
               >
                 {t('landing.nav.login')}
               </Link>
@@ -89,7 +91,7 @@ export function LandingNav() {
             onClick={() => setMenuOpen((v) => !v)}
             aria-label={t('landing.nav.menuOpen')}
             aria-expanded={menuOpen}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-white lg:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-900 lg:hidden dark:text-white"
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -103,7 +105,7 @@ export function LandingNav() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25 }}
-            className="overflow-hidden border-b border-white/[0.08] bg-[#080c16]/95 backdrop-blur-xl lg:hidden"
+            className="overflow-hidden border-b border-slate-200/70 bg-app-bg/95 backdrop-blur-xl lg:hidden dark:border-white/[0.08] dark:bg-[#080c16]/95"
           >
             <div className="flex flex-col gap-1 px-5 pb-6 pt-2 sm:px-8">
               {links.map((link) => (
@@ -111,7 +113,7 @@ export function LandingNav() {
                   key={link.id}
                   href={`#${link.id}`}
                   onClick={() => setMenuOpen(false)}
-                  className="border-b border-white/[0.06] py-3 text-[15px] text-slate-300"
+                  className="border-b border-slate-200/70 py-3 text-[15px] text-slate-600 dark:border-white/[0.06] dark:text-slate-300"
                 >
                   {link.label}
                 </a>
@@ -119,7 +121,7 @@ export function LandingNav() {
               <Link
                 to="/login"
                 onClick={() => setMenuOpen(false)}
-                className="mt-3 rounded-lg border border-white/[0.14] bg-white/[0.04] px-4 py-2.5 text-center text-sm font-medium text-white"
+                className="mt-3 rounded-lg border border-slate-900/15 bg-slate-900/[0.04] px-4 py-2.5 text-center text-sm font-medium text-slate-900 dark:border-white/[0.14] dark:bg-white/[0.04] dark:text-white"
               >
                 {t('landing.nav.login')}
               </Link>

@@ -20,8 +20,8 @@ export function FaqSection() {
           variants={cascadeItemDelayed(FAQ_START)}
           className="max-w-[640px]"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-400">{t('landing.faq.eyebrow')}</span>
-          <h2 className="mt-3.5 text-[1.9rem] font-extrabold tracking-tight text-white sm:text-[2.5rem]" style={{ textWrap: 'balance' }}>
+          <span className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-600 dark:text-cyan-400">{t('landing.faq.eyebrow')}</span>
+          <h2 className="mt-3.5 text-[1.9rem] font-extrabold tracking-tight text-slate-900 sm:text-[2.5rem] dark:text-white" style={{ textWrap: 'balance' }}>
             {t('landing.faq.title')}
           </h2>
         </motion.div>
@@ -40,8 +40,7 @@ export function FaqSection() {
               <motion.div key={key} variants={cascadeItem}>
                 <GlassCard
                   hoverLift={false}
-                  className="px-6 transition-colors"
-                  style={isOpen ? { borderColor: 'rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.04)' } : undefined}
+                  className={`px-6 transition-colors ${isOpen ? 'border-slate-900/20 bg-slate-900/[0.04] dark:border-white/20 dark:bg-white/[0.04]' : ''}`}
                 >
                   <button
                     id={qId}
@@ -49,12 +48,12 @@ export function FaqSection() {
                     aria-expanded={isOpen}
                     aria-controls={aId}
                     onClick={() => setOpenIndex(isOpen ? null : index)}
-                    className="flex w-full items-center justify-between gap-4 py-[18px] text-left text-[15px] font-semibold text-white"
+                    className="flex w-full items-center justify-between gap-4 py-[18px] text-left text-[15px] font-semibold text-slate-900 dark:text-white"
                   >
                     <span>{t(`landing.faq.${key}`)}</span>
                     <ChevronDown
                       size={18}
-                      className={`shrink-0 text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180 text-cyan-400' : ''}`}
+                      className={`shrink-0 text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180 text-cyan-600 dark:text-cyan-400' : ''}`}
                     />
                   </button>
                   <AnimatePresence initial={false}>
@@ -69,7 +68,7 @@ export function FaqSection() {
                         transition={{ duration: 0.25 }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-[18px] text-[13.5px] leading-relaxed text-slate-400">
+                        <p className="pb-[18px] text-[13.5px] leading-relaxed text-slate-600 dark:text-slate-400">
                           {t(`landing.faq.a${key.slice(1)}`)}
                         </p>
                       </motion.div>

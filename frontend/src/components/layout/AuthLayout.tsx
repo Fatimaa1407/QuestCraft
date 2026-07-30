@@ -10,19 +10,19 @@ import { EditorMock, LeaderboardMock, StatsMock } from '../../features/auth/Bran
 import { fadeInUp } from '../../utils/motion';
 
 // Clean 50/50 split: hero content + mockups live only in the left half, the form card stays in
-// the right half. Flat deep-navy canvas (not a saturated gradient) with indigo/cyan glow accents
-// from CodeBackdrop carries the color — GitHub/Linear/Vercel-style technical atmosphere rather
-// than a game-like purple wash. The card itself is a mostly-opaque "elevated surface", not glass.
+// the right half. Tracks the light/dark toggle like the rest of the app (flat app-bg surface in
+// light mode, deep-navy canvas in dark) with indigo/cyan glow accents from CodeBackdrop carrying
+// the color — GitHub/Linear/Vercel-style technical atmosphere rather than a game-like purple wash.
 export function AuthLayout({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
 
   return (
-    <div className="relative flex min-h-svh flex-col overflow-hidden bg-slate-950">
+    <div className="relative flex min-h-svh flex-col overflow-hidden bg-app-bg dark:bg-slate-950">
       <ParticleField />
 
       <div className="relative z-20 flex items-center justify-between px-6 py-6 sm:px-10">
-        <div className="flex items-center gap-2 text-lg font-semibold text-white">
-          <Code2 size={22} className="text-cyan-400" />
+        <div className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
+          <Code2 size={22} className="text-indigo-600 dark:text-cyan-400" />
           {t('app.name')}
         </div>
         <div className="flex items-center gap-2">
@@ -37,16 +37,16 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           <CodeBackdrop />
 
           <div className="relative z-10 max-w-md">
-            <h2 className="text-4xl font-semibold leading-tight text-white">{t('auth.branding.tagline')}</h2>
-            <ul className="mt-6 space-y-3 text-sm text-slate-300">
+            <h2 className="text-4xl font-semibold leading-tight text-slate-900 dark:text-white">{t('auth.branding.tagline')}</h2>
+            <ul className="mt-6 space-y-3 text-sm text-slate-600 dark:text-slate-300">
               <li className="flex items-center gap-2">
-                <Sparkles size={16} className="text-cyan-400" /> {t('auth.branding.feature1')}
+                <Sparkles size={16} className="text-indigo-600 dark:text-cyan-400" /> {t('auth.branding.feature1')}
               </li>
               <li className="flex items-center gap-2">
-                <Trophy size={16} className="text-cyan-400" /> {t('auth.branding.feature2')}
+                <Trophy size={16} className="text-indigo-600 dark:text-cyan-400" /> {t('auth.branding.feature2')}
               </li>
               <li className="flex items-center gap-2">
-                <Swords size={16} className="text-cyan-400" /> {t('auth.branding.feature3')}
+                <Swords size={16} className="text-indigo-600 dark:text-cyan-400" /> {t('auth.branding.feature3')}
               </li>
             </ul>
           </div>

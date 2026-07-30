@@ -13,10 +13,10 @@ export function CtaBanner() {
         <motion.div initial="hidden" animate="show" variants={cascadeItemDelayed(CTA_START)}>
           <GlassCard hoverLift={false} className="relative overflow-hidden px-8 py-14 text-center sm:px-12 sm:py-16">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_260px_at_50%_0%,rgba(34,211,238,0.16),transparent_70%)]" />
-            <h2 className="relative text-[1.8rem] font-extrabold tracking-tight text-white sm:text-[2.4rem]" style={{ textWrap: 'balance' }}>
+            <h2 className="relative text-[1.8rem] font-extrabold tracking-tight text-slate-900 sm:text-[2.4rem] dark:text-white" style={{ textWrap: 'balance' }}>
               {t('landing.cta.title')}
             </h2>
-            <p className="relative mt-3 text-[15px] text-slate-400">{t('landing.cta.subtitle')}</p>
+            <p className="relative mt-3 text-[15px] text-slate-600 dark:text-slate-400">{t('landing.cta.subtitle')}</p>
             <div className="relative mt-8 flex justify-center">
               <MotionLink
                 to="/register"

@@ -49,11 +49,11 @@ function HeroStat({ value, suffix, label }: { value: number; suffix: string; lab
   const animated = useCountUp(value, 1200, HERO_DELAYS.stats);
   return (
     <div>
-      <div className="font-mono text-[22px] font-bold tracking-tight text-white tabular-nums">
+      <div className="font-mono text-[22px] font-bold tracking-tight text-slate-900 tabular-nums dark:text-white">
         {animated}
         {suffix}
       </div>
-      <div className="mt-1 text-[12.5px] text-slate-500">{label}</div>
+      <div className="mt-1 text-[12.5px] text-slate-500 dark:text-slate-500">{label}</div>
     </div>
   );
 }
@@ -164,7 +164,7 @@ export function HeroSection() {
             initial="hidden"
             animate="show"
             variants={cascadeItemDelayed(HERO_DELAYS.badge)}
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-cyan-400 before:h-1.5 before:w-1.5 before:rounded-full before:bg-cyan-400 before:shadow-[0_0_10px_2px_rgba(34,211,238,0.7)]"
+            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-cyan-600 before:h-1.5 before:w-1.5 before:rounded-full before:bg-cyan-400 before:shadow-[0_0_10px_2px_rgba(34,211,238,0.7)] dark:text-cyan-400"
           >
             {t('landing.hero.eyebrow')}
           </motion.span>
@@ -173,7 +173,7 @@ export function HeroSection() {
             initial="hidden"
             animate="show"
             variants={cascadeItemDelayed(HERO_DELAYS.title)}
-            className="mt-4 text-[2.5rem] font-extrabold leading-[1.06] tracking-tight text-white sm:text-[3.4rem]"
+            className="mt-4 text-[2.5rem] font-extrabold leading-[1.06] tracking-tight text-slate-900 sm:text-[3.4rem] dark:text-white"
             style={{ textWrap: 'balance' }}
           >
             {t('landing.hero.titleLine1')}
@@ -188,7 +188,7 @@ export function HeroSection() {
             initial="hidden"
             animate="show"
             variants={cascadeItemDelayed(HERO_DELAYS.description)}
-            className="mt-5 max-w-[46ch] text-[17px] leading-relaxed text-slate-400"
+            className="mt-5 max-w-[46ch] text-[17px] leading-relaxed text-slate-600 dark:text-slate-400"
           >
             {t('landing.hero.lead')}
           </motion.p>
@@ -214,7 +214,7 @@ export function HeroSection() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="rounded-lg border border-white/[0.16] bg-white/[0.04] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/[0.08]"
+              className="rounded-lg border border-slate-900/15 bg-slate-900/[0.04] px-6 py-3 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-900/[0.08] dark:border-white/[0.16] dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/[0.08]"
             >
               {t('landing.hero.ctaSecondary')}
             </motion.a>
@@ -278,12 +278,12 @@ export function HeroSection() {
             className={`absolute -bottom-6 -right-3.5 w-52 p-3.5 transition-transform duration-500 ${phase === 'done' ? 'scale-[1.03]' : ''}`}
           >
             <div className="flex items-center justify-between">
-              <span className="font-mono text-xl font-bold text-white">
+              <span className="font-mono text-xl font-bold text-slate-900 dark:text-white">
                 <span className="text-sm font-medium text-slate-500">12</span> &rarr; {phase === 'done' ? '13' : '12'}
               </span>
-              <Zap size={18} className="text-amber-400" />
+              <Zap size={18} className="text-amber-500 dark:text-amber-400" />
             </div>
-            <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
+            <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-900/[0.08] dark:bg-white/[0.08]">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-[width] duration-700 ease-out"
                 style={{ width: phase === 'done' ? '22%' : '78%' }}

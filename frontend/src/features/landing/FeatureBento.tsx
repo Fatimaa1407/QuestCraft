@@ -5,11 +5,11 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { cardHoverTransition, cascadeGroup, cascadeItem, cascadeItemDelayed, FEATURES_START } from './landingMotion';
 
 const tints = {
-  blue: 'bg-blue-500/[0.14] text-blue-400',
-  cyan: 'bg-cyan-500/[0.14] text-cyan-400',
-  amber: 'bg-amber-500/[0.14] text-amber-400',
-  emerald: 'bg-emerald-500/[0.14] text-emerald-400',
-  violet: 'bg-violet-500/[0.14] text-violet-400',
+  blue: 'bg-blue-500/[0.14] text-blue-600 dark:text-blue-400',
+  cyan: 'bg-cyan-500/[0.14] text-cyan-600 dark:text-cyan-400',
+  amber: 'bg-amber-500/[0.14] text-amber-600 dark:text-amber-400',
+  emerald: 'bg-emerald-500/[0.14] text-emerald-600 dark:text-emerald-400',
+  violet: 'bg-violet-500/[0.14] text-violet-600 dark:text-violet-400',
 } as const;
 
 // Every feature card shares the same hover feedback: a 6px lift, a stronger cyan-tinted
@@ -41,11 +41,11 @@ export function FeatureBento() {
           variants={cascadeItemDelayed(FEATURES_START)}
           className="max-w-[640px]"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-400">{t('landing.features.eyebrow')}</span>
-          <h2 className="mt-3.5 text-[1.9rem] font-extrabold tracking-tight text-white sm:text-[2.5rem]" style={{ textWrap: 'balance' }}>
+          <span className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-600 dark:text-cyan-400">{t('landing.features.eyebrow')}</span>
+          <h2 className="mt-3.5 text-[1.9rem] font-extrabold tracking-tight text-slate-900 sm:text-[2.5rem] dark:text-white" style={{ textWrap: 'balance' }}>
             {t('landing.features.title')}
           </h2>
-          <p className="mt-3.5 text-[15.5px] leading-relaxed text-slate-400">{t('landing.features.subtitle')}</p>
+          <p className="mt-3.5 text-[15.5px] leading-relaxed text-slate-600 dark:text-slate-400">{t('landing.features.subtitle')}</p>
         </motion.div>
 
         <motion.div
@@ -58,8 +58,8 @@ export function FeatureBento() {
             <GlassCard {...cardHover} className="flex h-full flex-col justify-between p-6">
               <div>
                 <FeatureIcon icon={Swords} tint="blue" />
-                <h3 className="mt-3.5 text-[17px] font-bold tracking-tight text-white">{t('landing.features.challengesTitle')}</h3>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">{t('landing.features.challengesDesc')}</p>
+                <h3 className="mt-3.5 text-[17px] font-bold tracking-tight text-slate-900 dark:text-white">{t('landing.features.challengesTitle')}</h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600 dark:text-slate-400">{t('landing.features.challengesDesc')}</p>
               </div>
               <div className="mt-4 rounded-lg border border-white/[0.08] bg-black/20 px-3 py-2.5 font-mono text-xs text-slate-500">
                 ✓ {t('landing.features.challengesSnippet')}
@@ -71,8 +71,8 @@ export function FeatureBento() {
             <GlassCard {...cardHover} className="flex h-full flex-col justify-center gap-3 p-6">
               <FeatureIcon icon={ListChecks} tint="cyan" />
               <div>
-                <h3 className="text-[17px] font-bold tracking-tight text-white">{t('landing.features.quizzesTitle')}</h3>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">{t('landing.features.quizzesDesc')}</p>
+                <h3 className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-white">{t('landing.features.quizzesTitle')}</h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600 dark:text-slate-400">{t('landing.features.quizzesDesc')}</p>
               </div>
             </GlassCard>
           </motion.div>
@@ -81,8 +81,8 @@ export function FeatureBento() {
             <GlassCard {...cardHover} className="flex h-full flex-col justify-center gap-3 p-6">
               <FeatureIcon icon={Zap} tint="amber" />
               <div>
-                <h3 className="text-[17px] font-bold tracking-tight text-white">{t('landing.features.xpTitle')}</h3>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">{t('landing.features.xpDesc')}</p>
+                <h3 className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-white">{t('landing.features.xpTitle')}</h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600 dark:text-slate-400">{t('landing.features.xpDesc')}</p>
               </div>
             </GlassCard>
           </motion.div>
@@ -91,8 +91,8 @@ export function FeatureBento() {
             <GlassCard {...cardHover} className="flex h-full flex-col justify-center gap-3 p-6">
               <FeatureIcon icon={Trophy} tint="emerald" />
               <div>
-                <h3 className="text-[17px] font-bold tracking-tight text-white">{t('landing.features.leaderboardTitle')}</h3>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">{t('landing.features.leaderboardDesc')}</p>
+                <h3 className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-white">{t('landing.features.leaderboardTitle')}</h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600 dark:text-slate-400">{t('landing.features.leaderboardDesc')}</p>
               </div>
             </GlassCard>
           </motion.div>
@@ -101,8 +101,8 @@ export function FeatureBento() {
             <GlassCard {...cardHover} className="flex h-full flex-col justify-center gap-3 p-6">
               <FeatureIcon icon={ShoppingBag} tint="violet" />
               <div>
-                <h3 className="text-[17px] font-bold tracking-tight text-white">{t('landing.features.marketplaceTitle')}</h3>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">{t('landing.features.marketplaceDesc')}</p>
+                <h3 className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-white">{t('landing.features.marketplaceTitle')}</h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600 dark:text-slate-400">{t('landing.features.marketplaceDesc')}</p>
               </div>
             </GlassCard>
           </motion.div>
@@ -111,8 +111,8 @@ export function FeatureBento() {
             <GlassCard {...cardHover} className="flex h-full flex-col justify-center gap-3 p-6">
               <FeatureIcon icon={Award} tint="blue" />
               <div>
-                <h3 className="text-[17px] font-bold tracking-tight text-white">{t('landing.features.achievementsTitle')}</h3>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">{t('landing.features.achievementsDesc')}</p>
+                <h3 className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-white">{t('landing.features.achievementsTitle')}</h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600 dark:text-slate-400">{t('landing.features.achievementsDesc')}</p>
               </div>
             </GlassCard>
           </motion.div>
