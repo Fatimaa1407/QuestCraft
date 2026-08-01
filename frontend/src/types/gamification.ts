@@ -40,6 +40,8 @@ export interface LevelProgress {
   overallCompleted: number;
   overallTotal: number;
   isGameComplete: boolean;
+  averageScorePercent: number;
+  requiredAveragePercent: number;
 }
 
 export interface GameCompletionRewardDto {

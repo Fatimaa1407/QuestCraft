@@ -2,12 +2,12 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X, CheckCircle2, Download } from 'lucide-react';
+import { Frame, Palette, Type, ShieldCheck, Zap, Coins as CoinsIcon, Mail, ArrowRight, Sparkles, Trophy, UserCircle, Image, Award, X, CheckCircle2, Download, Swords, ListChecks, Clock, Flame } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
 import { getMyProfile, updateMyProfile } from '../../api/profile';
 import { getMyPurchases, getMyEquippedCosmetics, equipItem, unequipItem } from '../../api/marketplace';
-import { getDashboardAnalytics, getMyRank, getAchievements, getMyStreak, downloadCertificate } from '../../api/gamification';
+import { getDashboardAnalytics, getMyRank, getAchievements, getMyStreak, getMyStatistics, downloadCertificate } from '../../api/gamification';
 import { getMySubmissions } from '../../api/submissions';
 import { getMyQuizAttempts } from '../../api/quizzes';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -23,7 +23,14 @@ import { ActivityHeatmap } from '../dashboard/ActivityHeatmap';
 import { fadeInUp, staggerContainer } from '../../utils/motion';
 import { motion } from 'framer-motion';
 
-const CERTIFICATE_REQUIRED_LEVEL = 10;
+function formatTotalTime(ms: number, t: (key: string, opts?: Record<string, unknown>) => string) {
+  if (ms <= 0) return '—';
+  const totalMinutes = Math.round(ms / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours > 0) return t('dashboard.heatmapHoursMinutes', { hours, minutes });
+  return t('dashboard.heatmapMinutes', { minutes: Math.max(1, minutes) });
+}
 
 const equippedTypeIcons: Record<string, typeof Frame> = {
   Avatar: UserCircle,
@@ -58,6 +65,7 @@ export function ProfilePage() {
   const achievementsQuery = useQuery({ queryKey: ['achievements'], queryFn: getAchievements });
   const pinnedAchievements = (achievementsQuery.data ?? []).filter((a) => a.isPinned);
   const streakQuery = useQuery({ queryKey: ['streak', 'my'], queryFn: getMyStreak });
+  const statisticsQuery = useQuery({ queryKey: ['gamification', 'statistics'], queryFn: getMyStatistics });
 
   const certificateMutation = useMutation({
     mutationFn: downloadCertificate,
@@ -227,7 +235,36 @@ export function ProfilePage() {
         )}
       </motion.div>
 
-      {(user?.level ?? 1) >= CERTIFICATE_REQUIRED_LEVEL && (
+      <motion.div variants={fadeInUp}>
+        <GlassCard className="p-6">
+          <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">{t('profile.statisticsTitle')}</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { icon: Swords, label: t('profile.statChallengesCompleted'), value: statisticsQuery.data?.challengesSolved ?? 0 },
+              { icon: ListChecks, label: t('profile.statQuizzesPassed'), value: statisticsQuery.data?.quizzesCompleted ?? 0 },
+              { icon: Clock, label: t('profile.statTotalStudyTime'), value: formatTotalTime(statisticsQuery.data?.totalCodingTimeMs ?? 0, t) },
+              { icon: Flame, label: t('profile.statLongestStreak'), value: statisticsQuery.data?.longestStreak ?? 0 },
+            ].map(({ icon: Icon, label, value }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center gap-2 rounded-xl border border-violet-400/20 bg-violet-500/[0.04] px-3 py-4 text-center"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                  <Icon size={16} />
+                </span>
+                {statisticsQuery.isLoading ? (
+                  <Skeleton className="h-6 w-12" />
+                ) : (
+                  <p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p>
+                )}
+                <p className="text-[11px] leading-tight text-slate-500 dark:text-slate-400">{label}</p>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {profileQuery.data?.isGameComplete && (
         <motion.div variants={fadeInUp}>
           <GlassCard className="flex flex-col items-start justify-between gap-3 p-6 sm:flex-row sm:items-center">
             <div>

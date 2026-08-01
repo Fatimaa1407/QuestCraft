@@ -14,7 +14,7 @@ public class FakeCertificatePdfGenerator : ICertificatePdfGenerator
 
 public class GenerateCertificateQueryHandlerTests
 {
-    private static async Task<(ApplicationDbContext Db, User User)> SeedAsync(int level)
+    private static async Task<(ApplicationDbContext Db, User User)> SeedAsync(int level, DateTime? gameCompletedAt)
     {
         var db = InMemoryDbContextFactory.Create();
 
@@ -30,7 +30,7 @@ public class GenerateCertificateQueryHandlerTests
             Email = "tester@test.local",
             PasswordHash = "hash",
             RoleId = role.Id,
-            Profile = new UserProfile { Level = level, Xp = 100 },
+            Profile = new UserProfile { Level = level, Xp = 100, GameCompletedAt = gameCompletedAt },
         };
         db.Users.Add(user);
         await db.SaveChangesAsync();
@@ -39,9 +39,11 @@ public class GenerateCertificateQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_BelowRequiredLevel_ThrowsForbidden()
+    public async Task Handle_GameNotCompleted_ThrowsForbidden()
     {
-        var (db, user) = await SeedAsync(level: 5);
+        // Tied to actually finishing the game, not a hardcoded level number — reaching a high level
+        // (e.g. via CalculateUnlockedLevelAsync capping at the current max) isn't enough on its own.
+        var (db, user) = await SeedAsync(level: 12, gameCompletedAt: null);
         var handler = new GenerateCertificateQueryHandler(db, new FakeCurrentUserService { UserId = user.Id }, new FakeCertificatePdfGenerator());
 
         await Assert.ThrowsAsync<ForbiddenException>(
@@ -49,9 +51,9 @@ public class GenerateCertificateQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_AtRequiredLevel_ReturnsPdfBytes()
+    public async Task Handle_GameCompleted_ReturnsPdfBytes()
     {
-        var (db, user) = await SeedAsync(level: 10);
+        var (db, user) = await SeedAsync(level: 12, gameCompletedAt: DateTime.UtcNow);
         var handler = new GenerateCertificateQueryHandler(db, new FakeCurrentUserService { UserId = user.Id }, new FakeCertificatePdfGenerator());
 
         var result = await handler.Handle(new GenerateCertificateQuery(), CancellationToken.None);

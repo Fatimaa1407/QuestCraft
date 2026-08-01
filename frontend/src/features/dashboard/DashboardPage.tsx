@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Lock, TrendingUp, CalendarDays, Trophy } from 'lucide-react';
+import { Zap, Sparkles, Coins as CoinsIcon, ShieldCheck, Gift, CheckCircle2, ListChecks, Lock, TrendingUp, CalendarDays, Trophy, AlertTriangle, PartyPopper, Crown } from 'lucide-react';
 import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
 import {
@@ -129,6 +129,38 @@ export function DashboardPage() {
         />
       )}
 
+      {levelProgressQuery.data?.isGameComplete && (
+        <motion.div variants={fadeInUp} className="relative overflow-hidden rounded-2xl shadow-lg shadow-amber-500/20">
+          <div className="rarity-ring-legendary pointer-events-none absolute inset-0 rounded-2xl" />
+
+          <div className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-amber-400/20 bg-gradient-to-r from-amber-50 via-white to-amber-50 px-5 py-4 dark:border-amber-400/10 dark:from-amber-950/50 dark:via-slate-900 dark:to-amber-950/50">
+            <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-amber-400/25 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-10 -left-6 h-28 w-28 rounded-full bg-amber-300/20 blur-2xl" />
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              <div className="animate-shimmer-sweep-loop absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/[0.08]" />
+            </div>
+
+            <motion.span
+              animate={{ rotate: [0, -10, 10, -6, 6, 0] }}
+              transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 2.5, ease: 'easeInOut' }}
+              className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 text-white shadow-lg shadow-amber-500/40"
+            >
+              <PartyPopper size={20} />
+            </motion.span>
+
+            <div className="relative z-10 min-w-0 flex-1">
+              <p className="text-sm font-bold tracking-tight text-amber-900 dark:text-amber-200">{t('dashboard.gameCompleteBannerTitle')}</p>
+              <p className="mt-0.5 text-xs text-amber-700/90 dark:text-amber-400/80">{t('dashboard.gameCompleteBannerSubtitle')}</p>
+            </div>
+
+            <span className="relative z-10 hidden shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-md shadow-amber-500/30 sm:flex">
+              <Crown size={12} />
+              {t('dashboard.maxLevelBadge')}
+            </span>
+          </div>
+        </motion.div>
+      )}
+
       <motion.div variants={fadeInUp}>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
           {t('dashboard.welcome', { name: user?.firstName ?? user?.username })}
@@ -137,7 +169,20 @@ export function DashboardPage() {
       </motion.div>
 
       <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
-        <StatCard icon={ShieldCheck} label={t('dashboard.level')} value={user?.level ?? 1} tint="blue" />
+        <StatCard
+          icon={ShieldCheck}
+          label={t('dashboard.level')}
+          value={user?.level ?? 1}
+          tint="blue"
+          badge={
+            levelProgressQuery.data?.isGameComplete ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                <Crown size={10} />
+                {t('dashboard.maxLevelBadge')}
+              </span>
+            ) : undefined
+          }
+        />
         <StatCard icon={Zap} label={t('dashboard.xp')} value={user?.xp ?? 0} tint="cyan" />
         <StatCard icon={CoinsIcon} label={t('dashboard.coins')} value={user?.coins ?? 0} tint="amber" />
         <StatCard icon={Sparkles} label={t('dashboard.role')} value={user?.role ?? '-'} tint="violet" />
@@ -287,14 +332,19 @@ function LevelProgressPanel({ data, isLoading }: { data: LevelProgress | null | 
         </div>
       ) : data.isGameComplete ? (
         <div className="space-y-4">
-          <div className="flex items-start gap-2.5 rounded-xl bg-amber-500/10 px-3.5 py-3 text-sm text-amber-700 dark:text-amber-300">
-            <Trophy size={16} className="mt-0.5 shrink-0" />
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-400/20 bg-gradient-to-r from-amber-500/10 via-amber-400/[0.06] to-amber-500/10 px-3.5 py-3 text-sm text-amber-700 dark:text-amber-300">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-sm shadow-amber-500/30">
+              <Trophy size={13} />
+            </span>
             <p className="leading-relaxed">{t('dashboard.levelProgressGameComplete')}</p>
           </div>
           <div>
             <div className="mb-1.5 flex items-center justify-between text-xs">
               <span className="font-medium text-slate-700 dark:text-slate-200">{t('dashboard.levelProgressOverall')}</span>
-              <span className="font-semibold text-slate-900 dark:text-white">100%</span>
+              <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 size={14} />
+                {t('dashboard.levelProgressFullyComplete')}
+              </span>
             </div>
             <ProgressBar completed={1} total={1} colorClass="bg-gradient-to-r from-amber-400 to-amber-600" />
           </div>
@@ -321,6 +371,30 @@ function LevelProgressPanel({ data, isLoading }: { data: LevelProgress | null | 
             <ProgressBar completed={data.quizzesCompleted} total={data.quizzesTotal} colorClass="bg-gradient-to-r from-violet-500 to-fuchsia-500" />
           </div>
 
+          <div>
+            <div className="mb-1.5 flex items-center justify-between text-xs">
+              <span className="font-medium text-slate-700 dark:text-slate-200">{t('dashboard.levelProgressAverageScore')}</span>
+              <span
+                className={`font-semibold ${
+                  data.averageScorePercent >= data.requiredAveragePercent
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-amber-600 dark:text-amber-400'
+                }`}
+              >
+                {data.averageScorePercent}%
+              </span>
+            </div>
+            <ProgressBar
+              completed={data.averageScorePercent}
+              total={100}
+              colorClass={
+                data.averageScorePercent >= data.requiredAveragePercent
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                  : 'bg-gradient-to-r from-amber-400 to-amber-600'
+              }
+            />
+          </div>
+
           <div className="border-t border-slate-200/70 pt-4 dark:border-white/[0.06]">
             <div className="mb-1.5 flex items-center justify-between text-xs">
               <span className="font-medium text-slate-700 dark:text-slate-200">{t('dashboard.levelProgressOverall')}</span>
@@ -329,10 +403,19 @@ function LevelProgressPanel({ data, isLoading }: { data: LevelProgress | null | 
               </span>
             </div>
             <ProgressBar completed={data.overallCompleted} total={data.overallTotal} colorClass="bg-gradient-to-r from-emerald-500 to-teal-500" />
-            <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-              <Lock size={12} />
-              {t('dashboard.levelProgressUnlockHint', { level: data.level + 1, total: data.overallTotal })}
-            </p>
+            {data.overallCompleted < data.overallTotal ? (
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <Lock size={12} />
+                {t('dashboard.levelProgressUnlockHint', { level: data.level + 1, total: data.overallTotal })}
+              </p>
+            ) : (
+              data.averageScorePercent < data.requiredAveragePercent && (
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                  <AlertTriangle size={12} />
+                  {t('dashboard.levelProgressBelowAverage', { required: data.requiredAveragePercent })}
+                </p>
+              )
+            )}
           </div>
         </div>
       )}

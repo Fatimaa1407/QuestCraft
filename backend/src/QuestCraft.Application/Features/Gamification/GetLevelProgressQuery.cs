@@ -14,7 +14,9 @@ public record LevelProgressDto(
     int QuizzesTotal,
     int OverallCompleted,
     int OverallTotal,
-    bool IsGameComplete);
+    bool IsGameComplete,
+    int AverageScorePercent,
+    int RequiredAveragePercent);
 
 public record GetLevelProgressQuery : IQuery<LevelProgressDto>;
 
@@ -77,6 +79,8 @@ public class GetLevelProgressQueryHandler : IRequestHandler<GetLevelProgressQuer
             completion.QuizzesTotal,
             completion.TotalCompleted,
             completion.TotalItems,
-            isGameComplete);
+            isGameComplete,
+            (int)Math.Round(completion.AverageScorePercent),
+            (int)LevelCompletion.PassingAveragePercent);
     }
 }

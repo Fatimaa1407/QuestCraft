@@ -139,4 +139,92 @@ public class ContentCompletionServiceTests
 
         Assert.Equal(2, unlockedLevel);
     }
+
+    [Fact]
+    public async Task GetLevelCompletionAsync_AllAttemptedButLowQuizScores_IsNotComplete()
+    {
+        // Closes the "write whatever comes to mind" loophole: every quiz at the level has been
+        // attempted (so the raw completed-count would look done), but scores are far below the
+        // 70% bar, so the level must not count as complete.
+        var (db, user) = await SeedUserAsync();
+        var quiz = MakeQuiz(1);
+        db.Quizzes.Add(quiz);
+        await db.SaveChangesAsync();
+
+        db.QuizAttempts.Add(new QuizAttempt { UserId = user.Id, QuizId = quiz.Id, Score = 1, TotalQuestions = 10, CompletedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var service = new ContentCompletionService(db);
+        var completion = await service.GetLevelCompletionAsync(user.Id, 1, CancellationToken.None);
+
+        Assert.Equal(1, completion.QuizzesCompleted);
+        Assert.Equal(1, completion.QuizzesTotal);
+        Assert.Equal(10.0, completion.AverageScorePercent);
+        Assert.False(completion.IsComplete);
+    }
+
+    [Fact]
+    public async Task GetLevelCompletionAsync_RetakingAQuiz_UsesBestScoreNotLatest()
+    {
+        var (db, user) = await SeedUserAsync();
+        var quiz = MakeQuiz(1);
+        db.Quizzes.Add(quiz);
+        await db.SaveChangesAsync();
+
+        // First attempt scores low, a later retake scores perfectly — the user's best effort should
+        // count, not their first (or most recent) attempt.
+        db.QuizAttempts.AddRange(
+            new QuizAttempt { UserId = user.Id, QuizId = quiz.Id, Score = 2, TotalQuestions = 10, CompletedAt = DateTime.UtcNow.AddMinutes(-10) },
+            new QuizAttempt { UserId = user.Id, QuizId = quiz.Id, Score = 10, TotalQuestions = 10, CompletedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var service = new ContentCompletionService(db);
+        var completion = await service.GetLevelCompletionAsync(user.Id, 1, CancellationToken.None);
+
+        Assert.Equal(100.0, completion.AverageScorePercent);
+        Assert.True(completion.IsComplete);
+    }
+
+    [Fact]
+    public async Task GetLevelCompletionAsync_AllAttemptedWithPassingAverage_IsComplete()
+    {
+        var (db, user) = await SeedUserAsync();
+        var challenge = MakeChallenge(1);
+        var quiz = MakeQuiz(1);
+        db.Challenges.Add(challenge);
+        db.Quizzes.Add(quiz);
+        await db.SaveChangesAsync();
+
+        db.ChallengeSubmissions.Add(
+            new ChallengeSubmission { UserId = user.Id, ChallengeId = challenge.Id, Verdict = SubmissionVerdict.Accepted, SourceCode = "x", SubmittedAt = DateTime.UtcNow });
+        db.QuizAttempts.Add(new QuizAttempt { UserId = user.Id, QuizId = quiz.Id, Score = 8, TotalQuestions = 10, CompletedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var service = new ContentCompletionService(db);
+        var completion = await service.GetLevelCompletionAsync(user.Id, 1, CancellationToken.None);
+
+        // Challenge contributes 100%, quiz contributes 80% -> average 90%, above the 70% bar.
+        Assert.Equal(90.0, completion.AverageScorePercent);
+        Assert.True(completion.IsComplete);
+    }
+
+    [Fact]
+    public async Task CalculateUnlockedLevelAsync_LowAverageAtLevel1_NeverAdvances()
+    {
+        var (db, user) = await SeedUserAsync();
+        var level1Quiz = MakeQuiz(1);
+        var level2Challenge = MakeChallenge(2);
+        db.Quizzes.Add(level1Quiz);
+        db.Challenges.Add(level2Challenge);
+        await db.SaveChangesAsync();
+
+        // Level 1's only item is "attempted" but scored far below the passing average.
+        db.QuizAttempts.Add(new QuizAttempt { UserId = user.Id, QuizId = level1Quiz.Id, Score = 0, TotalQuestions = 10, CompletedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var service = new ContentCompletionService(db);
+        var unlockedLevel = await service.CalculateUnlockedLevelAsync(user.Id, CancellationToken.None);
+
+        Assert.Equal(1, unlockedLevel);
+    }
 }

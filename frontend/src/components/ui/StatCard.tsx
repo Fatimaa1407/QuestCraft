@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { GlassCard } from './GlassCard';
 import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
 
@@ -20,11 +21,13 @@ export function StatCard({
   label,
   value,
   tint,
+  badge,
 }: {
   icon: LucideIcon;
   label: string;
   value: string | number;
   tint: StatCardTint;
+  badge?: ReactNode;
 }) {
   const animated = useAnimatedNumber(typeof value === 'number' ? value : 0);
   const displayValue = typeof value === 'number' ? animated : value;
@@ -36,6 +39,7 @@ export function StatCard({
       </div>
       <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
       <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{displayValue}</p>
+      {badge && <div className="mt-1.5">{badge}</div>}
     </GlassCard>
   );
 }
