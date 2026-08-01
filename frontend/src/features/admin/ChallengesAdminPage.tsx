@@ -21,7 +21,7 @@ export function ChallengesAdminPage() {
 
   const listQuery = useQuery({
     queryKey: ['admin-challenges', showDeleted ? 'deleted' : 'active'],
-    queryFn: () => (showDeleted ? getDeletedChallenges() : getChallenges({ pageSize: 100 }).then((r) => r.items)),
+    queryFn: () => (showDeleted ? getDeletedChallenges() : getChallenges({ pageSize: 1000 }).then((r) => r.items)),
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-challenges'] });

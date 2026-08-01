@@ -49,7 +49,7 @@ export function ChallengeDetailPage() {
 
   const sequenceQuery = useQuery({
     queryKey: ['challenges', 'sequence'],
-    queryFn: () => getChallenges({ page: 1, pageSize: 100 }),
+    queryFn: () => getChallenges({ page: 1, pageSize: 1000 }),
   });
 
   const nextChallengeId = (() => {

@@ -21,7 +21,7 @@ export function QuizzesAdminPage() {
 
   const listQuery = useQuery({
     queryKey: ['admin-quizzes', showDeleted ? 'deleted' : 'active'],
-    queryFn: () => (showDeleted ? getDeletedQuizzes() : getQuizzes({ pageSize: 100 }).then((r) => r.items)),
+    queryFn: () => (showDeleted ? getDeletedQuizzes() : getQuizzes({ pageSize: 1000 }).then((r) => r.items)),
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-quizzes'] });
