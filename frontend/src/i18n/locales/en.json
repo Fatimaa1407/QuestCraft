@@ -221,6 +221,7 @@
     "host": "host",
     "waitingForOpponent": "Waiting for opponent...",
     "acceptDuel": "Accept duel",
+    "decline": "Decline",
     "start": "Start",
     "cancel": "Cancel",
     "submit": "Submit",

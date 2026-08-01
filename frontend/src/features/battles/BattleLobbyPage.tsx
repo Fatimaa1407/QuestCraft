@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Swords, Users, DoorOpen, Hash, Plus, ArrowRight } from 'lucide-react';
 import { getMyBattles, getOpenRooms, createDuelBattle, createRoomBattle, getBattleByCode, joinBattle } from '../../api/battles';
 import { getFriends } from '../../api/friends';
+import { useAuthStore } from '../../app/authStore';
 import { showToast } from '../../app/toastStore';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -41,6 +42,7 @@ export function BattleLobbyPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const [showCreateDuel, setShowCreateDuel] = useState(false);
   const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [joinCode, setJoinCode] = useState('');
@@ -63,7 +65,7 @@ export function BattleLobbyPage() {
     mutationFn: async () => {
       const battle = await getBattleByCode(joinCode.trim());
       if (!battle) throw new Error('not found');
-      const alreadyIn = battle.participants.some((p) => p.userId === battle.hostUserId);
+      const alreadyIn = battle.participants.some((p) => p.userId === currentUserId);
       return alreadyIn ? battle : await joinBattle(battle.id);
     },
     onSuccess: (battle) => {

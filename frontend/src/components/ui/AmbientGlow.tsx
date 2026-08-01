@@ -61,11 +61,13 @@ export function AmbientGlow() {
       {/* Film-grain texture for tactility. */}
       <div className="noise-overlay absolute inset-0" />
 
-      {/* Sparse floating code snippets — same idea as CodeBackdrop, toned down. */}
+      {/* Sparse floating code snippets — same idea as CodeBackdrop, toned down. Only shown once the
+          Sidebar's own `sm:` breakpoint opens up a real side gutter for them to sit in — below that,
+          the page content runs edge-to-edge and these fixed-percentage positions would overlap it. */}
       {snippets.map((snippet, index) => (
         <pre
           key={index}
-          className="animate-float absolute select-none whitespace-pre rounded-lg border border-slate-900/15 bg-slate-900/[0.04] px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-900 opacity-80 dark:border-white/15 dark:bg-white/[0.04] dark:text-white dark:opacity-60"
+          className="animate-float absolute hidden select-none whitespace-pre rounded-lg border border-slate-900/15 bg-slate-900/[0.04] px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-900 opacity-80 sm:block dark:border-white/15 dark:bg-white/[0.04] dark:text-white dark:opacity-60"
           style={
             {
               top: snippet.top,
