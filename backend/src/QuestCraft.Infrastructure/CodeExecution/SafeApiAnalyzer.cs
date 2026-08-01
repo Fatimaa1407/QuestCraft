@@ -18,16 +18,12 @@ namespace QuestCraft.Infrastructure.CodeExecution;
 /// </summary>
 internal static class SafeApiAnalyzer
 {
-    // Whole namespaces where essentially everything in them is dangerous. System.Reflection itself is
-    // deliberately NOT banned wholesale here — ordinary, harmless code reaches into it far more often
-    // than the analyzer's first version accounted for (e.g. a delegate's `.Method.Name` for a debug
-    // print resolves through System.Reflection.MemberInfo). Only its genuinely dangerous surface
-    // (loading/invoking/emitting) is banned below via BannedTypes/BannedMembers instead.
+    // Whole namespaces where essentially everything in them is dangerous.
     private static readonly string[] BannedNamespaces =
     [
         "System.IO",
         "System.Net",
-        "System.Reflection.Emit", // dynamic IL generation at runtime — always dangerous
+        "System.Reflection",
         "System.Runtime.InteropServices",
         "System.Runtime.Loader",
         "System.Security.Cryptography.X509Certificates",
@@ -41,7 +37,7 @@ internal static class SafeApiAnalyzer
         "System.Diagnostics.ProcessStartInfo",
         "System.AppDomain",
         "System.Activator",
-        "System.Reflection.Assembly", // blocks Assembly.Load*/GetExecutingAssembly — loading/inspecting arbitrary code
+        "System.Type", // blocks Type.GetType(string) — the reflection-by-string-name escape hatch
     ];
 
     // Specific members on otherwise-benign types.
@@ -51,17 +47,6 @@ internal static class SafeApiAnalyzer
         ("System.Environment", "GetEnvironmentVariable"),
         ("System.Environment", "GetEnvironmentVariables"),
         ("System.Environment", "SetEnvironmentVariable"),
-        // Type.GetType(string) — the reflection-by-string-name escape hatch — stays banned, but as
-        // just this one static method rather than all of System.Type, so ordinary instance reads like
-        // `obj.GetType().Name`/`.FullName` (declared on Type itself, not just inherited from
-        // MemberInfo) aren't caught in the same net.
-        ("System.Type", "GetType"),
-        // Dynamic method/constructor invocation and private-member mutation — the actual reflection
-        // "escape hatches" — stay banned even though the rest of System.Reflection is now readable.
-        ("System.Reflection.MethodBase", "Invoke"),
-        ("System.Reflection.ConstructorInfo", "Invoke"),
-        ("System.Reflection.FieldInfo", "SetValue"),
-        ("System.Reflection.PropertyInfo", "SetValue"),
     ];
 
     private static readonly string[] TrustedAssemblyPaths =
