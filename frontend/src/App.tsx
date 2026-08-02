@@ -45,6 +45,7 @@ const QuizEditPage = lazy(() => import('./features/admin/QuizEditPage').then((m)
 const AuditLogPage = lazy(() => import('./features/admin/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
 const UsersAdminPage = lazy(() => import('./features/admin/UsersAdminPage').then((m) => ({ default: m.UsersAdminPage })));
 const ActivityTodayAdminPage = lazy(() => import('./features/admin/ActivityTodayAdminPage').then((m) => ({ default: m.ActivityTodayAdminPage })));
+const VerifyCertificatePage = lazy(() => import('./features/certificates/VerifyCertificatePage').then((m) => ({ default: m.VerifyCertificatePage })));
 
 function RouteFallback() {
   return (
@@ -64,6 +65,7 @@ function App() {
               <Route path="/welcome" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/verify/:certificateId" element={<VerifyCertificatePage />} />
 
               <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuestCraft.Application.Common;
 using QuestCraft.Application.Common.Exceptions;
 using QuestCraft.Application.Common.Interfaces;
 using QuestCraft.Domain.Enums;
@@ -13,12 +14,15 @@ public class GenerateCertificateQueryHandler : IRequestHandler<GenerateCertifica
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUser;
     private readonly ICertificatePdfGenerator _pdfGenerator;
+    private readonly IContentCompletionService _completionService;
 
-    public GenerateCertificateQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser, ICertificatePdfGenerator pdfGenerator)
+    public GenerateCertificateQueryHandler(
+        IApplicationDbContext context, ICurrentUserService currentUser, ICertificatePdfGenerator pdfGenerator, IContentCompletionService completionService)
     {
         _context = context;
         _currentUser = currentUser;
         _pdfGenerator = pdfGenerator;
+        _completionService = completionService;
     }
 
     public async Task<byte[]> Handle(GenerateCertificateQuery request, CancellationToken cancellationToken)
@@ -46,7 +50,11 @@ public class GenerateCertificateQueryHandler : IRequestHandler<GenerateCertifica
             .Distinct()
             .CountAsync(cancellationToken);
 
-        var data = new CertificateData($"{user.FirstName} {user.LastName}", user.Level, user.Xp, totalSolved, DateTime.UtcNow);
+        var maxLevel = await _completionService.GetMaxAvailableLevelAsync(cancellationToken);
+        var certificateId = CertificateIdGenerator.Generate(userId, user.GameCompletedAt.Value);
+
+        var data = new CertificateData(
+            $"{user.FirstName} {user.LastName}", user.Level, maxLevel, user.Xp, totalSolved, DateTime.UtcNow, certificateId);
         return _pdfGenerator.Generate(data);
     }
 }

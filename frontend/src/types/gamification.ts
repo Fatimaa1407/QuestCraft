@@ -96,6 +96,16 @@ export interface StreakDto {
   activeDatesLast30: HeatmapDay[];
 }
 
+export interface CertificateVerificationDto {
+  fullName: string;
+  level: number;
+  maxLevel: number;
+  totalXp: number;
+  totalChallengesSolved: number;
+  issuedAt: string;
+  certificateId: string;
+}
+
 export interface MyRankDto {
   rank: number;
   totalUsers: number;

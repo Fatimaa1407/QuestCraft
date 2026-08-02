@@ -140,4 +140,12 @@ public class GamificationController : ControllerBase
         var bytes = await _mediator.Send(new GenerateCertificateQuery(), cancellationToken);
         return File(bytes, "application/pdf", "questcraft-certificate.pdf");
     }
+
+    [HttpGet("certificate/verify/{certificateId}")]
+    public async Task<ActionResult<ApiResponse<CertificateVerificationDto>>> VerifyCertificate(
+        string certificateId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new VerifyCertificateQuery(certificateId), cancellationToken);
+        return Ok(ApiResponse<CertificateVerificationDto>.Ok(result));
+    }
 }

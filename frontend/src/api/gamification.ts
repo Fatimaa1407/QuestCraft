@@ -2,6 +2,7 @@ import { apiClient } from './client';
 import type { ApiResponse } from '../types/api';
 import type {
   Achievement,
+  CertificateVerificationDto,
   ClaimDailyQuestResult,
   DailyLoginRewardDto,
   DailyQuest,
@@ -80,6 +81,13 @@ export async function getActivityHeatmap(days = 180): Promise<HeatmapDayDetail[]
 export async function downloadCertificate(): Promise<Blob> {
   const { data } = await apiClient.get('/api/gamification/certificate', { responseType: 'blob' });
   return data as Blob;
+}
+
+export async function verifyCertificate(certificateId: string): Promise<CertificateVerificationDto | null> {
+  const { data } = await apiClient.get<ApiResponse<CertificateVerificationDto>>(
+    `/api/gamification/certificate/verify/${certificateId}`,
+  );
+  return data.data;
 }
 
 export async function getMyRank(period: LeaderboardPeriod = 'AllTime'): Promise<MyRankDto> {

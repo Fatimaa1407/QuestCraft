@@ -287,6 +287,20 @@
     "statTotalStudyTime": "Ümumi Öyrənmə Vaxtı",
     "statLongestStreak": "Ən Uzun Seriya"
   },
+  "certificateVerify": {
+    "loading": "Sertifikat yoxlanılır...",
+    "validTitle": "Təsdiqlənmiş Sertifikat",
+    "validSubtitle": "Bu sertifikat QuestCraft sistemində rəsmi qeydə alınıb.",
+    "invalidTitle": "Sertifikat tapılmadı",
+    "invalidSubtitle": "Bu ID ilə heç bir təsdiqlənmiş sertifikat mövcud deyil.",
+    "level": "Səviyyə",
+    "xp": "XP",
+    "challenges": "Həll edilən çətinlik",
+    "completion": "Tamamlanma",
+    "issuedOn": "Verilmə tarixi",
+    "certificateId": "Sertifikat ID",
+    "backHome": "QuestCraft-a get"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "challenges": "Challenges",

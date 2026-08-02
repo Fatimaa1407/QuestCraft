@@ -287,6 +287,20 @@
     "statTotalStudyTime": "Total Study Time",
     "statLongestStreak": "Longest Streak"
   },
+  "certificateVerify": {
+    "loading": "Verifying certificate...",
+    "validTitle": "Verified Certificate",
+    "validSubtitle": "This certificate is officially recorded in the QuestCraft system.",
+    "invalidTitle": "Certificate not found",
+    "invalidSubtitle": "No verified certificate exists with this ID.",
+    "level": "Level",
+    "xp": "XP",
+    "challenges": "Challenges solved",
+    "completion": "Completion",
+    "issuedOn": "Issued on",
+    "certificateId": "Certificate ID",
+    "backHome": "Go to QuestCraft"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "challenges": "Challenges",

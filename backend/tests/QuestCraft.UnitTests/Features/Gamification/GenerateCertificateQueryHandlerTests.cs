@@ -44,7 +44,8 @@ public class GenerateCertificateQueryHandlerTests
         // Tied to actually finishing the game, not a hardcoded level number — reaching a high level
         // (e.g. via CalculateUnlockedLevelAsync capping at the current max) isn't enough on its own.
         var (db, user) = await SeedAsync(level: 12, gameCompletedAt: null);
-        var handler = new GenerateCertificateQueryHandler(db, new FakeCurrentUserService { UserId = user.Id }, new FakeCertificatePdfGenerator());
+        var handler = new GenerateCertificateQueryHandler(
+            db, new FakeCurrentUserService { UserId = user.Id }, new FakeCertificatePdfGenerator(), new ContentCompletionService(db));
 
         await Assert.ThrowsAsync<ForbiddenException>(
             () => handler.Handle(new GenerateCertificateQuery(), CancellationToken.None));
@@ -54,7 +55,8 @@ public class GenerateCertificateQueryHandlerTests
     public async Task Handle_GameCompleted_ReturnsPdfBytes()
     {
         var (db, user) = await SeedAsync(level: 12, gameCompletedAt: DateTime.UtcNow);
-        var handler = new GenerateCertificateQueryHandler(db, new FakeCurrentUserService { UserId = user.Id }, new FakeCertificatePdfGenerator());
+        var handler = new GenerateCertificateQueryHandler(
+            db, new FakeCurrentUserService { UserId = user.Id }, new FakeCertificatePdfGenerator(), new ContentCompletionService(db));
 
         var result = await handler.Handle(new GenerateCertificateQuery(), CancellationToken.None);
 
