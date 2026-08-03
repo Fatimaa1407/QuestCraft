@@ -710,7 +710,8 @@
       "verdictAccepted": "Accepted",
       "rewardXp": "+40 XP",
       "rewardCoin": "+10 coin",
-      "levelCap": "{{xp}} XP to next level"
+      "levelUpClose": "Almost done with this level!",
+      "levelUpUnlocked": "New level unlocked!"
     },
     "features": {
       "eyebrow": "PRODUCT",

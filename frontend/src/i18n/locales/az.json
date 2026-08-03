@@ -710,7 +710,8 @@
       "verdictAccepted": "Qəbul edildi",
       "rewardXp": "+40 XP",
       "rewardCoin": "+10 coin",
-      "levelCap": "Səviyyəyə {{xp}} XP qalıb"
+      "levelUpClose": "Səviyyənin son tapşırıqları qalıb!",
+      "levelUpUnlocked": "Yeni səviyyə açıldı!"
     },
     "features": {
       "eyebrow": "MƏHSUL",

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, Circle, Zap } from 'lucide-react';
 import { GlassCard } from '../../components/ui/GlassCard';
-import { useAnimatedNumber } from '../../utils/useAnimatedNumber';
 import { cascadeItemDelayed, HERO_DELAYS, MotionLink } from './landingMotion';
 import { useCountUp } from './useCountUp';
 
@@ -65,7 +64,6 @@ export function HeroSection() {
   const [phase, setPhase] = useState<Phase>('typing');
   const [visibleLines, setVisibleLines] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const xpRemaining = useAnimatedNumber(phase === 'done' ? 780 : 220, 700);
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -290,7 +288,7 @@ export function HeroSection() {
               />
             </div>
             <div className="mt-2 text-[11px] text-slate-500">
-              {t('landing.hero.levelCap', { xp: xpRemaining })}
+              {phase === 'done' ? t('landing.hero.levelUpUnlocked') : t('landing.hero.levelUpClose')}
             </div>
           </GlassCard>
 
