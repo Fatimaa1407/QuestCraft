@@ -5,6 +5,7 @@ namespace QuestCraft.Domain.Entities;
 public class ChatMessage : BaseEntity
 {
     public string Content { get; set; } = default!;
+    public string? ImageDataUrl { get; set; }
     public bool IsRead { get; set; }
 
     public int SenderId { get; set; }

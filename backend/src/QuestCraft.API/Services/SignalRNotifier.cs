@@ -19,4 +19,10 @@ public class SignalRNotifier : IRealtimeNotifier
 
     public Task NotifyChatMessage(int recipientUserId, ChatMessageDto message, CancellationToken cancellationToken = default) =>
         _hubContext.Clients.Group(NotificationsHub.GroupNameForUser(recipientUserId)).SendAsync("newChatMessage", message, cancellationToken);
+
+    public Task NotifyChatMessageDeleted(int recipientUserId, int messageId, int senderId, CancellationToken cancellationToken = default) =>
+        _hubContext.Clients.Group(NotificationsHub.GroupNameForUser(recipientUserId)).SendAsync("chatMessageDeleted", messageId, senderId, cancellationToken);
+
+    public Task NotifyConversationCleared(int recipientUserId, int clearedByUserId, CancellationToken cancellationToken = default) =>
+        _hubContext.Clients.Group(NotificationsHub.GroupNameForUser(recipientUserId)).SendAsync("conversationCleared", clearedByUserId, cancellationToken);
 }

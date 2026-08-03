@@ -38,7 +38,7 @@ public class ChatController : ControllerBase
     [EnableRateLimiting("chatMessage")]
     public async Task<ActionResult<ApiResponse<ChatMessageDto>>> SendMessage(int userId, SendChatMessageRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new SendChatMessageCommand(userId, request.Content), cancellationToken);
+        var result = await _mediator.Send(new SendChatMessageCommand(userId, request.Content, request.ImageDataUrl), cancellationToken);
         return Ok(ApiResponse<ChatMessageDto>.Ok(result));
     }
 
@@ -48,6 +48,20 @@ public class ChatController : ControllerBase
         await _mediator.Send(new MarkConversationReadCommand(userId), cancellationToken);
         return Ok(ApiResponse<object?>.Ok(null));
     }
+
+    [HttpDelete("messages/{messageId:int}")]
+    public async Task<IActionResult> DeleteMessage(int messageId, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new DeleteChatMessageCommand(messageId), cancellationToken);
+        return Ok(ApiResponse<object?>.Ok(null));
+    }
+
+    [HttpDelete("{userId:int}")]
+    public async Task<IActionResult> ClearConversation(int userId, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new ClearConversationCommand(userId), cancellationToken);
+        return Ok(ApiResponse<object?>.Ok(null));
+    }
 }
 
-public record SendChatMessageRequest(string Content);
+public record SendChatMessageRequest(string? Content, string? ImageDataUrl);

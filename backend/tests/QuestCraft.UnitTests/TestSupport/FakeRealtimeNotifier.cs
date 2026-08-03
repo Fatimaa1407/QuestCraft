@@ -14,4 +14,8 @@ public class FakeRealtimeNotifier : IRealtimeNotifier
     }
 
     public Task NotifyChatMessage(int recipientUserId, ChatMessageDto message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    public Task NotifyChatMessageDeleted(int recipientUserId, int messageId, int senderId, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    public Task NotifyConversationCleared(int recipientUserId, int clearedByUserId, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

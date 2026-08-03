@@ -33,6 +33,16 @@ export function useNotificationsHub() {
       queryClient.invalidateQueries({ queryKey: ['chat', 'conversations'] });
     });
 
+    connection.on('chatMessageDeleted', (_messageId: number, senderId: number) => {
+      queryClient.invalidateQueries({ queryKey: ['chat', 'conversation', senderId] });
+      queryClient.invalidateQueries({ queryKey: ['chat', 'conversations'] });
+    });
+
+    connection.on('conversationCleared', (clearedByUserId: number) => {
+      queryClient.invalidateQueries({ queryKey: ['chat', 'conversation', clearedByUserId] });
+      queryClient.invalidateQueries({ queryKey: ['chat', 'conversations'] });
+    });
+
     connection.start().catch(() => {
       // Silent — the 60s poll in NotificationBell covers delivery if the realtime channel never connects.
     });

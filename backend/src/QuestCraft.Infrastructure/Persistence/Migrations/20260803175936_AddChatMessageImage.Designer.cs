@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestCraft.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using QuestCraft.Infrastructure.Persistence;
 namespace QuestCraft.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260803175936_AddChatMessageImage")]
+    partial class AddChatMessageImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,7 +79,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Achievements", (string)null);
+                    b.ToTable("Achievements");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ActivityLog", b =>
@@ -110,7 +113,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId", "ActivityDate")
                         .IsUnique();
 
-                    b.ToTable("ActivityLogs", (string)null);
+                    b.ToTable("ActivityLogs");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.AuditLog", b =>
@@ -162,7 +165,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Battle", b =>
@@ -232,7 +235,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[JoinCode] IS NOT NULL");
 
-                    b.ToTable("Battles", (string)null);
+                    b.ToTable("Battles");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.BattleParticipant", b =>
@@ -283,7 +286,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("BattleId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("BattleParticipants", (string)null);
+                    b.ToTable("BattleParticipants");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Challenge", b =>
@@ -388,7 +391,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("DifficultyId");
 
-                    b.ToTable("Challenges", (string)null);
+                    b.ToTable("Challenges");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeCategory", b =>
@@ -424,7 +427,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("ChallengeCategories", (string)null);
+                    b.ToTable("ChallengeCategories");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeComment", b =>
@@ -469,7 +472,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ChallengeId", "CreatedAt");
 
-                    b.ToTable("ChallengeComments", (string)null);
+                    b.ToTable("ChallengeComments");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeDifficulty", b =>
@@ -505,7 +508,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("ChallengeDifficulties", (string)null);
+                    b.ToTable("ChallengeDifficulties");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChallengeSubmission", b =>
@@ -564,7 +567,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId", "ChallengeId");
 
-                    b.ToTable("ChallengeSubmissions", (string)null);
+                    b.ToTable("ChallengeSubmissions");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ChatMessage", b =>
@@ -606,7 +609,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SenderId", "RecipientId", "CreatedAt");
 
-                    b.ToTable("ChatMessages", (string)null);
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.DailyQuestTemplate", b =>
@@ -659,7 +662,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DailyQuestTemplates", (string)null);
+                    b.ToTable("DailyQuestTemplates");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.FriendRequest", b =>
@@ -700,7 +703,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("RequesterId", "AddresseeId")
                         .IsUnique();
 
-                    b.ToTable("FriendRequests", (string)null);
+                    b.ToTable("FriendRequests");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.HiddenTestCase", b =>
@@ -741,7 +744,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ChallengeId");
 
-                    b.ToTable("HiddenTestCases", (string)null);
+                    b.ToTable("HiddenTestCases");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.LeaderboardSnapshot", b =>
@@ -784,7 +787,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Period", "SnapshotDate", "Rank");
 
-                    b.ToTable("LeaderboardSnapshots", (string)null);
+                    b.ToTable("LeaderboardSnapshots");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceBundle", b =>
@@ -829,7 +832,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MarketplaceBundles", (string)null);
+                    b.ToTable("MarketplaceBundles");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceBundleItem", b =>
@@ -862,7 +865,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("BundleId", "MarketplaceItemId")
                         .IsUnique();
 
-                    b.ToTable("MarketplaceBundleItems", (string)null);
+                    b.ToTable("MarketplaceBundleItems");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceItem", b =>
@@ -915,7 +918,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ItemTypeId");
 
-                    b.ToTable("MarketplaceItems", (string)null);
+                    b.ToTable("MarketplaceItems");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.MarketplaceItemType", b =>
@@ -945,7 +948,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("MarketplaceItemTypes", (string)null);
+                    b.ToTable("MarketplaceItemTypes");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Notification", b =>
@@ -995,7 +998,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Purchase", b =>
@@ -1033,7 +1036,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Purchases", (string)null);
+                    b.ToTable("Purchases");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Question", b =>
@@ -1073,7 +1076,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.QuestionOption", b =>
@@ -1111,7 +1114,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("QuestionOptions", (string)null);
+                    b.ToTable("QuestionOptions");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Quiz", b =>
@@ -1158,7 +1161,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Quizzes", (string)null);
+                    b.ToTable("Quizzes");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.QuizAttempt", b =>
@@ -1202,7 +1205,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("QuizAttempts", (string)null);
+                    b.ToTable("QuizAttempts");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.QuizAttemptAnswer", b =>
@@ -1242,7 +1245,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SelectedOptionId");
 
-                    b.ToTable("QuizAttemptAnswers", (string)null);
+                    b.ToTable("QuizAttemptAnswers");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.RateLimitLog", b =>
@@ -1282,7 +1285,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IpAddress", "Endpoint", "WindowStart");
 
-                    b.ToTable("RateLimitLogs", (string)null);
+                    b.ToTable("RateLimitLogs");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.RefreshToken", b =>
@@ -1326,7 +1329,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Role", b =>
@@ -1356,7 +1359,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Streak", b =>
@@ -1393,7 +1396,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Streaks", (string)null);
+                    b.ToTable("Streaks");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.SubmissionResult", b =>
@@ -1435,7 +1438,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SubmissionId");
 
-                    b.ToTable("SubmissionResults", (string)null);
+                    b.ToTable("SubmissionResults");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.SystemSetting", b =>
@@ -1472,7 +1475,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("Key")
                         .IsUnique();
 
-                    b.ToTable("SystemSettings", (string)null);
+                    b.ToTable("SystemSettings");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.TestCase", b =>
@@ -1510,7 +1513,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ChallengeId");
 
-                    b.ToTable("TestCases", (string)null);
+                    b.ToTable("TestCases");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.User", b =>
@@ -1574,7 +1577,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.UserAchievement", b =>
@@ -1613,7 +1616,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId", "AchievementId")
                         .IsUnique();
 
-                    b.ToTable("UserAchievements", (string)null);
+                    b.ToTable("UserAchievements");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.UserDailyQuest", b =>
@@ -1661,7 +1664,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId", "DailyQuestTemplateId", "QuestDate")
                         .IsUnique();
 
-                    b.ToTable("UserDailyQuests", (string)null);
+                    b.ToTable("UserDailyQuests");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.UserProfile", b =>
@@ -1753,7 +1756,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.UserStatistics", b =>
@@ -1799,7 +1802,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserStatistics", (string)null);
+                    b.ToTable("UserStatistics");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.Wishlist", b =>
@@ -1832,7 +1835,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId", "MarketplaceItemId")
                         .IsUnique();
 
-                    b.ToTable("Wishlists", (string)null);
+                    b.ToTable("Wishlists");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.XpTransaction", b =>
@@ -1870,7 +1873,7 @@ namespace QuestCraft.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId", "EarnedAt");
 
-                    b.ToTable("XpTransactions", (string)null);
+                    b.ToTable("XpTransactions");
                 });
 
             modelBuilder.Entity("QuestCraft.Domain.Entities.ActivityLog", b =>

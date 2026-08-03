@@ -61,7 +61,7 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             .Select(g => new
             {
                 FriendId = g.Key,
-                Last = g.OrderByDescending(m => m.CreatedAt).Select(m => new { m.Content, m.CreatedAt }).First(),
+                Last = g.OrderByDescending(m => m.CreatedAt).Select(m => new { m.Content, m.ImageDataUrl, m.CreatedAt }).First(),
             })
             .ToDictionaryAsync(x => x.FriendId, x => x.Last, cancellationToken);
 
@@ -76,7 +76,15 @@ public class GetConversationsQueryHandler : IRequestHandler<GetConversationsQuer
             lastByFriend.TryGetValue(f.UserId, out var last);
             unreadByFriend.TryGetValue(f.UserId, out var unread);
 
-            return new ConversationDto(f.UserId, f.Username, f.AvatarUrl, last?.Content, last?.CreatedAt, unread, f.FrameImageUrl,
+            var lastMessagePreview = last is null
+                ? null
+                : !string.IsNullOrWhiteSpace(last.Content)
+                    ? last.Content
+                    : last.ImageDataUrl != null
+                        ? LocalizationHelper.Pick("📷 Şəkil", "📷 Photo", isEnglish)
+                        : null;
+
+            return new ConversationDto(f.UserId, f.Username, f.AvatarUrl, lastMessagePreview, last?.CreatedAt, unread, f.FrameImageUrl,
                 LocalizationHelper.PickNullable(f.TitleName, f.TitleNameEn, isEnglish),
                 f.BadgeImageUrl, LocalizationHelper.PickNullable(f.BadgeName, f.BadgeNameEn, isEnglish));
         })

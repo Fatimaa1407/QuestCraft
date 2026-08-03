@@ -194,7 +194,16 @@
     "noConversationsHint": "Start a chat with a friend from the Friends page.",
     "noMessagesYet": "No messages yet",
     "selectConversation": "Select a friend on the left to start chatting.",
-    "messagePlaceholder": "Type a message..."
+    "messagePlaceholder": "Type a message...",
+    "attachImage": "Attach image",
+    "removeImage": "Remove image",
+    "imageAlt": "Sent image",
+    "invalidImageType": "Only image files can be sent.",
+    "imageTooLarge": "Image is too large (3MB max).",
+    "deleteMessage": "Delete message",
+    "confirmDeleteMessage": "Are you sure you want to delete this message?",
+    "clearConversation": "Clear conversation",
+    "confirmClearConversation": "Are you sure you want to delete the whole conversation history? This can't be undone."
   },
   "battles": {
     "title": "Code Battles",

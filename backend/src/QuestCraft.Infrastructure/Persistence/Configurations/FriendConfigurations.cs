@@ -30,7 +30,13 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
 {
     public void Configure(EntityTypeBuilder<ChatMessage> builder)
     {
-        builder.Property(m => m.Content).HasMaxLength(2000).IsRequired();
+        // Not required any more — a message can be image-only (SendChatMessageCommandValidator
+        // enforces that at least one of Content/ImageDataUrl is present). ImageDataUrl is left
+        // with no HasMaxLength/HasColumnType — EF's SQL Server convention already maps an
+        // unbounded string to nvarchar(max) on its own, and an explicit "nvarchar(max)" column
+        // type string is SQL-Server-specific syntax that breaks the SQLite provider the
+        // integration tests run against.
+        builder.Property(m => m.Content).HasMaxLength(2000).IsRequired(false);
         builder.HasIndex(m => new { m.SenderId, m.RecipientId, m.CreatedAt });
 
         builder.HasOne(m => m.Sender)

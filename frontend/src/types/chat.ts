@@ -3,6 +3,7 @@ export interface ChatMessageDto {
   senderId: number;
   recipientId: number;
   content: string;
+  imageDataUrl: string | null;
   createdAt: string;
   isRead: boolean;
 }

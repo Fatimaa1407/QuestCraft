@@ -194,7 +194,16 @@
     "noConversationsHint": "Dostlarınla söhbətə başlamaq üçün Dostlar səhifəsindən mesaj düyməsinə bas.",
     "noMessagesYet": "Hələ mesaj yoxdur",
     "selectConversation": "Söhbətə başlamaq üçün soldan bir dost seç.",
-    "messagePlaceholder": "Mesaj yaz..."
+    "messagePlaceholder": "Mesaj yaz...",
+    "attachImage": "Şəkil əlavə et",
+    "removeImage": "Şəkli sil",
+    "imageAlt": "Göndərilən şəkil",
+    "invalidImageType": "Yalnız şəkil faylları göndərilə bilər.",
+    "imageTooLarge": "Şəkil çox böyükdür (maksimum 3MB).",
+    "deleteMessage": "Mesajı sil",
+    "confirmDeleteMessage": "Bu mesajı silmək istədiyinizə əminsiniz?",
+    "clearConversation": "Söhbəti təmizlə",
+    "confirmClearConversation": "Bütün söhbət tarixçəsini silmək istədiyinizə əminsiniz? Bu geri qaytarıla bilməz."
   },
   "battles": {
     "title": "Kod Döyüşləri",

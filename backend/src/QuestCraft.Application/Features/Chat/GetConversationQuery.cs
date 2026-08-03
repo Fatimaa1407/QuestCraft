@@ -27,7 +27,7 @@ public class GetConversationQueryHandler : IRequestHandler<GetConversationQuery,
             .Where(m => (m.SenderId == userId && m.RecipientId == request.WithUserId)
                 || (m.SenderId == request.WithUserId && m.RecipientId == userId))
             .OrderByDescending(m => m.CreatedAt)
-            .Select(m => new ChatMessageDto(m.Id, m.SenderId, m.RecipientId, m.Content, m.CreatedAt, m.IsRead));
+            .Select(m => new ChatMessageDto(m.Id, m.SenderId, m.RecipientId, m.Content, m.ImageDataUrl, m.CreatedAt, m.IsRead));
 
         return PagedResult<ChatMessageDto>.CreateAsync(query, request.Page, request.PageSize, cancellationToken);
     }
