@@ -44,13 +44,25 @@ public class GenerateCertificateQueryHandler : IRequestHandler<GenerateCertifica
             throw new ForbiddenException("Sertifikat üçün bütün QuestCraft məzmununu tamamlamalısınız.");
         }
 
+        var maxLevel = await _completionService.GetMaxAvailableLevelAsync(cancellationToken);
+
+        // GameCompletedAt only proves completion was true the one time it got set — it's a stored
+        // flag, not re-verified on every read. Recomputed here from the actual submission/attempt
+        // data (not from the possibly-stale/tampered Profile.Level) so a certificate can never be
+        // pulled while any level — including the final one — is still short a single item, no matter
+        // how GameCompletedAt or Level ended up set.
+        var unlockedLevel = await _completionService.CalculateUnlockedLevelAsync(userId, cancellationToken);
+        var finalLevelCompletion = await _completionService.GetLevelCompletionAsync(userId, maxLevel, cancellationToken);
+        if (unlockedLevel < maxLevel || !finalLevelCompletion.IsComplete)
+        {
+            throw new ForbiddenException("Sertifikat üçün bütün QuestCraft məzmununu tamamlamalısınız.");
+        }
+
         var totalSolved = await _context.ChallengeSubmissions
             .Where(s => s.UserId == userId && s.Verdict == SubmissionVerdict.Accepted)
             .Select(s => s.ChallengeId)
             .Distinct()
             .CountAsync(cancellationToken);
-
-        var maxLevel = await _completionService.GetMaxAvailableLevelAsync(cancellationToken);
         var certificateId = CertificateIdGenerator.Generate(userId, user.GameCompletedAt.Value);
 
         var data = new CertificateData(
