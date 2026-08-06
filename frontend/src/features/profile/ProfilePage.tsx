@@ -10,7 +10,7 @@ import { getMyPurchases, getMyEquippedCosmetics, equipItem, unequipItem } from '
 import { getDashboardAnalytics, getMyRank, getAchievements, getMyStreak, getMyStatistics, downloadCertificate } from '../../api/gamification';
 import { getMySubmissions } from '../../api/submissions';
 import { getMyQuizAttempts } from '../../api/quizzes';
-import { getApiErrorMessage } from '../../utils/apiError';
+import { getApiErrorMessage, getApiErrorMessageFromBlob } from '../../utils/apiError';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { StatCard } from '../../components/ui/StatCard';
 import { Textarea } from '../../components/ui/Textarea';
@@ -77,7 +77,10 @@ export function ProfilePage() {
       link.click();
       URL.revokeObjectURL(url);
     },
-    onError: (err) => showToast({ title: getApiErrorMessage(err, t('profile.certificateError')), emoji: '⚠️' }),
+    onError: async (err) => {
+      const message = await getApiErrorMessageFromBlob(err, t('profile.certificateError'));
+      showToast({ title: message, emoji: '⚠️' });
+    },
   });
 
   useEffect(() => {
